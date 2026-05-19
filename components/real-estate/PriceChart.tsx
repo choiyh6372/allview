@@ -15,7 +15,8 @@ import {
 } from "recharts";
 import type { Complex } from "@/lib/realEstateData";
 import { Eye } from "lucide-react";
-import VRTypeSelector from "./VRTypeSelector";
+import VRModal from "@/components/vr-tour/VRModal";
+import type { VRComplex } from "@/lib/vrData";
 
 function fmt(v: number) {
   if (v >= 10000) return `${(v / 10000).toFixed(1)}억`;
@@ -186,14 +187,30 @@ export default function PriceChart({ complex }: Props) {
     </div>
 
     {showVR && complex.vrInfo && (
-      <VRTypeSelector
-        name={complex.name}
-        regionId={complex.vrInfo.regionId}
-        slug={complex.vrInfo.slug}
-        types={complex.vrInfo.types}
+      <VRModal
+        complex={toVRComplex(complex.name, complex.vrInfo)}
         onClose={() => setShowVR(false)}
       />
     )}
     </>
   );
+}
+
+const REGION_NAMES: Record<string, string> = {
+  ocean: "오션시티",
+  kukje: "국제신도시",
+};
+
+function toVRComplex(
+  name: string,
+  vrInfo: { regionId: string; slug: string; types: string[] }
+): VRComplex {
+  return {
+    id: `${vrInfo.regionId}_${vrInfo.slug}`,
+    slug: vrInfo.slug,
+    name,
+    regionId: vrInfo.regionId,
+    regionName: REGION_NAMES[vrInfo.regionId] ?? vrInfo.regionId,
+    types: vrInfo.types,
+  };
 }

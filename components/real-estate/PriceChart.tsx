@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -38,8 +38,15 @@ interface Props {
 }
 
 export default function PriceChart({ complex }: Props) {
-  const [selectedArea, setSelectedArea] = useState(complex.areas[0]);
-  const data = complex.monthlyPrices;
+  const [selectedArea, setSelectedArea] = useState(complex.areas[0] ?? "");
+
+  useEffect(() => {
+    setSelectedArea(complex.areas[0] ?? "");
+  }, [complex.id]);
+
+  const data =
+    (selectedArea && complex.monthlyPricesByArea[selectedArea]) ||
+    complex.monthlyPrices;
   const latest = data[data.length - 1];
   const prev = data[data.length - 2];
   const change = latest && prev ? ((latest.median - prev.median) / prev.median) * 100 : 0;

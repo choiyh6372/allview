@@ -114,7 +114,15 @@ export function buildComplexList(items: RawItem[]): Complex[] {
 
       const monthlyPrices = buildMonthlyPrices(aptItems, 24);
 
-      return { id: idx + 1, name, region, areas, transactions, monthlyPrices };
+      const monthlyPricesByArea: Record<string, MonthlyPrice[]> = {};
+      for (const area of areas) {
+        const areaItems = aptItems.filter(
+          (i) => String(Math.round(parseFloat(i.excluUseAr ?? "0"))) === area
+        );
+        monthlyPricesByArea[area] = buildMonthlyPrices(areaItems, 24);
+      }
+
+      return { id: idx + 1, name, region, areas, monthlyPrices, monthlyPricesByArea, transactions };
     })
     .sort((a, b) => a.name.localeCompare(b.name, "ko"));
 }

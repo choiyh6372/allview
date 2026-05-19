@@ -18,6 +18,7 @@ export interface Complex {
   region: string;
   areas: string[];
   monthlyPrices: MonthlyPrice[];
+  monthlyPricesByArea: Record<string, MonthlyPrice[]>;
   transactions: Transaction[];
   vrUrl?: string;
 }

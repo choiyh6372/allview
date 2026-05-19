@@ -1,5 +1,5 @@
 import type { RawItem } from "@/app/api/apt-trade/route";
-import type { Transaction, MonthlyPrice } from "./realEstateData";
+import type { Complex, Transaction, MonthlyPrice } from "./realEstateData";
 
 export type { RawItem };
 
@@ -18,17 +18,6 @@ export async function fetchAptTrade(
   } catch {
     return [];
   }
-}
-
-export function filterByKeywords(
-  items: RawItem[],
-  keywords: string[]
-): RawItem[] {
-  if (!keywords.length) return [];
-  return items.filter((item) => {
-    const name = (item.aptNm ?? "").replace(/\s/g, "");
-    return keywords.some((kw) => name.includes(kw.replace(/\s/g, "")));
-  });
 }
 
 export function toTransaction(item: RawItem): Transaction {
@@ -88,4 +77,40 @@ export function buildMonthlyPrices(
   }
 
   return result;
+}
+
+export function buildComplexList(items: RawItem[]): Complex[] {
+  const byApt = new Map<string, RawItem[]>();
+
+  for (const item of items) {
+    const name = item.aptNm?.trim();
+    if (!name) continue;
+    const group = byApt.get(name) ?? [];
+    group.push(item);
+    byApt.set(name, group);
+  }
+
+  return Array.from(byApt.entries())
+    .map(([name, aptItems], idx) => {
+      const region = aptItems[0].umdNm?.trim() ?? "";
+
+      const areas = Array.from(
+        new Set(
+          aptItems
+            .map((i) => String(Math.round(parseFloat(i.excluUseAr ?? "0"))))
+            .filter((a) => a !== "0")
+        )
+      ).sort((a, b) => parseInt(a) - parseInt(b));
+
+      const transactions = aptItems
+        .map(toTransaction)
+        .filter((t) => t.price > 0)
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 50);
+
+      const monthlyPrices = buildMonthlyPrices(aptItems, 24);
+
+      return { id: idx + 1, name, region, areas, transactions, monthlyPrices };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, "ko"));
 }

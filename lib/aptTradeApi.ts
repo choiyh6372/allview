@@ -1,5 +1,6 @@
 import type { RawItem } from "@/app/api/apt-trade/route";
 import type { Complex, Transaction, MonthlyPrice } from "./realEstateData";
+import { APT_VR_MAP } from "./vrMapping";
 
 export type { RawItem };
 
@@ -122,7 +123,10 @@ export function buildComplexList(items: RawItem[]): Complex[] {
         monthlyPricesByArea[area] = buildMonthlyPrices(areaItems, 24);
       }
 
-      return { id: idx + 1, name, region, areas, monthlyPrices, monthlyPricesByArea, transactions };
+      const vrInfo = APT_VR_MAP[name];
+      const vrUrl = vrInfo ? `/vr-tour` : undefined;
+
+      return { id: idx + 1, name, region, areas, monthlyPrices, monthlyPricesByArea, transactions, vrUrl };
     })
     .sort((a, b) => a.name.localeCompare(b.name, "ko"));
 }

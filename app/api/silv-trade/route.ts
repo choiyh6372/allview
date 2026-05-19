@@ -1,38 +1,12 @@
 import { NextResponse } from "next/server";
+import type { RawItem } from "@/app/api/apt-trade/route";
 
 const API_KEY = process.env.MOLIT_API_KEY ?? "";
 
 const BASE_URL =
-  "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";
+  "https://apis.data.go.kr/1613000/RTMSDataSvcSilvTrade/getRTMSDataSvcSilvTrade";
 
-/** 하루 단위 캐시 (86400초) */
 const CACHE_TTL = 86400;
-
-export interface RawItem {
-  aptNm?: string;
-  aptDong?: string;
-  buildYear?: string;
-  buyerGbn?: string;
-  slerGbn?: string;
-  cdealDay?: string;
-  cdealType?: string;
-  dealAmount?: string;
-  dealDay?: string;
-  dealMonth?: string;
-  dealYear?: string;
-  dealingGbn?: string;
-  estateAgentSggNm?: string;
-  excluUseAr?: string;
-  floor?: string;
-  jibun?: string;
-  landLeaseholdGbn?: string;
-  rgstDate?: string;
-  sggCd?: string;
-  umdNm?: string;
-  // 분양권 전용
-  ownershipGbn?: string;
-  sggNm?: string;
-}
 
 function parseXmlItems(xml: string): RawItem[] {
   const items: RawItem[] = [];

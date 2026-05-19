@@ -3,21 +3,25 @@ import type { Complex, Transaction, MonthlyPrice } from "./realEstateData";
 
 export type { RawItem };
 
-export async function fetchAptTrade(
-  lawdCd = "26440",
-  months = 12
-): Promise<RawItem[]> {
+async function fetchItems(path: string, lawdCd: string, months: number): Promise<RawItem[]> {
   try {
-    const res = await fetch(
-      `/api/apt-trade?lawdCd=${lawdCd}&months=${months}`,
-      { cache: "no-store" }
-    );
+    const res = await fetch(`${path}?lawdCd=${lawdCd}&months=${months}`, {
+      cache: "no-store",
+    });
     if (!res.ok) return [];
     const data = await res.json();
     return data.items ?? [];
   } catch {
     return [];
   }
+}
+
+export function fetchAptTrade(lawdCd = "26440", months = 12) {
+  return fetchItems("/api/apt-trade", lawdCd, months);
+}
+
+export function fetchSilvTrade(lawdCd = "26440", months = 12) {
+  return fetchItems("/api/silv-trade", lawdCd, months);
 }
 
 export function toTransaction(item: RawItem): Transaction {

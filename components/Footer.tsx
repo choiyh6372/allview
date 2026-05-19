@@ -1,0 +1,47 @@
+import Link from "next/link";
+
+export default function Footer() {
+  return (
+    <footer className="border-t border-border bg-bg mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <div className="flex items-center gap-1 mb-3">
+              <span className="text-xl font-black text-accent">All</span>
+              <span className="text-xl font-black text-white">View</span>
+            </div>
+            <p className="text-sm text-muted leading-relaxed">
+              부산 부동산 통합 플랫폼<br />
+              VR투어 · 실거래가 · 가게홍보
+            </p>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-3">서비스</h4>
+            <ul className="space-y-2">
+              {[
+                { href: "/vr-tour", label: "VR투어" },
+                { href: "/real-estate", label: "실거래가" },
+                { href: "/store", label: "가게홍보" },
+              ].map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-muted hover:text-accent transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-3">문의</h4>
+            <p className="text-sm text-muted">contact@allview.kr</p>
+            <p className="text-sm text-muted mt-1">평일 09:00 – 18:00</p>
+          </div>
+        </div>
+        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-xs text-muted">© 2026 AllView. All rights reserved.</p>
+          <p className="text-xs text-muted">부산광역시 강서구 에코델타시티</p>
+        </div>
+      </div>
+    </footer>
+  );
+}

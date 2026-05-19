@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { complexData, VRComplex } from "@/lib/vrData";
 import ComplexCard from "@/components/vr-tour/ComplexCard";
-import VRModal from "@/components/vr-tour/VRModal";
+import VRTypeSelector from "@/components/real-estate/VRTypeSelector";
 import StoreBanner from "@/components/home/StoreBanner";
 
 const regions = ["전체", "오션시티", "국제신도시"];
@@ -50,7 +50,15 @@ export default function VRTourPage() {
 
       <StoreBanner />
 
-      {selected && <VRModal complex={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <VRTypeSelector
+          name={selected.name}
+          regionId={selected.regionId}
+          slug={selected.slug}
+          types={selected.types}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </>
   );
 }

@@ -14,7 +14,7 @@ import {
 } from "@/lib/aptTradeApi";
 import StoreBanner from "@/components/home/StoreBanner";
 
-type DataSource = "loading" | "real" | "sample";
+export type DataSource = "loading" | "real" | "empty";
 
 function enrichComplex(base: Complex, allItems: RawItem[]): {
   complex: Complex;
@@ -24,7 +24,7 @@ function enrichComplex(base: Complex, allItems: RawItem[]): {
   const matched = filterByKeywords(allItems, keywords);
 
   if (matched.length === 0) {
-    return { complex: base, source: "sample" };
+    return { complex: base, source: "empty" };
   }
 
   const transactions = matched
@@ -36,11 +36,7 @@ function enrichComplex(base: Complex, allItems: RawItem[]): {
   const monthlyPrices = buildMonthlyPrices(matched, 24);
 
   return {
-    complex: {
-      ...base,
-      transactions: transactions.length > 0 ? transactions : base.transactions,
-      monthlyPrices: monthlyPrices.length > 0 ? monthlyPrices : base.monthlyPrices,
-    },
+    complex: { ...base, transactions, monthlyPrices },
     source: "real",
   };
 }
@@ -80,7 +76,7 @@ export default function RealEstatePage() {
   }, []);
 
   const complex = enriched.get(selectedId) ?? complexData[0];
-  const source = sources.get(selectedId) ?? "sample";
+  const source = sources.get(selectedId) ?? "empty";
 
   return (
     <>
@@ -133,9 +129,9 @@ function DataBadge({ source }: { source: DataSource }) {
     );
   }
   return (
-    <span className="flex items-center gap-1.5 text-xs text-yellow-400 border border-yellow-400/20 bg-yellow-400/5 rounded-lg px-3 py-1.5">
-      <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-      샘플 데이터
+    <span className="flex items-center gap-1.5 text-xs text-gray-400 border border-border rounded-lg px-3 py-1.5">
+      <span className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+      거래 데이터 없음
     </span>
   );
 }

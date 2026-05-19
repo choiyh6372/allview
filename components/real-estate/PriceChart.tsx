@@ -33,7 +33,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-type DataSource = "loading" | "real" | "sample";
+type DataSource = "loading" | "real" | "empty";
 
 interface Props {
   complex: Complex;
@@ -95,7 +95,13 @@ export default function PriceChart({ complex, source }: Props) {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={240}>
+      {data.length === 0 ? (
+        <div className="h-60 flex items-center justify-center text-sm text-muted">
+          {source === "loading" ? "데이터 로딩 중..." : "거래 데이터가 없습니다"}
+        </div>
+      ) : null}
+
+      <ResponsiveContainer width="100%" height={data.length === 0 ? 0 : 240}>
         <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="rangeGrad" x1="0" y1="0" x2="0" y2="1">

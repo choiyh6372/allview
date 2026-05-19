@@ -7,7 +7,7 @@ const regionColors: Record<string, string> = {
   에코델타: "text-green-400",
 };
 
-type DataSource = "loading" | "real" | "sample";
+type DataSource = "loading" | "real" | "empty";
 
 interface Props {
   complexes: Complex[];
@@ -21,7 +21,7 @@ const regions = ["오션시티", "국제신도시", "에코델타"];
 function SourceDot({ source }: { source: DataSource }) {
   if (source === "loading") return <span className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-pulse flex-shrink-0" />;
   if (source === "real") return <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />;
-  return <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 flex-shrink-0" />;
+  return <span className="w-1.5 h-1.5 rounded-full bg-gray-600 flex-shrink-0" />;
 }
 
 export default function ComplexList({ complexes, selectedId, onSelect, sources }: Props) {

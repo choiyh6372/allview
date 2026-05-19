@@ -26,46 +26,6 @@ export interface Complex {
   lawdCd?: string;
 }
 
-function genPrices(base: number, months = 24): MonthlyPrice[] {
-  const result: MonthlyPrice[] = [];
-  let current = base;
-  const now = new Date(2026, 4, 1);
-  for (let i = months - 1; i >= 0; i--) {
-    const d = new Date(now);
-    d.setMonth(d.getMonth() - i);
-    const label = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const delta = (Math.random() - 0.45) * base * 0.04;
-    current = Math.max(base * 0.7, current + delta);
-    result.push({
-      month: label,
-      median: Math.round(current / 100) * 100,
-      low: Math.round((current * 0.92) / 100) * 100,
-      high: Math.round((current * 1.08) / 100) * 100,
-    });
-  }
-  return result;
-}
-
-function genTransactions(complex: Omit<Complex, "transactions" | "monthlyPrices">): Transaction[] {
-  const areas = complex.areas;
-  const result: Transaction[] = [];
-  const now = new Date(2026, 4, 1);
-  for (let i = 0; i < 20; i++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - Math.floor(Math.random() * 180));
-    const area = areas[Math.floor(Math.random() * areas.length)];
-    const areaNum = parseInt(area);
-    const basePrice = areaNum * 580 + Math.floor(Math.random() * 3000);
-    result.push({
-      date: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
-      area,
-      floor: Math.floor(Math.random() * 25) + 1,
-      price: Math.round(basePrice / 100) * 100,
-    });
-  }
-  return result.sort((a, b) => b.date.localeCompare(a.date));
-}
-
 const baseComplexes: Omit<Complex, "monthlyPrices" | "transactions">[] = [
   {
     id: 1, name: "오션시티 1단지", region: "오션시티", areas: ["59", "84", "101"],
@@ -109,14 +69,8 @@ const baseComplexes: Omit<Complex, "monthlyPrices" | "transactions">[] = [
   },
 ];
 
-const basePrices: Record<number, number> = {
-  1: 75000, 2: 68000, 3: 95000,
-  4: 72000, 5: 88000,
-  6: 80000, 7: 65000, 8: 85000,
-};
-
 export const complexData: Complex[] = baseComplexes.map((c) => ({
   ...c,
-  monthlyPrices: genPrices(basePrices[c.id] ?? 70000),
-  transactions: genTransactions(c),
+  monthlyPrices: [],
+  transactions: [],
 }));

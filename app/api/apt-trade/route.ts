@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_KEY =
-  "39a990dd250e992b303d7a6a3bcc8d9a5b73d019db35d073d5b46ffe59f89518";
+const API_KEY = process.env.MOLIT_API_KEY ?? "";
 
 const BASE_URL =
   "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";

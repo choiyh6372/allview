@@ -20,5 +20,5 @@ export interface Complex {
   monthlyPrices: MonthlyPrice[];
   monthlyPricesByArea: Record<string, MonthlyPrice[]>;
   transactions: Transaction[];
-  vrUrl?: string;
+  vrInfo?: { regionId: string; slug: string; types: string[] };
 }

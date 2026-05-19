@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import type { Complex } from "@/lib/realEstateData";
 import { Eye } from "lucide-react";
+import VRTypeSelector from "./VRTypeSelector";
 
 function fmt(v: number) {
   if (v >= 10000) return `${(v / 10000).toFixed(1)}억`;
@@ -39,9 +40,11 @@ interface Props {
 
 export default function PriceChart({ complex }: Props) {
   const [selectedArea, setSelectedArea] = useState(complex.areas[0] ?? "");
+  const [showVR, setShowVR] = useState(false);
 
   useEffect(() => {
     setSelectedArea(complex.areas[0] ?? "");
+    setShowVR(false);
   }, [complex.id]);
 
   const data =
@@ -52,6 +55,7 @@ export default function PriceChart({ complex }: Props) {
   const change = latest && prev ? ((latest.median - prev.median) / prev.median) * 100 : 0;
 
   return (
+    <>
     <div className="bg-bg-card border border-border rounded-2xl p-6">
       <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
@@ -81,16 +85,14 @@ export default function PriceChart({ complex }: Props) {
             </button>
           ))}
 
-          {/* data source badge */}
-          {/* VR button */}
-          {complex.vrUrl && (
-            <a
-              href="/vr-tour"
+          {complex.vrInfo && (
+            <button
+              onClick={() => setShowVR(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 hover:bg-accent hover:border-accent text-accent hover:text-white rounded-lg text-xs font-medium transition-all"
             >
               <Eye size={13} />
               VR 보기
-            </a>
+            </button>
           )}
         </div>
       </div>
@@ -182,5 +184,16 @@ export default function PriceChart({ complex }: Props) {
       </div>
 
     </div>
+
+    {showVR && complex.vrInfo && (
+      <VRTypeSelector
+        name={complex.name}
+        regionId={complex.vrInfo.regionId}
+        slug={complex.vrInfo.slug}
+        types={complex.vrInfo.types}
+        onClose={() => setShowVR(false)}
+      />
+    )}
+    </>
   );
 }

@@ -40,7 +40,7 @@ export default function Footer() {
         </div>
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-muted">© 2026 AllView. All rights reserved.</p>
-          <p className="text-xs text-muted">부산광역시 강서구 에코델타시티</p>
+          <p className="text-xs text-muted">부산광역시 강서구</p>
         </div>
       </div>
     </footer>

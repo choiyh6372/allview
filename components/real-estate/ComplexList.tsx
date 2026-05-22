@@ -18,8 +18,8 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
   );
 
   return (
-    <div className="bg-bg-card border border-border rounded-2xl overflow-hidden h-full flex flex-col">
-      <div className="px-4 py-3 border-b border-border flex-shrink-0">
+    <div className="bg-bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="px-4 py-3 border-b border-border">
         <h2 className="text-sm font-semibold text-white">단지 목록</h2>
       </div>
 
@@ -32,7 +32,7 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
           단지 정보가 없습니다
         </div>
       ) : (
-        <div className="divide-y divide-border flex-1 overflow-y-auto">
+        <div className="divide-y divide-border h-[800px] overflow-y-auto">
           {regions.map((region) => (
             <div key={region}>
               <div className="px-4 py-2 bg-bg/50">

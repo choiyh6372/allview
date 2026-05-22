@@ -67,6 +67,21 @@ export default function RealEstateClient({ aptComplexes, silvComplexes, rentItem
           ))}
         </div>
 
+        {/* 차트 - 전체 너비 */}
+        {complex ? (
+          <PriceChart
+            complex={complex}
+            rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
+            selectedArea={selectedArea}
+            onAreaChange={setSelectedArea}
+          />
+        ) : (
+          <div className="h-60 flex items-center justify-center text-sm text-muted bg-bg-card border border-border rounded-2xl">
+            단지를 선택해주세요
+          </div>
+        )}
+
+        {/* 단지목록 + 매매/전월세 테이블 - 같은 높이로 정렬 */}
         <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
           <aside className="lg:w-64 flex-shrink-0">
             <ComplexList
@@ -76,24 +91,15 @@ export default function RealEstateClient({ aptComplexes, silvComplexes, rentItem
               isLoading={false}
             />
           </aside>
-
-          <div className="flex-1 min-w-0 space-y-6">
+          <div className="flex-1 min-w-0">
             {complex ? (
-              <>
-                <PriceChart
-                  complex={complex}
-                  rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
-                  selectedArea={selectedArea}
-                  onAreaChange={setSelectedArea}
-                />
-                <TransactionTable
-                  complex={complex}
-                  rentTransactions={buildRentTransactions(rentItems, complex.name)}
-                  selectedArea={selectedArea}
-                />
-              </>
+              <TransactionTable
+                complex={complex}
+                rentTransactions={buildRentTransactions(rentItems, complex.name)}
+                selectedArea={selectedArea}
+              />
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-muted">
+              <div className="h-60 flex items-center justify-center text-sm text-muted bg-bg-card border border-border rounded-2xl">
                 단지를 선택해주세요
               </div>
             )}

@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import {
   ResponsiveContainer,
-  LineChart,
+  ComposedChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
-  Area,
-  AreaChart,
-  ReferenceLine,
 } from "recharts";
 import type { Complex } from "@/lib/realEstateData";
+import type { RentRawItem } from "@/lib/aptTradeApi";
+import { buildRentMonthlyPrices } from "@/lib/aptTradeApi";
 import { Eye } from "lucide-react";
 import VRModal from "@/components/vr-tour/VRModal";
 import type { VRComplex } from "@/lib/vrData";
@@ -25,34 +25,69 @@ function fmt(v: number) {
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
+  const val = (key: string) => payload.find((p: any) => p.dataKey === key)?.value as number | undefined;
+  const median = val("median");
+  const low = val("low");
+  const high = val("high");
+  const rentMedian = val("rentMedian");
+  if (median === undefined && rentMedian === undefined) return null;
   return (
     <div className="bg-bg-card border border-border rounded-xl p-3 text-xs shadow-xl">
       <p className="text-muted mb-1">{label}</p>
-      <p className="text-white font-bold">중위 {fmt(payload[0]?.value)}</p>
-      {payload[1] && <p className="text-gray-400">최저 {fmt(payload[1]?.value)}</p>}
-      {payload[2] && <p className="text-gray-400">최고 {fmt(payload[2]?.value)}</p>}
+      {median !== undefined && (
+        <>
+          <p className="text-white font-bold">매매 {fmt(median)}</p>
+          {low !== undefined && <p className="text-gray-400">최저 {fmt(low)}</p>}
+          {high !== undefined && <p className="text-gray-400">최고 {fmt(high)}</p>}
+        </>
+      )}
+      {rentMedian !== undefined && (
+        <p className="text-emerald-400 font-bold mt-1">전세 {fmt(rentMedian)}</p>
+      )}
     </div>
   );
 };
 
 interface Props {
   complex: Complex;
+  rentItems: RentRawItem[];
+  selectedArea: string;
+  onAreaChange: (area: string) => void;
 }
 
-export default function PriceChart({ complex }: Props) {
-  const [selectedArea, setSelectedArea] = useState(complex.areas[0] ?? "");
+export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange }: Props) {
   const [showVR, setShowVR] = useState(false);
 
   useEffect(() => {
-    setSelectedArea(complex.areas[0] ?? "");
     setShowVR(false);
   }, [complex.id]);
 
-  const data =
+  const tradeData =
     (selectedArea && complex.monthlyPricesByArea[selectedArea]) ||
     complex.monthlyPrices;
-  const latest = data[data.length - 1];
-  const prev = data[data.length - 2];
+
+  const jeonseItems = rentItems.filter(
+    (i) => parseInt((i.monthlyRent ?? "0").replace(/,/g, "").trim() || "0") === 0
+  );
+  const filteredRentItems = selectedArea
+    ? jeonseItems.filter((i) => String(Math.round(parseFloat(i.excluUseAr ?? "0"))) === selectedArea)
+    : jeonseItems;
+  const rentData = buildRentMonthlyPrices(filteredRentItems, 60);
+
+  type ChartPoint = { month: string; median?: number; low?: number; high?: number; rentMedian?: number };
+  const chartData = (() => {
+    const map = new Map<string, ChartPoint>();
+    for (const d of tradeData) map.set(d.month, { ...d });
+    for (const r of rentData) {
+      const existing = map.get(r.month);
+      if (existing) existing.rentMedian = r.median;
+      else map.set(r.month, { month: r.month, rentMedian: r.median });
+    }
+    return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
+  })();
+
+  const latest = tradeData[tradeData.length - 1];
+  const prev = tradeData[tradeData.length - 2];
   const change = latest && prev ? ((latest.median - prev.median) / prev.median) * 100 : 0;
 
   return (
@@ -75,7 +110,7 @@ export default function PriceChart({ complex }: Props) {
           {complex.areas.map((a) => (
             <button
               key={a}
-              onClick={() => setSelectedArea(a)}
+              onClick={() => onAreaChange(a)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 selectedArea === a
                   ? "bg-accent text-white"
@@ -98,17 +133,17 @@ export default function PriceChart({ complex }: Props) {
         </div>
       </div>
 
-      {data.length === 0 && (
+      {chartData.length === 0 && (
         <div className="h-60 flex items-center justify-center text-sm text-muted">
           거래 데이터가 없습니다
         </div>
       )}
 
-      <ResponsiveContainer width="100%" height={data.length === 0 ? 0 : 240}>
-        <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={chartData.length === 0 ? 0 : 240}>
+        <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="rangeGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5b6ef5" stopOpacity={0.15} />
+              <stop offset="0%" stopColor="#5b6ef5" stopOpacity={0.12} />
               <stop offset="100%" stopColor="#5b6ef5" stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -118,7 +153,7 @@ export default function PriceChart({ complex }: Props) {
             tick={{ fill: "#6b7280", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
-            interval={3}
+            interval={5}
           />
           <YAxis
             tick={{ fill: "#6b7280", fontSize: 10 }}
@@ -126,6 +161,7 @@ export default function PriceChart({ complex }: Props) {
             axisLine={false}
             tickFormatter={fmt}
             width={55}
+            domain={[(dataMin: number) => Math.round(dataMin * 0.95 / 100) * 100, "auto"]}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area
@@ -133,14 +169,14 @@ export default function PriceChart({ complex }: Props) {
             dataKey="high"
             stroke="transparent"
             fill="url(#rangeGrad)"
-            name="최고"
+            connectNulls
           />
           <Area
             type="monotone"
             dataKey="low"
             stroke="transparent"
             fill="#0f1117"
-            name="최저"
+            connectNulls
           />
           <Line
             type="monotone"
@@ -149,38 +185,37 @@ export default function PriceChart({ complex }: Props) {
             strokeWidth={2.5}
             dot={false}
             activeDot={{ r: 4, fill: "#5b6ef5" }}
-            name="중위"
+            name="매매 중위"
+            connectNulls
           />
           <Line
             type="monotone"
-            dataKey="low"
-            stroke="#3a3d5e"
-            strokeWidth={1}
-            strokeDasharray="4 2"
+            dataKey="rentMedian"
+            stroke="#10b981"
+            strokeWidth={2}
             dot={false}
-            name="최저"
+            activeDot={{ r: 4, fill: "#10b981" }}
+            name="전세 중위"
+            connectNulls
           />
-          <Line
-            type="monotone"
-            dataKey="high"
-            stroke="#3a3d5e"
-            strokeWidth={1}
-            strokeDasharray="4 2"
-            dot={false}
-            name="최고"
-          />
-        </AreaChart>
+        </ComposedChart>
       </ResponsiveContainer>
 
       {/* Legend */}
       <div className="flex items-center gap-5 mt-3">
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-0.5 bg-accent" />
-          <span className="text-xs text-muted">중위값</span>
+          <span className="text-xs text-muted">매매 중위</span>
         </div>
+        {rentData.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-0.5 bg-emerald-500" />
+            <span className="text-xs text-muted">전세 중위</span>
+          </div>
+        )}
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-0.5 bg-[#3a3d5e] border-dashed" style={{ borderTop: "1px dashed #3a3d5e" }} />
-          <span className="text-xs text-muted">범위 (최저·최고)</span>
+          <div className="w-5 h-3 rounded-sm opacity-30" style={{ background: "linear-gradient(to bottom, #5b6ef5, transparent)" }} />
+          <span className="text-xs text-muted">범위</span>
         </div>
       </div>
 

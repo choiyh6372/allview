@@ -1,0 +1,279 @@
+/* eslint-disable @next/next/no-img-element */
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut } from "lucide-react";
+import StoreFormModal from "@/components/admin/StoreFormModal";
+import type { PromotionStore } from "@/lib/promotionStore";
+
+function getRemainingDays(endDate: string): number {
+  const end = new Date(endDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function PromotionBadge({ endDate }: { endDate?: string }) {
+  if (!endDate) return null;
+  const remaining = getRemainingDays(endDate);
+  if (remaining < 0)
+    return <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">종료됨</span>;
+  if (remaining === 0)
+    return <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400">오늘 종료</span>;
+  if (remaining <= 3)
+    return <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400">{remaining}일 남음</span>;
+  return <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-400">{remaining}일 남음</span>;
+}
+
+function formatEndDate(iso: string) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+}
+
+const categoryColors: Record<string, string> = {
+  카페: "bg-amber-500/10 text-amber-400",
+  음식점: "bg-orange-500/10 text-orange-400",
+  마트: "bg-green-500/10 text-green-400",
+  헬스: "bg-red-500/10 text-red-400",
+  약국: "bg-blue-500/10 text-blue-400",
+  미용: "bg-pink-500/10 text-pink-400",
+  키즈: "bg-purple-500/10 text-purple-400",
+  베이커리: "bg-yellow-500/10 text-yellow-400",
+  세탁: "bg-cyan-500/10 text-cyan-400",
+  병원: "bg-sky-500/10 text-sky-400",
+  학원: "bg-indigo-500/10 text-indigo-400",
+};
+
+export default function AdminPage() {
+  const router = useRouter();
+  const [stores, setStores] = useState<PromotionStore[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalStore, setModalStore] = useState<PromotionStore | null | undefined>(undefined);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [reactivateDays, setReactivateDays] = useState<Record<string, number>>({});
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+
+  async function handleLogout() {
+    await fetch("/api/admin/login", { method: "DELETE" });
+    router.replace("/admin/login");
+  }
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/stores");
+      const data = await res.json();
+      setStores(Array.isArray(data) ? data : []);
+    } catch {
+      setStores([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleSave(store: PromotionStore) {
+    const isNew = !stores.find((s) => s.id === store.id);
+    const res = await fetch(
+      isNew ? "/api/admin/stores" : `/api/admin/stores/${store.id}`,
+      {
+        method: isNew ? "POST" : "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(store),
+      }
+    );
+    if (!res.ok) throw new Error();
+    setModalStore(undefined);
+    await load();
+  }
+
+  async function handleReactivate(store: PromotionStore) {
+    const days = reactivateDays[store.id];
+    if (!days) return;
+    setReactivatingId(store.id);
+    try {
+      const end = new Date();
+      end.setDate(end.getDate() + days);
+      end.setHours(23, 59, 59, 999);
+      await fetch(`/api/admin/stores/${store.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...store, promotionDays: days, promotionEndDate: end.toISOString() }),
+      });
+      setReactivateDays((prev) => { const next = { ...prev }; delete next[store.id]; return next; });
+      await load();
+    } finally {
+      setReactivatingId(null);
+    }
+  }
+
+  async function handleDelete(store: PromotionStore) {
+    if (!confirm(`"${store.name}"을(를) 삭제하시겠습니까?\n사진도 함께 삭제됩니다.`)) return;
+    setDeletingId(store.id);
+    try {
+      await fetch(`/api/admin/stores/${store.id}`, { method: "DELETE" });
+      await load();
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-black text-white flex items-center gap-2">
+            <Store size={22} className="text-accent" />
+            가게홍보 관리
+          </h1>
+          <p className="text-sm text-muted mt-1">등록된 가게 {stores.length}개</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setModalStore(null)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent/80 text-white rounded-xl text-sm font-semibold transition-colors"
+          >
+            <Plus size={16} />
+            새 가게 추가
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 px-3 py-2.5 border border-border text-gray-400 hover:text-white hover:border-gray-500 rounded-xl text-sm transition-colors"
+            title="로그아웃"
+          >
+            <LogOut size={15} />
+          </button>
+        </div>
+      </div>
+
+      {/* List */}
+      {loading ? (
+        <div className="flex items-center justify-center py-24 text-muted">
+          <Loader2 size={24} className="animate-spin" />
+        </div>
+      ) : stores.length === 0 ? (
+        <div className="text-center py-24 text-muted">
+          <Store size={40} className="mx-auto mb-3 opacity-30" />
+          <p className="text-sm">등록된 가게가 없습니다.</p>
+          <p className="text-xs mt-1">위의 버튼으로 첫 가게를 추가하세요.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {stores.map((store) => (
+            <div
+              key={store.id}
+              className="bg-bg-card border border-border rounded-2xl p-4 hover:border-accent/20 transition-colors"
+            >
+            <div className="flex items-center gap-4">
+              {/* Thumbnail */}
+              <div className="w-20 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-bg-hover">
+                {store.photos[0] ? (
+                  <img
+                    src={store.photos[0]}
+                    alt={store.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted">
+                    <ImageOff size={16} />
+                  </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="text-sm font-bold text-white truncate">{store.name}</h3>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                      categoryColors[store.category] ?? "bg-accent/10 text-accent"
+                    }`}
+                  >
+                    {store.category}
+                  </span>
+                  <PromotionBadge endDate={store.promotionEndDate} />
+                </div>
+                <p className="text-xs text-muted truncate">{store.region} · {store.address}</p>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <span className="text-xs text-muted">사진 {store.photos.length}장</span>
+                  {store.promotionEndDate && (
+                    <span className="text-xs text-muted">
+                      종료 {formatEndDate(store.promotionEndDate)}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 flex-shrink-0">
+                <button
+                  onClick={() => setModalStore(store)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-gray-400 hover:text-white hover:border-accent/40 rounded-lg text-xs font-medium transition-colors"
+                >
+                  <Pencil size={12} />
+                  수정
+                </button>
+                <button
+                  onClick={() => handleDelete(store)}
+                  disabled={deletingId === store.id}
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-red-500/20 text-red-400 hover:bg-red-500/10 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                >
+                  {deletingId === store.id ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={12} />
+                  )}
+                  삭제
+                </button>
+              </div>
+            </div>
+
+            {/* 재등록 행 - 만료된 가게만 */}
+            {store.promotionEndDate && getRemainingDays(store.promotionEndDate) < 0 && (
+              <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-muted mr-1">재등록 기간:</span>
+                {[10, 20, 30].map((days) => (
+                  <button
+                    key={days}
+                    onClick={() => setReactivateDays((prev) => ({ ...prev, [store.id]: days }))}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                      reactivateDays[store.id] === days
+                        ? "bg-accent text-white"
+                        : "border border-border text-gray-400 hover:text-white hover:border-accent/40"
+                    }`}
+                  >
+                    {days}일
+                  </button>
+                ))}
+                <button
+                  onClick={() => handleReactivate(store)}
+                  disabled={!reactivateDays[store.id] || reactivatingId === store.id}
+                  className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-xs font-medium transition-colors"
+                >
+                  {reactivatingId === store.id ? (
+                    <Loader2 size={11} className="animate-spin" />
+                  ) : null}
+                  재등록
+                </button>
+              </div>
+            )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      {modalStore !== undefined && (
+        <StoreFormModal
+          initial={modalStore}
+          onSave={handleSave}
+          onClose={() => setModalStore(undefined)}
+        />
+      )}
+    </div>
+  );
+}

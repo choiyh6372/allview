@@ -3,39 +3,25 @@ import { NextResponse } from "next/server";
 const API_KEY = process.env.MOLIT_API_KEY ?? "";
 
 const BASE_URL =
-  "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";
+  "https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent";
 
-/** 하루 단위 캐시 (86400초) */
 const CACHE_TTL = 86400;
 
-export interface RawItem {
+export interface RentRawItem {
   aptNm?: string;
-  aptDong?: string;
-  buildYear?: string;
-  buyerGbn?: string;
-  slerGbn?: string;
-  cdealDay?: string;
-  cdealType?: string;
-  dealAmount?: string;
-  dealDay?: string;
-  dealMonth?: string;
-  dealYear?: string;
-  dealingGbn?: string;
-  estateAgentSggNm?: string;
   excluUseAr?: string;
   floor?: string;
-  jibun?: string;
-  landLeaseholdGbn?: string;
-  rgstDate?: string;
-  sggCd?: string;
+  dealYear?: string;
+  dealMonth?: string;
+  dealDay?: string;
+  deposit?: string;
+  monthlyRent?: string;
   umdNm?: string;
-  // 분양권 전용
-  ownershipGbn?: string;
-  sggNm?: string;
+  contractType?: string;
 }
 
-function parseXmlItems(xml: string): RawItem[] {
-  const items: RawItem[] = [];
+function parseXmlItems(xml: string): RentRawItem[] {
+  const items: RentRawItem[] = [];
   const itemRe = /<item>([\s\S]*?)<\/item>/g;
   let m: RegExpExecArray | null;
 
@@ -47,12 +33,12 @@ function parseXmlItems(xml: string): RawItem[] {
     while ((f = fieldRe.exec(block)) !== null) {
       obj[f[1]] = f[2].trim();
     }
-    items.push(obj as unknown as RawItem);
+    items.push(obj as unknown as RentRawItem);
   }
   return items;
 }
 
-async function fetchMonth(lawdCd: string, dealYmd: string): Promise<RawItem[]> {
+async function fetchMonth(lawdCd: string, dealYmd: string): Promise<RentRawItem[]> {
   const url = new URL(BASE_URL);
   url.searchParams.set("serviceKey", API_KEY);
   url.searchParams.set("LAWD_CD", lawdCd);

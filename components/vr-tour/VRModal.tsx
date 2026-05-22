@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { X, ExternalLink, Loader2 } from "lucide-react";
 import { VRComplex, getVRUrl } from "@/lib/vrData";
+import { VR_AREA_MAP } from "@/lib/vrAreaMapping";
 
 type TypeStatus = "checking" | "available" | "unavailable";
 
@@ -78,7 +79,7 @@ export default function VRModal({ complex, onClose }: Props) {
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-base font-bold text-white truncate">{complex.name}</span>
             {activeType ? (
-              <span className="text-sm font-semibold text-accent shrink-0">{activeType}㎡</span>
+              <span className="text-sm font-semibold text-accent shrink-0">{activeType}</span>
             ) : (
               <span className="text-sm text-muted shrink-0">평형 선택</span>
             )}
@@ -107,48 +108,53 @@ export default function VRModal({ complex, onClose }: Props) {
 
         {/* 평형 버튼들 */}
         <div className="px-6 py-3 border-b border-border shrink-0 flex flex-wrap gap-2">
-          {complex.types.map((type) => {
-            const status = typeStatuses[type];
+          {(() => {
+            const areaMap = VR_AREA_MAP[`${complex.regionId}_${complex.slug}`] ?? {};
+            return complex.types.map((type) => {
+              const status = typeStatuses[type];
+              const sqm = areaMap[type];
+              const label = sqm ? `${type} (${sqm}㎡)` : type;
 
-            if (status === "checking") {
+              if (status === "checking") {
+                return (
+                  <button
+                    key={type}
+                    disabled
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-bg-hover border border-border text-gray-500 cursor-wait"
+                  >
+                    <Loader2 size={10} className="animate-spin" />
+                    {label}
+                  </button>
+                );
+              }
+
+              if (status === "unavailable") {
+                return (
+                  <button
+                    key={type}
+                    disabled
+                    className="px-3 py-1.5 rounded-xl text-xs font-medium bg-bg border border-border text-gray-600 cursor-not-allowed line-through"
+                  >
+                    {label}
+                  </button>
+                );
+              }
+
               return (
                 <button
                   key={type}
-                  disabled
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-bg-hover border border-border text-gray-500 cursor-wait"
+                  onClick={() => handleTypeClick(type)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                    activeType === type
+                      ? "bg-accent text-white border border-accent"
+                      : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-white"
+                  }`}
                 >
-                  <Loader2 size={10} className="animate-spin" />
-                  {type}
+                  {label}
                 </button>
               );
-            }
-
-            if (status === "unavailable") {
-              return (
-                <button
-                  key={type}
-                  disabled
-                  className="px-3 py-1.5 rounded-xl text-xs font-medium bg-bg border border-border text-gray-600 cursor-not-allowed line-through"
-                >
-                  {type}
-                </button>
-              );
-            }
-
-            return (
-              <button
-                key={type}
-                onClick={() => handleTypeClick(type)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
-                  activeType === type
-                    ? "bg-accent text-white border border-accent"
-                    : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-white"
-                }`}
-              >
-                {type}
-              </button>
-            );
-          })}
+            });
+          })()}
         </div>
 
         {/* VR iframe — 나머지 전체 */}

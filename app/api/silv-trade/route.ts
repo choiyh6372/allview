@@ -55,7 +55,7 @@ async function fetchMonth(lawdCd: string, dealYmd: string): Promise<RawItem[]> {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const lawdCd = searchParams.get("lawdCd") ?? "26440";
-  const months = Math.min(parseInt(searchParams.get("months") ?? "12"), 24);
+  const months = Math.min(parseInt(searchParams.get("months") ?? "12"), 60);
 
   const now = new Date();
   const dealYmds: string[] = [];

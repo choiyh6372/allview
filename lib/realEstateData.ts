@@ -1,3 +1,11 @@
+export interface RentTransaction {
+  date: string;
+  area: string;
+  floor: number;
+  deposit: number;
+  monthlyRent: number;
+}
+
 export interface Transaction {
   date: string;
   area: string;

@@ -5,7 +5,8 @@ import ComplexList from "@/components/real-estate/ComplexList";
 import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import { type Complex } from "@/lib/realEstateData";
-import { fetchAptTrade, fetchSilvTrade, buildComplexList } from "@/lib/aptTradeApi";
+import { fetchAptTrade, fetchSilvTrade, fetchAptRent, buildComplexList, buildRentTransactions } from "@/lib/aptTradeApi";
+import type { RentRawItem } from "@/lib/aptTradeApi";
 import StoreBanner from "@/components/home/StoreBanner";
 
 type TradeType = "apt" | "silv";
@@ -23,21 +24,25 @@ export default function RealEstatePage() {
   const [selectedAptId, setSelectedAptId] = useState<number | null>(null);
   const [selectedSilvId, setSelectedSilvId] = useState<number | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
+  const [rentItems, setRentItems] = useState<RentRawItem[]>([]);
+  const [selectedArea, setSelectedArea] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      const [aptItems, silvItems] = await Promise.all([
-        fetchAptTrade("26440", 12),
-        fetchSilvTrade("26440", 12),
+      const [aptItems, silvItems, rentRawItems] = await Promise.all([
+        fetchAptTrade("26440", 60),
+        fetchSilvTrade("26440", 60),
+        fetchAptRent("26440", 60),
       ]);
       if (cancelled) return;
 
       const aptList = buildComplexList(aptItems);
-      const silvList = buildComplexList(silvItems);
+      const silvList = buildComplexList(silvItems.filter((i) => (i.ownershipGbn ?? "").trim() !== "입주권"));
       setAptComplexes(aptList);
       setSilvComplexes(silvList);
+      setRentItems(rentRawItems);
       setSelectedAptId(aptList[0]?.id ?? null);
       setSelectedSilvId(silvList[0]?.id ?? null);
       setLoadState("ready");
@@ -52,13 +57,17 @@ export default function RealEstatePage() {
   const setSelectedId = activeTab === "apt" ? setSelectedAptId : setSelectedSilvId;
   const complex = complexes.find((c) => c.id === selectedId) ?? null;
 
+  useEffect(() => {
+    setSelectedArea(complex?.areas[0] ?? "");
+  }, [complex?.id]);
+
   return (
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-3xl font-black text-white mb-2">실거래가 조회</h1>
-            <p className="text-gray-400">국토교통부 실거래 데이터 기반 · 최근 12개월</p>
+            <p className="text-gray-400">국토교통부 실거래 데이터 기반 · 최근 5년</p>
           </div>
           <DataBadge state={loadState} count={complexes.length} />
         </div>
@@ -93,8 +102,17 @@ export default function RealEstatePage() {
           <div className="flex-1 min-w-0 space-y-6">
             {complex ? (
               <>
-                <PriceChart complex={complex} />
-                <TransactionTable complex={complex} />
+                <PriceChart
+                  complex={complex}
+                  rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
+                  selectedArea={selectedArea}
+                  onAreaChange={setSelectedArea}
+                />
+                <TransactionTable
+                  complex={complex}
+                  rentTransactions={buildRentTransactions(rentItems, complex.name)}
+                  selectedArea={selectedArea}
+                />
               </>
             ) : (
               <div className="h-60 flex items-center justify-center text-sm text-muted">

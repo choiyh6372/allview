@@ -1,4 +1,5 @@
 import Link from "next/link";
+import VRProgressCards from "@/components/home/VRProgressCards";
 
 export default function HeroSection() {
   return (
@@ -43,25 +44,8 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* decorative grid cards */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-3 pr-8">
-          {[
-            { label: "오션시티 A동", badge: "VR", color: "text-blue-400" },
-            { label: "에코델타 2단지", badge: "매매", color: "text-green-400" },
-            { label: "국제신도시 B타워", badge: "전세", color: "text-purple-400" },
-          ].map((c) => (
-            <div key={c.label} className="w-52 p-4 rounded-xl bg-bg-card border border-border backdrop-blur">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted">{c.label}</span>
-                <span className={`text-xs font-bold ${c.color}`}>{c.badge}</span>
-              </div>
-              <div className="h-2 rounded-full bg-bg-hover mb-1">
-                <div className="h-2 rounded-full bg-accent" style={{ width: "68%" }} />
-              </div>
-              <span className="text-xs text-muted">조회 진행중</span>
-            </div>
-          ))}
-        </div>
+        {/* VR 완성도 카드 */}
+        <VRProgressCards />
       </div>
     </section>
   );

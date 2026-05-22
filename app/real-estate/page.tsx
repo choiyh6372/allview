@@ -2,7 +2,7 @@ import { fetchAptTradeData, fetchSilvTradeData, fetchAptRentData } from "@/lib/m
 import { buildComplexList } from "@/lib/aptTradeApi";
 import RealEstateClient from "@/components/real-estate/RealEstateClient";
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 export default async function RealEstatePage() {
   const [aptItems, silvItems, rentItems] = await Promise.all([

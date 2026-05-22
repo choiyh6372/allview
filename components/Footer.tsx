@@ -1,4 +1,5 @@
 import Link from "next/link";
+import InquiryModal from "@/components/home/InquiryModal";
 
 export default function Footer() {
   return (
@@ -33,8 +34,8 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="text-sm font-semibold text-white mb-3">문의</h4>
-            <p className="text-sm text-muted">contact@allview.kr</p>
-            <p className="text-sm text-muted mt-1">평일 09:00 – 18:00</p>
+            <p className="text-sm text-muted mb-3">평일 09:00 – 18:00</p>
+            <InquiryModal />
           </div>
         </div>
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">

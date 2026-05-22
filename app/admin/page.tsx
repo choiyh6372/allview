@@ -3,9 +3,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar } from "lucide-react";
 import StoreFormModal from "@/components/admin/StoreFormModal";
 import type { PromotionStore } from "@/lib/promotionStore";
+import type { Inquiry } from "@/lib/inquiryStore";
 
 function getRemainingDays(endDate: string): number {
   const end = new Date(endDate);
@@ -48,12 +49,16 @@ const categoryColors: Record<string, string> = {
 
 export default function AdminPage() {
   const router = useRouter();
+  const [tab, setTab] = useState<"stores" | "inquiries">("stores");
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalStore, setModalStore] = useState<PromotionStore | null | undefined>(undefined);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [reactivateDays, setReactivateDays] = useState<Record<string, number>>({});
   const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [inquiriesLoading, setInquiriesLoading] = useState(false);
+  const [deletingInquiryId, setDeletingInquiryId] = useState<string | null>(null);
 
   async function handleLogout() {
     await fetch("/api/admin/login", { method: "DELETE" });
@@ -73,7 +78,39 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadInquiries = useCallback(async () => {
+    setInquiriesLoading(true);
+    try {
+      const res = await fetch("/api/admin/inquiries");
+      const data = await res.json();
+      setInquiries(Array.isArray(data) ? data : []);
+    } catch {
+      setInquiries([]);
+    } finally {
+      setInquiriesLoading(false);
+    }
+  }, []);
+
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (tab === "inquiries") loadInquiries();
+  }, [tab, loadInquiries]);
+
+  async function handleDeleteInquiry(id: string) {
+    if (!confirm("문의를 삭제하시겠습니까?")) return;
+    setDeletingInquiryId(id);
+    try {
+      await fetch("/api/admin/inquiries", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await loadInquiries();
+    } finally {
+      setDeletingInquiryId(null);
+    }
+  }
 
   async function handleSave(store: PromotionStore) {
     const isNew = !stores.find((s) => s.id === store.id);
@@ -124,30 +161,55 @@ export default function AdminPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-black text-white flex items-center gap-2">
-            <Store size={22} className="text-accent" />
-            가게홍보 관리
-          </h1>
-          <p className="text-sm text-muted mt-1">등록된 가게 {stores.length}개</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setModalStore(null)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent/80 text-white rounded-xl text-sm font-semibold transition-colors"
-          >
-            <Plus size={16} />
-            새 가게 추가
-          </button>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-2.5 border border-border text-gray-400 hover:text-white hover:border-gray-500 rounded-xl text-sm transition-colors"
-            title="로그아웃"
-          >
-            <LogOut size={15} />
-          </button>
-        </div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-black text-white">관리자</h1>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1.5 px-3 py-2.5 border border-border text-gray-400 hover:text-white hover:border-gray-500 rounded-xl text-sm transition-colors"
+          title="로그아웃"
+        >
+          <LogOut size={15} />
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 p-1 bg-bg-card border border-border rounded-xl mb-8 w-fit">
+        <button
+          onClick={() => setTab("stores")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "stores" ? "bg-accent text-white" : "text-muted hover:text-white"
+          }`}
+        >
+          <Store size={15} />
+          가게홍보 관리
+          <span className="text-xs opacity-70">{stores.length}</span>
+        </button>
+        <button
+          onClick={() => setTab("inquiries")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "inquiries" ? "bg-accent text-white" : "text-muted hover:text-white"
+          }`}
+        >
+          <MessageSquare size={15} />
+          문의 관리
+          {inquiries.length > 0 && (
+            <span className="text-xs opacity-70">{inquiries.length}</span>
+          )}
+        </button>
+      </div>
+
+      {/* Stores Tab */}
+      {tab === "stores" && (
+      <div>
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-sm text-muted">등록된 가게 {stores.length}개</p>
+        <button
+          onClick={() => setModalStore(null)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent/80 text-white rounded-xl text-sm font-semibold transition-colors"
+        >
+          <Plus size={16} />
+          새 가게 추가
+        </button>
       </div>
 
       {/* List */}
@@ -273,6 +335,75 @@ export default function AdminPage() {
           onSave={handleSave}
           onClose={() => setModalStore(undefined)}
         />
+      )}
+      </div>
+      )}
+
+      {/* Inquiries Tab */}
+      {tab === "inquiries" && (
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-muted">총 {inquiries.length}건</p>
+            <button
+              onClick={loadInquiries}
+              className="text-xs text-muted hover:text-white transition-colors"
+            >
+              새로고침
+            </button>
+          </div>
+
+          {inquiriesLoading ? (
+            <div className="flex items-center justify-center py-24 text-muted">
+              <Loader2 size={24} className="animate-spin" />
+            </div>
+          ) : inquiries.length === 0 ? (
+            <div className="text-center py-24 text-muted">
+              <MessageSquare size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">접수된 문의가 없습니다.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {inquiries.map((inq) => (
+                <div
+                  key={inq.id}
+                  className="bg-bg-card border border-border rounded-2xl p-4 hover:border-accent/20 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="flex items-center gap-1.5 text-sm font-bold text-white">
+                          <User size={13} className="text-accent" />
+                          {inq.name}
+                        </span>
+                        <span className="flex items-center gap-1.5 text-sm text-gray-400">
+                          <Phone size={12} />
+                          {inq.phone}
+                        </span>
+                        <span className="flex items-center gap-1 text-xs text-muted ml-auto">
+                          <Calendar size={11} />
+                          {new Date(inq.createdAt).toLocaleDateString("ko-KR")}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{inq.content}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteInquiry(inq.id)}
+                      disabled={deletingInquiryId === inq.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-red-500/20 text-red-400 hover:bg-red-500/10 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 flex-shrink-0"
+                    >
+                      {deletingInquiryId === inq.id ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={12} />
+                      )}
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

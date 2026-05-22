@@ -1,5 +1,6 @@
 import Link from "next/link";
 import VRProgressCards from "@/components/home/VRProgressCards";
+import InquiryModal from "@/components/home/InquiryModal";
 
 export default function HeroSection() {
   return (
@@ -41,6 +42,7 @@ export default function HeroSection() {
             >
               실거래가 조회
             </Link>
+            <InquiryModal />
           </div>
         </div>
 

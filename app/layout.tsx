@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description: "VR투어, 실거래가, 가게홍보를 한 곳에서 - AllView",
   other: {
     "naver-site-verification": "b540b6786711318500caa5d1bf4a0fcbc7d92022",
+    "google-site-verification": "OAIfaDPoEVnOgXiHpbfiAAa14JhKTEdd0_OzQfKrRds",
   },
 };
 

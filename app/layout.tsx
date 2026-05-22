@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://allview.kr/og-image.png",
+        url: "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "AllView - 부산 부동산 통합 플랫폼",

@@ -6,16 +6,13 @@ import ComplexCard from "@/components/vr-tour/ComplexCard";
 import VRModal from "@/components/vr-tour/VRModal";
 import StoreBanner from "@/components/home/StoreBanner";
 
-const regions = ["전체", "오션시티", "국제신도시"];
+const regions = ["명지오션시티", "명지국제신도시", "에코델타시티"];
 
 export default function VRTourPage() {
-  const [region, setRegion] = useState("전체");
+  const [region, setRegion] = useState("명지오션시티");
   const [selected, setSelected] = useState<VRComplex | null>(null);
 
-  const filtered =
-    region === "전체"
-      ? complexData
-      : complexData.filter((c) => c.regionName === region);
+  const filtered = complexData.filter((c) => c.regionName === region);
 
   return (
     <>

@@ -7,14 +7,27 @@ import { VR_AREA_MAP } from "@/lib/vrAreaMapping";
 
 type TypeStatus = "checking" | "available" | "unavailable";
 
+function sortAreaTypes(types: string[]): string[] {
+  return [...types].sort((a, b) => {
+    const numA = parseInt(a, 10);
+    const numB = parseInt(b, 10);
+    if (numA !== numB) return numA - numB;
+    return a.replace(/^\d+/, "").localeCompare(b.replace(/^\d+/, ""));
+  });
+}
+
 interface Props {
   complex: VRComplex;
   onClose: () => void;
 }
 
 export default function VRModal({ complex, onClose }: Props) {
+  const complexKey = `${complex.regionId}_${complex.slug}`;
+  const areaMap = VR_AREA_MAP[complexKey] ?? {};
+  const allTypes = sortAreaTypes(Object.keys(areaMap));
+
   const [typeStatuses, setTypeStatuses] = useState<Record<string, TypeStatus>>(() =>
-    Object.fromEntries(complex.types.map((t) => [t, "checking" as TypeStatus]))
+    Object.fromEntries(allTypes.map((t) => [t, "checking" as TypeStatus]))
   );
   const [activeVRUrl, setActiveVRUrl] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string | null>(null);
@@ -38,26 +51,33 @@ export default function VRModal({ complex, onClose }: Props) {
   }, [onClose]);
 
   useEffect(() => {
-    setTypeStatuses(
-      Object.fromEntries(complex.types.map((t) => [t, "checking" as TypeStatus]))
-    );
+    const types = Object.keys(VR_AREA_MAP[complexKey] ?? {});
+
+    setTypeStatuses(Object.fromEntries(types.map((t) => [t, "checking" as TypeStatus])));
     setActiveVRUrl(null);
     setActiveType(null);
 
-    complex.types.forEach(async (type) => {
+    let cancelled = false;
+    types.forEach(async (type) => {
       const url = getVRUrl(complex.regionId, complex.slug, type);
       try {
         const res = await fetch(`/api/vr-check?url=${encodeURIComponent(url)}`);
         const data = await res.json();
-        setTypeStatuses((prev) => ({
-          ...prev,
-          [type]: data.exists ? "available" : "unavailable",
-        }));
+        if (!cancelled)
+          setTypeStatuses((prev) => ({
+            ...prev,
+            [type]: data.exists ? "available" : "unavailable",
+          }));
       } catch {
-        setTypeStatuses((prev) => ({ ...prev, [type]: "unavailable" }));
+        if (!cancelled)
+          setTypeStatuses((prev) => ({ ...prev, [type]: "unavailable" }));
       }
     });
-  }, [complex]);
+
+    return () => { cancelled = true; };
+  // complexKey(문자열)을 의존성으로 써서 toVRComplex 새 객체 참조에 의한 루프 방지
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [complexKey]);
 
   const handleTypeClick = useCallback(
     (type: string) => {
@@ -79,7 +99,7 @@ export default function VRModal({ complex, onClose }: Props) {
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-base font-bold text-white truncate">{complex.name}</span>
             {activeType ? (
-              <span className="text-sm font-semibold text-accent shrink-0">{activeType}</span>
+              <span className="text-sm font-semibold text-accent shrink-0">{activeType.toUpperCase()}</span>
             ) : (
               <span className="text-sm text-muted shrink-0">평형 선택</span>
             )}
@@ -109,18 +129,18 @@ export default function VRModal({ complex, onClose }: Props) {
         {/* 평형 버튼들 */}
         <div className="px-6 py-3 border-b border-border shrink-0 flex flex-wrap gap-2">
           {(() => {
-            const areaMap = VR_AREA_MAP[`${complex.regionId}_${complex.slug}`] ?? {};
-            return complex.types.map((type) => {
+            return allTypes.map((type) => {
               const status = typeStatuses[type];
               const sqm = areaMap[type];
-              const label = sqm ? `${type} (${sqm}㎡)` : type;
+              const display = type.toUpperCase();
+              const label = sqm ? `${display} (${sqm}㎡)` : display;
 
               if (status === "checking") {
                 return (
                   <button
                     key={type}
                     disabled
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-bg-hover border border-border text-gray-500 cursor-wait"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium bg-bg-hover border border-border text-gray-500 cursor-wait"
                   >
                     <Loader2 size={10} className="animate-spin" />
                     {label}
@@ -133,7 +153,7 @@ export default function VRModal({ complex, onClose }: Props) {
                   <button
                     key={type}
                     disabled
-                    className="px-3 py-1.5 rounded-xl text-xs font-medium bg-bg border border-border text-gray-600 cursor-not-allowed line-through"
+                    className="px-3 py-1.5 rounded-xl text-sm font-medium bg-bg border border-border text-gray-600 cursor-not-allowed line-through"
                   >
                     {label}
                   </button>
@@ -144,7 +164,7 @@ export default function VRModal({ complex, onClose }: Props) {
                 <button
                   key={type}
                   onClick={() => handleTypeClick(type)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
                     activeType === type
                       ? "bg-accent text-white border border-accent"
                       : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-white"

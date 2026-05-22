@@ -232,8 +232,9 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
 }
 
 const REGION_NAMES: Record<string, string> = {
-  ocean: "오션시티",
-  kukje: "국제신도시",
+  ocean: "명지오션시티",
+  kukje: "명지국제신도시",
+  ecodelta: "에코델타시티",
 };
 
 function toVRComplex(

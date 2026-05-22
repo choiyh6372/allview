@@ -1,12 +1,9 @@
-import type { RawItem } from "@/app/api/apt-trade/route";
-import type { RentRawItem } from "@/app/api/apt-rent/route";
+import type { RawItem, RentRawItem } from "./molitApi";
 import type { Complex, Transaction, MonthlyPrice, RentTransaction } from "./realEstateData";
-
-export type { RentRawItem };
 import { APT_VR_MAP } from "./vrMapping";
 import { complexData as vrComplexData } from "./vrData";
 
-export type { RawItem };
+export type { RawItem, RentRawItem };
 
 async function fetchItems(path: string, lawdCd: string, months: number): Promise<RawItem[]> {
   try {

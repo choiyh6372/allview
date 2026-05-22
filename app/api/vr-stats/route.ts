@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { APT_MAPPING_TOTALS } from "@/lib/vrAreaMapping";
+import { VR_AREA_MAP } from "@/lib/vrAreaMapping";
 import { complexData, R2_BASE } from "@/lib/vrData";
 
 export const revalidate = 86400;
@@ -11,10 +11,15 @@ const REGION_LABELS: Record<string, string> = {
 };
 
 export async function GET() {
+  // VR_AREA_MAP을 단일 소스로 사용 (VRModal과 동일)
   const checks: { regionId: string; slug: string; type: string }[] = [];
+  const totals: Record<string, number> = {};
 
   for (const complex of complexData) {
-    for (const type of complex.types) {
+    const areaMap = VR_AREA_MAP[`${complex.regionId}_${complex.slug}`] ?? {};
+    const types = Object.keys(areaMap);
+    totals[complex.regionId] = (totals[complex.regionId] ?? 0) + types.length;
+    for (const type of types) {
       checks.push({ regionId: complex.regionId, slug: complex.slug, type });
     }
   }
@@ -42,7 +47,7 @@ export async function GET() {
   const stats = ["ocean", "kukje", "ecodelta"].map((id) => ({
     id,
     label: REGION_LABELS[id],
-    total: APT_MAPPING_TOTALS[id] ?? 0,
+    total: totals[id] ?? 0,
     available: available[id] ?? 0,
   }));
 

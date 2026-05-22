@@ -12,7 +12,7 @@ export default function Footer() {
               <span className="text-xl font-black text-white">View</span>
             </div>
             <p className="text-sm text-muted leading-relaxed">
-              부산 부동산 통합 플랫폼<br />
+              부산 강서구 부동산 통합 플랫폼<br />
               VR투어 · 실거래가 · 가게홍보
             </p>
           </div>

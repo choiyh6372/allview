@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "AllView - 부산 부동산 통합 플랫폼",
+  title: "AllView - 부산 강서구 부동산 통합 플랫폼",
   description: "VR투어, 실거래가, 가게홍보를 한 곳에서 - AllView",
   openGraph: {
     siteName: "AllView",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "AllView - 부산 부동산 통합 플랫폼",
+        alt: "AllView - 부산 강서구 부동산 통합 플랫폼",
       },
     ],
   },

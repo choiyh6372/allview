@@ -14,7 +14,7 @@ export default function HeroSection() {
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-medium mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            부산 부동산 통합 플랫폼
+            부산 강서구 부동산 통합 플랫폼
           </span>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6">

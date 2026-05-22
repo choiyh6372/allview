@@ -34,11 +34,11 @@ export default function ComplexCard({ complex, onSelect }: Props) {
             <Play size={14} fill="white" /> 투어 보기
           </span>
         </button>
-        <span className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 bg-bg/80 backdrop-blur rounded-lg text-xs text-muted">
+        <span className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 bg-black/70 backdrop-blur rounded-lg text-xs text-white font-medium" style={{textShadow:"0 1px 3px rgba(0,0,0,0.8)"}}>
           <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
           LIVE VR
         </span>
-        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-accent/20 text-accent text-xs rounded-full border border-accent/30">
+        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-accent text-white text-xs rounded-full font-medium shadow-md" style={{textShadow:"0 1px 2px rgba(0,0,0,0.4)"}}>
           {complex.regionName}
         </span>
       </div>

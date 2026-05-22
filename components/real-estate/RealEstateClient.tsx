@@ -67,7 +67,7 @@ export default function RealEstateClient({ aptComplexes, silvComplexes, rentItem
           ))}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
           <aside className="lg:w-64 flex-shrink-0">
             <ComplexList
               complexes={complexes}

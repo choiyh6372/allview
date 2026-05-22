@@ -6,6 +6,19 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "AllView - 부산 부동산 통합 플랫폼",
   description: "VR투어, 실거래가, 가게홍보를 한 곳에서 - AllView",
+  openGraph: {
+    siteName: "AllView",
+    locale: "ko_KR",
+    type: "website",
+    images: [
+      {
+        url: "https://allview.kr/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "AllView - 부산 부동산 통합 플랫폼",
+      },
+    ],
+  },
   other: {
     "naver-site-verification": "b540b6786711318500caa5d1bf4a0fcbc7d92022",
     "google-site-verification": "OAIfaDPoEVnOgXiHpbfiAAa14JhKTEdd0_OzQfKrRds",

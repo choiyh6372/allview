@@ -5,6 +5,8 @@ import StoreBanner from "@/components/home/StoreBanner";
 
 const PER_PAGE = 10;
 
+const SEARCH_KEYWORDS = ["명지국제신도시", "명지오션시티", "에코델타시티"];
+
 function stripHtml(str: string) {
   return str.replace(/<[^>]*>/g, "");
 }
@@ -14,21 +16,22 @@ function formatDate(pubDate: string) {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
-const FILTER_KEYWORDS = ["강서구", "명지"];
-
-function isGangseoRelated(item: NaverNewsItem): boolean {
-  const text = (item.title + " " + item.description).replace(/<[^>]*>/g, "");
-  return FILTER_KEYWORDS.some((kw) => text.includes(kw));
+function getSource(item: NaverNewsItem): string {
+  try {
+    const url = new URL(item.originallink || item.link);
+    return url.hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
 }
 
-async function getNews(): Promise<NaverNewsItem[]> {
-  const clientId = process.env.NAVER_CLIENT_ID;
-  const clientSecret = process.env.NAVER_CLIENT_SECRET;
-  if (!clientId || !clientSecret) return [];
-
-  const query = encodeURIComponent("부산 강서구 부동산");
+async function fetchByQuery(
+  keyword: string,
+  clientId: string,
+  clientSecret: string
+): Promise<NaverNewsItem[]> {
+  const query = encodeURIComponent(keyword);
   const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=100&sort=date`;
-
   try {
     const res = await fetch(url, {
       headers: {
@@ -39,10 +42,32 @@ async function getNews(): Promise<NaverNewsItem[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.items as NaverNewsItem[]).filter(isGangseoRelated);
+    return data.items as NaverNewsItem[];
   } catch {
     return [];
   }
+}
+
+async function getNews(): Promise<NaverNewsItem[]> {
+  const clientId = process.env.NAVER_CLIENT_ID;
+  const clientSecret = process.env.NAVER_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return [];
+
+  const results = await Promise.all(
+    SEARCH_KEYWORDS.map((kw) => fetchByQuery(kw, clientId, clientSecret))
+  );
+
+  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const seen = new Set<string>();
+  return results
+    .flat()
+    .filter((item) => {
+      const key = item.originallink || item.link;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return new Date(item.pubDate).getTime() >= oneWeekAgo;
+    })
+    .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
 }
 
 export const metadata = {
@@ -89,29 +114,34 @@ export default async function NewsPage({
         <div className="text-center py-24 text-muted text-sm">뉴스를 불러올 수 없습니다.</div>
       ) : (
         <>
-          <ul className="space-y-4 mb-10">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
             {items.map((item, i) => (
               <li key={i}>
                 <a
                   href={item.originallink || item.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block p-5 rounded-2xl bg-bg-card border border-border hover:border-accent/40 hover:bg-bg-hover transition-all"
+                  className="group flex flex-col h-full p-4 rounded-xl bg-bg-card border border-border hover:border-accent/40 hover:bg-bg-hover transition-all"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <h2 className="text-sm font-semibold text-gray-200 group-hover:text-white transition-colors leading-relaxed">
+                  <div className="flex items-start justify-between gap-2">
+                    <h2 className="text-base font-semibold text-gray-200 group-hover:text-white transition-colors leading-snug line-clamp-2">
                       {stripHtml(item.title)}
                     </h2>
-                    <ExternalLink size={14} className="shrink-0 mt-0.5 text-muted group-hover:text-accent transition-colors" />
+                    <ExternalLink size={13} className="shrink-0 mt-0.5 text-muted group-hover:text-accent transition-colors" />
                   </div>
                   {item.description && (
-                    <p className="text-xs text-muted mt-2 leading-relaxed line-clamp-2">
+                    <p className="text-xs text-muted mt-1.5 leading-relaxed line-clamp-1">
                       {stripHtml(item.description)}
                     </p>
                   )}
-                  <div className="flex items-center gap-1 mt-3 text-xs text-muted">
-                    <Clock size={11} />
-                    {formatDate(item.pubDate)}
+                  <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Clock size={11} />
+                      {formatDate(item.pubDate)}
+                    </span>
+                    {getSource(item) && (
+                      <span className="font-medium truncate">{getSource(item)}</span>
+                    )}
                   </div>
                 </a>
               </li>

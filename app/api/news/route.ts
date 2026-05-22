@@ -8,11 +8,29 @@ export interface NaverNewsItem {
   pubDate: string;
 }
 
-const FILTER_KEYWORDS = ["강서구", "명지"];
+const SEARCH_KEYWORDS = ["명지국제신도시", "명지오션시티", "에코델타시티"];
 
-function isGangseoRelated(item: NaverNewsItem): boolean {
-  const text = (item.title + " " + item.description).replace(/<[^>]*>/g, "");
-  return FILTER_KEYWORDS.some((kw) => text.includes(kw));
+async function fetchByQuery(
+  keyword: string,
+  clientId: string,
+  clientSecret: string
+): Promise<NaverNewsItem[]> {
+  const query = encodeURIComponent(keyword);
+  const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=100&sort=date`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "X-Naver-Client-Id": clientId,
+        "X-Naver-Client-Secret": clientSecret,
+      },
+      next: { revalidate: 600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.items as NaverNewsItem[];
+  } catch {
+    return [];
+  }
 }
 
 export async function GET(req: Request) {
@@ -26,24 +44,21 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
   }
 
-  // 필터링 후 display 개수 확보를 위해 최대치(100)로 요청
-  const fetchCount = Math.min(display * 4, 100);
-  const query = encodeURIComponent("부산 강서구 부동산");
-  const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=${fetchCount}&sort=date`;
+  const results = await Promise.all(
+    SEARCH_KEYWORDS.map((kw) => fetchByQuery(kw, clientId, clientSecret))
+  );
 
-  const res = await fetch(url, {
-    headers: {
-      "X-Naver-Client-Id": clientId,
-      "X-Naver-Client-Secret": clientSecret,
-    },
-    next: { revalidate: 600 },
-  });
+  const seen = new Set<string>();
+  const merged = results
+    .flat()
+    .filter((item) => {
+      const key = item.originallink || item.link;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+    .slice(0, display);
 
-  if (!res.ok) {
-    return NextResponse.json({ error: "Naver API error", status: res.status }, { status: 502 });
-  }
-
-  const data = await res.json();
-  const filtered = (data.items as NaverNewsItem[]).filter(isGangseoRelated).slice(0, display);
-  return NextResponse.json({ ...data, items: filtered });
+  return NextResponse.json({ items: merged });
 }

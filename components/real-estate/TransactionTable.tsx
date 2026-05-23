@@ -76,7 +76,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                 </tr>
               </thead>
             </table>
-            <div className="h-[440px] overflow-y-auto">
+            <div className={`h-[440px] overflow-y-auto ${light ? "scrollbar-light" : ""}`}>
               <table className="w-full text-sm">
                 <tbody className={`divide-y ${divRow}`}>
                   {tradeRows.map((t, i) => (
@@ -120,7 +120,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                 </tr>
               </thead>
             </table>
-            <div className="h-[440px] overflow-y-auto">
+            <div className={`h-[440px] overflow-y-auto ${light ? "scrollbar-light" : ""}`}>
               <table className={`w-full text-sm ${txt}`}>
                 <tbody className={`divide-y ${divRow}`}>
                   {rentRows.map((t, i) => (

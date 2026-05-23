@@ -46,3 +46,17 @@ body {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+
+.scrollbar-light::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-light::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-light::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 99px;
+}
+.scrollbar-light::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

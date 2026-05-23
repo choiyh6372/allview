@@ -99,46 +99,44 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
   return (
     <>
     <div className={`${light ? "bg-white border-gray-200" : "bg-bg-card border-border"} border rounded-2xl p-6`}>
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h2 className={`text-lg font-bold ${light ? "text-gray-900" : "text-white"}`}>{complex.name}</h2>
-            {!hideVrButton && complex.vrInfo && (
-              <button
-                onClick={() => setShowVR(true)}
-                className="shrink-0 flex items-center gap-1 px-2.5 py-1 bg-accent/10 border border-accent/20 hover:bg-accent hover:border-accent text-accent hover:text-white rounded-lg text-xs font-medium transition-all"
-              >
-                <Eye size={11} />
-                VR
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>{fmt(latest?.median ?? 0)}</span>
-            <span className={`text-sm font-semibold ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
-              {change >= 0 ? "▲" : "▼"} {Math.abs(change).toFixed(1)}%
-            </span>
-          </div>
-          <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>전월 대비 · 중위 거래가</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {complex.areas.map((a) => (
+      <div className="mb-4">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <h2 className={`text-lg font-bold ${light ? "text-gray-900" : "text-white"}`}>{complex.name}</h2>
+          {!hideVrButton && complex.vrInfo && (
             <button
-              key={a}
-              onClick={() => onAreaChange(a)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                selectedArea === a
-                  ? "bg-accent text-white"
-                  : light
-                  ? "bg-gray-100 border border-gray-200 text-gray-600 hover:text-gray-900"
-                  : "bg-bg-hover border border-border text-gray-400 hover:text-white"
-              }`}
+              onClick={() => setShowVR(true)}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 rounded-lg text-xs font-semibold transition-all"
             >
-              {a}㎡
+              <Eye size={12} />
+              VR 보기
             </button>
-          ))}
+          )}
         </div>
+        <div className="flex items-center gap-3">
+          <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>{fmt(latest?.median ?? 0)}</span>
+          <span className={`text-sm font-semibold ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
+            {change >= 0 ? "▲" : "▼"} {Math.abs(change).toFixed(1)}%
+          </span>
+        </div>
+        <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>전월 대비 · 중위 거래가</p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        {complex.areas.map((a) => (
+          <button
+            key={a}
+            onClick={() => onAreaChange(a)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              selectedArea === a
+                ? "bg-accent text-white"
+                : light
+                ? "bg-gray-100 border border-gray-200 text-gray-600 hover:text-gray-900"
+                : "bg-bg-hover border border-border text-gray-400 hover:text-white"
+            }`}
+          >
+            {a}㎡
+          </button>
+        ))}
       </div>
 
       {chartData.length === 0 && (

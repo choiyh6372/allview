@@ -162,11 +162,11 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     if (photo) {
       pin.innerHTML = `
         <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;
-          box-shadow:0 2px 8px rgba(0,0,0,0.45);border:2px solid #fff;">
+          box-shadow:0 2px 8px rgba(0,0,0,0.45);border:2.5px solid #f97316;">
           <img src="${photo}" style="width:100%;height:100%;object-fit:cover;" />
         </div>
         <div style="width:0;height:0;border-left:5px solid transparent;
-          border-right:5px solid transparent;border-top:6px solid #fff;margin-top:-1px;
+          border-right:5px solid transparent;border-top:6px solid #f97316;margin-top:-1px;
           filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3));"></div>`;
     } else {
       pin.innerHTML = `

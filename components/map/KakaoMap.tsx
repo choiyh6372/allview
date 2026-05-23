@@ -12,6 +12,7 @@ interface KakaoLatLng { getLat: () => number; getLng: () => number; }
 interface KakaoMapInstance {
   setCenter: (latlng: KakaoLatLng) => void;
   setLevel: (level: number) => void;
+  getLevel: () => number;
 }
 interface KakaoCustomOverlay {
   setMap: (map: KakaoMapInstance | null) => void;
@@ -61,14 +62,24 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   useEffect(() => {
     const scriptId = "kakao-map-sdk";
     if (!apiKey) return;
+
+    async function boot() {
+      let posOverrides: Record<string, { lat: number; lng: number }> = {};
+      try {
+        const res = await fetch("/api/apt-positions");
+        posOverrides = await res.json();
+      } catch {}
+      window.kakao.maps.load(() => initMap(posOverrides));
+    }
+
     if (document.getElementById(scriptId)) {
-      if (window.kakao?.maps) initMap();
+      if (window.kakao?.maps) boot();
       return;
     }
     const script = document.createElement("script");
     script.id = scriptId;
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
-    script.onload = () => window.kakao.maps.load(initMap);
+    script.onload = () => boot();
     document.head.appendChild(script);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -274,7 +285,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     overlay.setMap(map);
   }
 
-  function initMap() {
+  function initMap(posOverrides: Record<string, { lat: number; lng: number }> = {}) {
     if (!containerRef.current) return;
     const { kakao } = window;
 
@@ -286,8 +297,25 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
     kakao.maps.event.addListener(map, "click", hidePopupOverlay);
 
-    // 아파트 핀
+    // ── 줌 레벨별 마커 가시성 ────────────────────────────────────────────────
+    const ZOOM_THRESHOLD = 7; // 이 레벨 이상(더 축소)이면 지역명만 표시
+    const aptOverlays: KakaoCustomOverlay[] = [];
+    const regionOverlays: KakaoCustomOverlay[] = [];
+
+    function updateVisibility() {
+      const level = map.getLevel();
+      const zoomed = level >= ZOOM_THRESHOLD;
+      aptOverlays.forEach((o) => o.setMap(zoomed ? null : map));
+      regionOverlays.forEach((o) => o.setMap(zoomed ? map : null));
+    }
+    kakao.maps.event.addListener(map, "zoom_changed", updateVisibility);
+
+    // 아파트 핀 (저장된 좌표 오버라이드 반영)
     APT_COMPLEXES.forEach((apt) => {
+      const lat = posOverrides[apt.id]?.lat ?? apt.lat;
+      const lng = posOverrides[apt.id]?.lng ?? apt.lng;
+      const aptWithPos = { ...apt, lat, lng };
+
       const color = REGION_COLORS[apt.region];
       const content = document.createElement("div");
       content.style.cssText =
@@ -302,18 +330,49 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
       content.addEventListener("click", (e) => {
         e.stopPropagation();
-        openPopup(apt, map);
-        map.setCenter(new kakao.maps.LatLng(apt.lat, apt.lng));
+        openPopup(aptWithPos, map);
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
       });
 
       const overlay = new kakao.maps.CustomOverlay({
-        position: new kakao.maps.LatLng(apt.lat, apt.lng),
+        position: new kakao.maps.LatLng(lat, lng),
         content,
         yAnchor: 1,
         zIndex: 3,
       });
       overlay.setMap(map);
+      aptOverlays.push(overlay);
     });
+
+    // 지역명 마커 (축소 시 표시)
+    const REGION_LABELS = [
+      { region: "ocean"    as const, name: "명지오션시티",    ...REGION_CENTER.ocean },
+      { region: "kukje"    as const, name: "명지국제신도시",  ...REGION_CENTER.kukje },
+      { region: "ecodelta" as const, name: "에코델타시티",    ...REGION_CENTER.ecodelta },
+    ];
+    REGION_LABELS.forEach(({ region, name, lat, lng }) => {
+      const color = REGION_COLORS[region];
+      const content = document.createElement("div");
+      content.style.cssText = "display:flex;flex-direction:column;align-items:center;pointer-events:none;";
+      content.innerHTML = `
+        <div style="background:${color};color:#fff;font-size:13px;font-weight:800;
+          padding:6px 14px;border-radius:8px;white-space:nowrap;letter-spacing:-0.3px;
+          box-shadow:0 3px 12px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.25);">
+          ${name}
+        </div>
+        <div style="width:0;height:0;border-left:8px solid transparent;
+          border-right:8px solid transparent;border-top:10px solid ${color};margin-top:-1px;"></div>`;
+      const overlay = new kakao.maps.CustomOverlay({
+        position: new kakao.maps.LatLng(lat, lng),
+        content,
+        yAnchor: 1,
+        zIndex: 4,
+      });
+      regionOverlays.push(overlay);
+    });
+
+    // 초기 줌 레벨 적용
+    updateVisibility();
 
     // 가게 핀 (저장된 좌표 있으면 직접 사용, 없으면 주소 geocoding)
     fetch("/api/stores")

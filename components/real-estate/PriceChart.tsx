@@ -145,8 +145,8 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
         </div>
       )}
 
-      <ResponsiveContainer width="100%" height={chartData.length === 0 ? 0 : 240}>
-        <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={chartData.length === 0 ? 0 : 260}>
+        <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 30 }}>
           <defs>
             <linearGradient id="rangeGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#5b6ef5" stopOpacity={0.12} />
@@ -171,7 +171,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
             tickLine={false}
             axisLine={false}
             interval={5}
-            height={36}
+            height={50}
           />
           <YAxis
             tick={{ fill: tickColor, fontSize: 10 }}

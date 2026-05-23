@@ -66,7 +66,8 @@ export default function RealEstateClient() {
 
   useEffect(() => {
     if (aptComplexes.length > 0 && selectedAptId === null) {
-      setSelectedAptId(aptComplexes[0].id);
+      const defaultComplex = aptComplexes.find((c) => c.name === "극동스타클래스") ?? aptComplexes[0];
+      setSelectedAptId(defaultComplex.id);
     }
   }, [aptComplexes]);
 

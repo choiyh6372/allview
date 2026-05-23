@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
 
 export const metadata: Metadata = {
-  title: "AllView - 부산 강서구 부동산 통합 플랫폼",
+  title: "AllView(올뷰) - 부산 강서구 부동산 통합 플랫폼",
   description: "AllView(올뷰) - 부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 아파트 VR투어, 실거래가, 지도보기",
   openGraph: {
     siteName: "AllView",

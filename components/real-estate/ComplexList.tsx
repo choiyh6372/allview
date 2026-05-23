@@ -32,10 +32,10 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
           단지 정보가 없습니다
         </div>
       ) : (
-        <div className="divide-y divide-border h-[930px] overflow-y-auto">
+        <div className="divide-y divide-border h-48 lg:h-[930px] overflow-y-auto">
           {regions.map((region) => (
             <div key={region}>
-              <div className="px-4 py-2 bg-bg/50">
+              <div className="px-4 py-1.5 lg:py-2 bg-bg/50">
                 <span className="text-xs font-bold text-muted">{region}</span>
               </div>
               {complexes
@@ -44,7 +44,7 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
                   <button
                     key={c.id}
                     onClick={() => onSelect(c.id)}
-                    className={`w-full text-left px-4 py-3 transition-colors ${
+                    className={`w-full text-left px-4 py-2 lg:py-3 transition-colors ${
                       selectedId === c.id
                         ? "bg-accent/10 border-l-2 border-accent"
                         : "hover:bg-bg-hover border-l-2 border-transparent"
@@ -57,7 +57,7 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
                     >
                       {c.name}
                     </p>
-                    <div className="flex items-center gap-1 mt-0.5">
+                    <div className="flex items-center gap-1 mt-0.5 lg:mt-0.5">
                       <MapPin size={10} className="text-muted" />
                       <span className="text-xs text-muted">{c.region}</span>
                     </div>

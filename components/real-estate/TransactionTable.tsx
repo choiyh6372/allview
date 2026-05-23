@@ -55,8 +55,8 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
     ? rentTransactions.filter((t) => t.area === selectedArea)
     : rentTransactions;
 
-  const visibleTrade = light ? tradeRows.slice(0, tradeLimit) : tradeRows;
-  const visibleRent  = light ? rentRows.slice(0, rentLimit)   : rentRows;
+  const visibleTrade = tradeRows.slice(0, tradeLimit);
+  const visibleRent  = rentRows.slice(0, rentLimit);
 
   const card    = light ? "bg-white border-gray-200"   : "bg-bg-card border-border";
   const divRow  = light ? "divide-gray-100"             : "divide-border";
@@ -68,7 +68,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
   const cell    = light ? "text-gray-700"               : "text-gray-300";
 
   return (
-    <div className={`grid gap-4 ${light ? "grid-cols-1" : "grid-cols-2"}`}>
+    <div className={`grid gap-4 ${light ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}`}>
       {/* 매매 */}
       <div className={`${card} border rounded-2xl overflow-hidden`}>
         <div className={`px-6 py-4 ${hdr} flex items-center justify-between`}>
@@ -114,9 +114,9 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             )}
           </>
         ) : (
-          <div className="overflow-x-auto">
+          <>
             <table className="w-full text-sm">
-              <thead className={`sticky top-0 ${stickyBg}`}>
+              <thead className={stickyBg}>
                 <tr className={hdr}>
                   <th className={`text-left px-6 py-3 text-xs font-medium ${sub}`}>거래일</th>
                   <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>면적</th>
@@ -124,24 +124,28 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <th className={`text-right px-6 py-3 text-xs font-medium ${sub}`}>거래가</th>
                 </tr>
               </thead>
+              <tbody className={`divide-y ${divRow}`}>
+                {visibleTrade.map((t, i) => (
+                  <tr key={i} className={`${hover} transition-colors`}>
+                    <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
+                    <td className={`px-4 py-3 text-right ${cell}`}>{t.area}㎡</td>
+                    <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}층</td>
+                    <td className={`px-6 py-3 text-right ${txt}`}>
+                      <span className="font-semibold">{fmt(t.price)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <div className="h-[440px] overflow-y-auto">
-              <table className="w-full text-sm">
-                <tbody className={`divide-y ${divRow}`}>
-                  {tradeRows.map((t, i) => (
-                    <tr key={i} className={`${hover} transition-colors`}>
-                      <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
-                      <td className={`px-4 py-3 text-right ${cell}`}>{t.area}㎡</td>
-                      <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}층</td>
-                      <td className={`px-6 py-3 text-right ${txt}`}>
-                        <span className="font-semibold">{fmt(t.price)}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            {tradeLimit < tradeRows.length && (
+              <button
+                onClick={() => setTradeLimit((v) => v + PREVIEW)}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-300 transition-colors`}
+              >
+                더보기 ({Math.min(PREVIEW, tradeRows.length - tradeLimit)}건 더)
+              </button>
+            )}
+          </>
         )}
       </div>
 
@@ -194,9 +198,9 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             )}
           </>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className={`sticky top-0 ${stickyBg}`}>
+          <>
+            <table className={`w-full text-sm ${txt}`}>
+              <thead className={stickyBg}>
                 <tr className={hdr}>
                   <th className={`text-left px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래일</th>
                   <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
@@ -205,27 +209,31 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세</th>
                 </tr>
               </thead>
+              <tbody className={`divide-y ${divRow}`}>
+                {visibleRent.map((t, i) => (
+                  <tr key={i} className={`${hover} transition-colors`}>
+                    <td className={`px-4 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
+                    <td className={`px-3 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
+                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}층</td>
+                    <td className="px-3 py-3 text-right whitespace-nowrap">
+                      <RentBadge monthlyRent={t.monthlyRent} />
+                    </td>
+                    <td className={`px-4 py-3 text-right ${txt} whitespace-nowrap`}>
+                      <RentPrice deposit={t.deposit} monthlyRent={t.monthlyRent} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <div className="h-[440px] overflow-y-auto">
-              <table className={`w-full text-sm ${txt}`}>
-                <tbody className={`divide-y ${divRow}`}>
-                  {rentRows.map((t, i) => (
-                    <tr key={i} className={`${hover} transition-colors`}>
-                      <td className={`px-4 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
-                      <td className={`px-3 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
-                      <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}층</td>
-                      <td className="px-3 py-3 text-right whitespace-nowrap">
-                        <RentBadge monthlyRent={t.monthlyRent} />
-                      </td>
-                      <td className={`px-4 py-3 text-right ${txt} whitespace-nowrap`}>
-                        <RentPrice deposit={t.deposit} monthlyRent={t.monthlyRent} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            {rentLimit < rentRows.length && (
+              <button
+                onClick={() => setRentLimit((v) => v + PREVIEW)}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-300 transition-colors`}
+              >
+                더보기 ({Math.min(PREVIEW, rentRows.length - rentLimit)}건 더)
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

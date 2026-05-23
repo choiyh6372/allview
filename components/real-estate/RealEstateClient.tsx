@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import useSWR from "swr";
 import ComplexList from "@/components/real-estate/ComplexList";
 import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
 import { type Complex } from "@/lib/realEstateData";
-import { buildRentTransactions } from "@/lib/aptTradeApi";
-import type { RentRawItem } from "@/lib/molitApi";
+import { buildComplexList, buildRentTransactions } from "@/lib/aptTradeApi";
+import type { RawItem, RentRawItem } from "@/lib/molitApi";
 
 type TradeType = "apt" | "silv";
 
@@ -16,17 +17,64 @@ const TAB_LABELS: Record<TradeType, string> = {
   silv: "분양권",
 };
 
-interface Props {
+interface RealEstateData {
   aptComplexes: Complex[];
   silvComplexes: Complex[];
   rentItems: RentRawItem[];
 }
 
-export default function RealEstateClient({ aptComplexes, silvComplexes, rentItems }: Props) {
+async function fetchRealEstateData(): Promise<RealEstateData> {
+  const [aptRes, silvRes, rentRes] = await Promise.all([
+    fetch("/api/apt-trade?lawdCd=26440&months=60"),
+    fetch("/api/silv-trade?lawdCd=26440&months=60"),
+    fetch("/api/apt-rent?lawdCd=26440&months=60"),
+  ]);
+
+  const [aptData, silvData, rentData] = await Promise.all([
+    aptRes.json(),
+    silvRes.json(),
+    rentRes.json(),
+  ]);
+
+  const aptComplexes = buildComplexList(aptData.items ?? []);
+  const silvComplexes = buildComplexList(
+    (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
+  );
+
+  return { aptComplexes, silvComplexes, rentItems: rentData.items ?? [] };
+}
+
+export default function RealEstateClient() {
+  const { data, isLoading } = useSWR<RealEstateData>(
+    "real-estate-data",
+    fetchRealEstateData,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 5 * 60 * 1000,
+    }
+  );
+
+  const aptComplexes = data?.aptComplexes ?? [];
+  const silvComplexes = data?.silvComplexes ?? [];
+  const rentItems = data?.rentItems ?? [];
+
   const [activeTab, setActiveTab] = useState<TradeType>("apt");
-  const [selectedAptId, setSelectedAptId] = useState<number | null>(aptComplexes[0]?.id ?? null);
-  const [selectedSilvId, setSelectedSilvId] = useState<number | null>(silvComplexes[0]?.id ?? null);
+  const [selectedAptId, setSelectedAptId] = useState<number | null>(null);
+  const [selectedSilvId, setSelectedSilvId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState("");
+
+  useEffect(() => {
+    if (aptComplexes.length > 0 && selectedAptId === null) {
+      setSelectedAptId(aptComplexes[0].id);
+    }
+  }, [aptComplexes]);
+
+  useEffect(() => {
+    if (silvComplexes.length > 0 && selectedSilvId === null) {
+      setSelectedSilvId(silvComplexes[0].id);
+    }
+  }, [silvComplexes]);
 
   const complexes = activeTab === "apt" ? aptComplexes : silvComplexes;
   const selectedId = activeTab === "apt" ? selectedAptId : selectedSilvId;
@@ -47,7 +95,7 @@ export default function RealEstateClient({ aptComplexes, silvComplexes, rentItem
           </div>
           <span className="flex items-center gap-1.5 text-xs text-green-400 border border-green-400/20 bg-green-400/5 rounded-lg px-3 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-            국토부 실거래 데이터 · {complexes.length}개 단지
+            국토부 실거래 데이터 · {isLoading ? "로딩 중" : `${complexes.length}개 단지`}
           </span>
         </div>
 
@@ -73,12 +121,16 @@ export default function RealEstateClient({ aptComplexes, silvComplexes, rentItem
               complexes={complexes}
               selectedId={selectedId}
               onSelect={setSelectedId}
-              isLoading={false}
+              isLoading={isLoading}
             />
           </aside>
 
           <div className="flex-1 min-w-0 space-y-6">
-            {complex ? (
+            {isLoading ? (
+              <div className="h-60 flex items-center justify-center text-sm text-muted">
+                데이터를 불러오는 중...
+              </div>
+            ) : complex ? (
               <>
                 <PriceChart
                   complex={complex}

@@ -156,10 +156,22 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
           <XAxis
             dataKey="month"
-            tick={{ fill: tickColor, fontSize: 10 }}
+            tick={({ x, y, payload }) => (
+              <text
+                x={x}
+                y={y + 4}
+                fill={tickColor}
+                fontSize={10}
+                textAnchor="end"
+                transform={`rotate(-45, ${x}, ${y + 4})`}
+              >
+                {payload.value}
+              </text>
+            )}
             tickLine={false}
             axisLine={false}
             interval={5}
+            height={36}
           />
           <YAxis
             tick={{ fill: tickColor, fontSize: 10 }}

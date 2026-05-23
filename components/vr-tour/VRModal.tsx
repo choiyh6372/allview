@@ -128,53 +128,37 @@ export default function VRModal({ complex, onClose }: Props) {
 
         {/* 평형 버튼들 */}
         <div className="px-6 py-3 border-b border-border shrink-0 flex flex-wrap gap-2">
-          {(() => {
-            return allTypes.map((type) => {
-              const status = typeStatuses[type];
-              const sqm = areaMap[type];
-              const display = type.toUpperCase();
-              const label = sqm ? `${display} (${sqm}㎡)` : display;
+          {allTypes.map((type) => {
+            const status = typeStatuses[type];
+            const sqm = areaMap[type];
+            const display = type.toUpperCase();
+            const label = sqm ? `${display} (${sqm}㎡)` : display;
+            const isChecking = status === "checking";
+            const isUnavailable = status === "unavailable";
 
-              if (status === "checking") {
-                return (
-                  <button
-                    key={type}
-                    disabled
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium bg-bg-hover border border-border text-gray-500 cursor-wait"
-                  >
-                    <Loader2 size={10} className="animate-spin" />
-                    {label}
-                  </button>
-                );
-              }
-
-              if (status === "unavailable") {
-                return (
-                  <button
-                    key={type}
-                    disabled
-                    className="px-3 py-1.5 rounded-xl text-sm font-medium bg-bg border border-border text-gray-600 cursor-not-allowed line-through"
-                  >
-                    {label}
-                  </button>
-                );
-              }
-
-              return (
-                <button
-                  key={type}
-                  onClick={() => handleTypeClick(type)}
-                  className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
-                    activeType === type
-                      ? "bg-accent text-white border border-accent"
-                      : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-white"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            });
-          })()}
+            return (
+              <button
+                key={type}
+                disabled={isChecking || isUnavailable}
+                onClick={isChecking || isUnavailable ? undefined : () => handleTypeClick(type)}
+                className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
+                  isChecking
+                    ? "bg-bg-hover border border-border text-gray-500 cursor-wait"
+                    : isUnavailable
+                    ? "bg-bg border border-border text-gray-600 cursor-not-allowed line-through"
+                    : activeType === type
+                    ? "bg-accent text-white border border-accent"
+                    : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-white"
+                }`}
+              >
+                {/* 스피너 자리를 항상 고정 크기로 예약해 로딩 전후 버튼 크기 유지 */}
+                <span className="w-[10px] shrink-0 flex justify-center">
+                  {isChecking && <Loader2 size={10} className="animate-spin" />}
+                </span>
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {/* VR iframe — 나머지 전체 */}

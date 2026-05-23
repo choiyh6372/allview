@@ -31,15 +31,21 @@ export default function HeroSection() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/vr-tour"
-              className="px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
+              className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
             >
               VR투어 시작하기
             </Link>
             <Link
               href="/real-estate"
-              className="px-6 py-3 bg-bg-card hover:bg-bg-hover border border-border text-white font-semibold rounded-xl transition-colors text-sm"
+              className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
             >
               실거래가 조회
+            </Link>
+            <Link
+              href="/map"
+              className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
+            >
+              지도보기
             </Link>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { APT_COMPLEXES, REGION_COLORS, REGION_CENTER, type AptComplex } from "@/lib/mapData";
 import MapSidePanel from "@/components/map/MapSidePanel";
+import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
 
 
@@ -331,6 +332,12 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   return (
     <div className="flex w-full h-full">
       <MapSidePanel
+        selectedApt={selectedApt}
+        selectedStore={selectedStore}
+        onClose={closePopup}
+      />
+
+      <MapBottomSheet
         selectedApt={selectedApt}
         selectedStore={selectedStore}
         onClose={closePopup}

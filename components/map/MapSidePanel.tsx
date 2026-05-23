@@ -65,7 +65,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
   const photos = selectedStore?.photos ?? [];
 
   return (
-    <div className="w-[480px] shrink-0 flex flex-col bg-white overflow-hidden">
+    <div className="hidden md:flex w-[480px] shrink-0 flex-col bg-white overflow-hidden">
       <div className="flex-1 overflow-y-auto scrollbar-light">
 
         {/* 빈 상태 */}
@@ -164,7 +164,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
                 >
-                  네이버 지도에서 보기
+                  네이버 플레이스 보기
                 </a>
               )}
             </div>

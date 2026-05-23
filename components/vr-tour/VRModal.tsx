@@ -127,7 +127,7 @@ export default function VRModal({ complex, onClose }: Props) {
         </div>
 
         {/* 평형 버튼들 */}
-        <div className="px-6 py-3 border-b border-border shrink-0 flex flex-wrap gap-2">
+        <div className="px-6 py-3 border-b border-border shrink-0 flex flex-wrap gap-2 max-h-24 overflow-y-auto md:max-h-none md:overflow-visible scrollbar-light">
           {allTypes.map((type) => {
             const status = typeStatuses[type];
             const sqm = areaMap[type];

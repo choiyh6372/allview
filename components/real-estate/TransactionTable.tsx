@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import type { Complex, RentTransaction } from "@/lib/realEstateData";
 
 function fmt(v: number) {
@@ -27,6 +30,8 @@ function RentBadge({ monthlyRent }: { monthlyRent: number }) {
   );
 }
 
+const PREVIEW = 10;
+
 interface Props {
   complex: Complex;
   rentTransactions: RentTransaction[];
@@ -35,6 +40,14 @@ interface Props {
 }
 
 export default function TransactionTable({ complex, rentTransactions, selectedArea, light }: Props) {
+  const [tradeLimit, setTradeLimit] = useState(PREVIEW);
+  const [rentLimit, setRentLimit] = useState(PREVIEW);
+
+  useEffect(() => {
+    setTradeLimit(PREVIEW);
+    setRentLimit(PREVIEW);
+  }, [complex.id, selectedArea]);
+
   const tradeRows = selectedArea
     ? complex.transactions.filter((t) => t.area === selectedArea)
     : complex.transactions;
@@ -42,17 +55,20 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
     ? rentTransactions.filter((t) => t.area === selectedArea)
     : rentTransactions;
 
-  const card   = light ? "bg-white border-gray-200"   : "bg-bg-card border-border";
-  const divRow = light ? "divide-gray-100"             : "divide-border";
-  const hdr    = light ? "border-b border-gray-200"    : "border-b border-border";
-  const stickyBg = light ? "bg-white"                 : "bg-bg-card";
-  const hover  = light ? "hover:bg-gray-50"            : "hover:bg-bg-hover";
-  const txt    = light ? "text-gray-900"               : "text-white";
-  const sub    = light ? "text-gray-500"               : "text-muted";
-  const cell   = light ? "text-gray-700"               : "text-gray-300";
+  const visibleTrade = light ? tradeRows.slice(0, tradeLimit) : tradeRows;
+  const visibleRent  = light ? rentRows.slice(0, rentLimit)   : rentRows;
+
+  const card    = light ? "bg-white border-gray-200"   : "bg-bg-card border-border";
+  const divRow  = light ? "divide-gray-100"             : "divide-border";
+  const hdr     = light ? "border-b border-gray-200"    : "border-b border-border";
+  const stickyBg = light ? "bg-white"                  : "bg-bg-card";
+  const hover   = light ? "hover:bg-gray-50"            : "hover:bg-bg-hover";
+  const txt     = light ? "text-gray-900"               : "text-white";
+  const sub     = light ? "text-gray-500"               : "text-muted";
+  const cell    = light ? "text-gray-700"               : "text-gray-300";
 
   return (
-    <div className="grid grid-cols-1 gap-4">
+    <div className={`grid gap-4 ${light ? "grid-cols-1" : "grid-cols-2"}`}>
       {/* 매매 */}
       <div className={`${card} border rounded-2xl overflow-hidden`}>
         <div className={`px-6 py-4 ${hdr} flex items-center justify-between`}>
@@ -64,6 +80,39 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
         </div>
         {tradeRows.length === 0 ? (
           <div className={`px-6 py-10 text-center text-sm ${sub}`}>거래 내역이 없습니다</div>
+        ) : light ? (
+          <>
+            <table className="w-full text-sm">
+              <thead className={stickyBg}>
+                <tr className={hdr}>
+                  <th className={`text-left px-6 py-3 text-xs font-medium ${sub}`}>거래일</th>
+                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>면적</th>
+                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>층</th>
+                  <th className={`text-right px-6 py-3 text-xs font-medium ${sub}`}>거래가</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${divRow}`}>
+                {visibleTrade.map((t, i) => (
+                  <tr key={i} className={`${hover} transition-colors`}>
+                    <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
+                    <td className={`px-4 py-3 text-right ${cell}`}>{t.area}㎡</td>
+                    <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}층</td>
+                    <td className={`px-6 py-3 text-right ${txt}`}>
+                      <span className="font-semibold">{fmt(t.price)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {tradeLimit < tradeRows.length && (
+              <button
+                onClick={() => setTradeLimit((v) => v + PREVIEW)}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-700 transition-colors`}
+              >
+                더보기 ({Math.min(PREVIEW, tradeRows.length - tradeLimit)}건 더)
+              </button>
+            )}
+          </>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -76,7 +125,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                 </tr>
               </thead>
             </table>
-            <div className={`h-[440px] overflow-y-auto ${light ? "scrollbar-light" : ""}`}>
+            <div className="h-[440px] overflow-y-auto">
               <table className="w-full text-sm">
                 <tbody className={`divide-y ${divRow}`}>
                   {tradeRows.map((t, i) => (
@@ -107,6 +156,43 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
         </div>
         {rentRows.length === 0 ? (
           <div className={`px-6 py-10 text-center text-sm ${sub}`}>거래 내역이 없습니다</div>
+        ) : light ? (
+          <>
+            <table className="w-full text-sm">
+              <thead className={stickyBg}>
+                <tr className={hdr}>
+                  <th className={`text-left px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래일</th>
+                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
+                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
+                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>유형</th>
+                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${divRow} ${txt}`}>
+                {visibleRent.map((t, i) => (
+                  <tr key={i} className={`${hover} transition-colors`}>
+                    <td className={`px-4 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
+                    <td className={`px-3 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
+                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}층</td>
+                    <td className="px-3 py-3 text-right whitespace-nowrap">
+                      <RentBadge monthlyRent={t.monthlyRent} />
+                    </td>
+                    <td className={`px-4 py-3 text-right ${txt} whitespace-nowrap`}>
+                      <RentPrice deposit={t.deposit} monthlyRent={t.monthlyRent} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {rentLimit < rentRows.length && (
+              <button
+                onClick={() => setRentLimit((v) => v + PREVIEW)}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-700 transition-colors`}
+              >
+                더보기 ({Math.min(PREVIEW, rentRows.length - rentLimit)}건 더)
+              </button>
+            )}
+          </>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -120,7 +206,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                 </tr>
               </thead>
             </table>
-            <div className={`h-[440px] overflow-y-auto ${light ? "scrollbar-light" : ""}`}>
+            <div className="h-[440px] overflow-y-auto">
               <table className={`w-full text-sm ${txt}`}>
                 <tbody className={`divide-y ${divRow}`}>
                   {rentRows.map((t, i) => (

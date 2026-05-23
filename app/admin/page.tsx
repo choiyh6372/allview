@@ -3,8 +3,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin } from "lucide-react";
 import StoreFormModal from "@/components/admin/StoreFormModal";
+import AptMapEditor from "@/components/admin/AptMapEditor";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { Inquiry } from "@/lib/inquiryStore";
 
@@ -49,7 +50,7 @@ const categoryColors: Record<string, string> = {
 
 export default function AdminPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<"stores" | "inquiries">("stores");
+  const [tab, setTab] = useState<"stores" | "inquiries" | "apts">("stores");
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalStore, setModalStore] = useState<PromotionStore | null | undefined>(undefined);
@@ -196,6 +197,15 @@ export default function AdminPage() {
             <span className="text-xs opacity-70">{inquiries.length}</span>
           )}
         </button>
+        <button
+          onClick={() => setTab("apts")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "apts" ? "bg-accent text-white" : "text-muted hover:text-white"
+          }`}
+        >
+          <MapPin size={15} />
+          아파트 핀 위치
+        </button>
       </div>
 
       {/* Stores Tab */}
@@ -337,6 +347,16 @@ export default function AdminPage() {
         />
       )}
       </div>
+      )}
+
+      {/* Apt Pin Tab */}
+      {tab === "apts" && (
+        <div className="max-w-xl">
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-muted">단지를 선택해 핀 위치를 드래그로 조정하세요</p>
+          </div>
+          <AptMapEditor />
+        </div>
       )}
 
       {/* Inquiries Tab */}

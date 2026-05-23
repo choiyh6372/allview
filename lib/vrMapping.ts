@@ -26,6 +26,8 @@ export const APT_VR_MAP: Record<string, { regionId: string; slug: string }> = {
   "명지2차금강펜테리움센트럴파크":    { regionId: "kukje", slug: "kumkang2" },
   "더샵명지포스코월드2단지":          { regionId: "kukje", slug: "posco2" },
   "더샵명지포스코월드 2단지":         { regionId: "kukje", slug: "posco2" },
+  "더샵명지퍼스트월드2단지":          { regionId: "kukje", slug: "posco2" },
   "더샵명지포스코월드3단지":          { regionId: "kukje", slug: "posco3" },
   "더샵명지포스코월드 3단지":         { regionId: "kukje", slug: "posco3" },
+  "더샵명지퍼스트월드3단지":          { regionId: "kukje", slug: "posco3" },
 };

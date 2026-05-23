@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 export const metadata: Metadata = {
   title: "AllView - 부산 강서구 부동산 통합 플랫폼",
@@ -35,7 +35,7 @@ export default function RootLayout({
       <body className="bg-bg text-gray-100 min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <ConditionalFooter />
       </body>
     </html>
   );

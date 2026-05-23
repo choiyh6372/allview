@@ -9,6 +9,7 @@ const links = [
   { href: "/", label: "홈" },
   { href: "/vr-tour", label: "VR투어" },
   { href: "/real-estate", label: "실거래가" },
+  { href: "/map", label: "지도" },
   { href: "/news", label: "강서구뉴스" },
   { href: "/store", label: "가게홍보" },
 ];

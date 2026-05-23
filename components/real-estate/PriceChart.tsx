@@ -23,7 +23,7 @@ function fmt(v: number) {
   return `${v.toLocaleString()}만`;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+function CustomTooltip({ active, payload, label, light }: any) {
   if (!active || !payload?.length) return null;
   const val = (key: string) => payload.find((p: any) => p.dataKey === key)?.value as number | undefined;
   const median = val("median");
@@ -32,30 +32,32 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   const rentMedian = val("rentMedian");
   if (median === undefined && rentMedian === undefined) return null;
   return (
-    <div className="bg-bg-card border border-border rounded-xl p-3 text-xs shadow-xl">
-      <p className="text-muted mb-1">{label}</p>
+    <div className={`${light ? "bg-white border-gray-200 shadow-md" : "bg-bg-card border-border shadow-xl"} border rounded-xl p-3 text-xs`}>
+      <p className={`${light ? "text-gray-500" : "text-muted"} mb-1`}>{label}</p>
       {median !== undefined && (
         <>
-          <p className="text-white font-bold">매매 {fmt(median)}</p>
+          <p className={`${light ? "text-gray-900" : "text-white"} font-bold`}>매매 {fmt(median)}</p>
           {low !== undefined && <p className="text-gray-400">최저 {fmt(low)}</p>}
           {high !== undefined && <p className="text-gray-400">최고 {fmt(high)}</p>}
         </>
       )}
       {rentMedian !== undefined && (
-        <p className="text-emerald-400 font-bold mt-1">전세 {fmt(rentMedian)}</p>
+        <p className="text-emerald-500 font-bold mt-1">전세 {fmt(rentMedian)}</p>
       )}
     </div>
   );
-};
+}
 
 interface Props {
   complex: Complex;
   rentItems: RentRawItem[];
   selectedArea: string;
   onAreaChange: (area: string) => void;
+  hideVrButton?: boolean;
+  light?: boolean;
 }
 
-export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange }: Props) {
+export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange, hideVrButton, light }: Props) {
   const [showVR, setShowVR] = useState(false);
 
   useEffect(() => {
@@ -90,23 +92,37 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
   const prev = tradeData[tradeData.length - 2];
   const change = latest && prev ? ((latest.median - prev.median) / prev.median) * 100 : 0;
 
+  const gridColor = light ? "#e5e7eb" : "#2a2d3e";
+  const areaFill  = light ? "#ffffff" : "#0f1117";
+  const tickColor = light ? "#6b7280" : "#6b7280";
+
   return (
     <>
-    <div className="bg-bg-card border border-border rounded-2xl p-6">
+    <div className={`${light ? "bg-white border-gray-200" : "bg-bg-card border-border"} border rounded-2xl p-6`}>
       <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-lg font-bold text-white mb-1">{complex.name}</h2>
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className={`text-lg font-bold ${light ? "text-gray-900" : "text-white"}`}>{complex.name}</h2>
+            {!hideVrButton && complex.vrInfo && (
+              <button
+                onClick={() => setShowVR(true)}
+                className="shrink-0 flex items-center gap-1 px-2.5 py-1 bg-accent/10 border border-accent/20 hover:bg-accent hover:border-accent text-accent hover:text-white rounded-lg text-xs font-medium transition-all"
+              >
+                <Eye size={11} />
+                VR
+              </button>
+            )}
+          </div>
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-black text-white">{fmt(latest?.median ?? 0)}</span>
-            <span className={`text-sm font-semibold ${change >= 0 ? "text-green-400" : "text-red-400"}`}>
+            <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>{fmt(latest?.median ?? 0)}</span>
+            <span className={`text-sm font-semibold ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
               {change >= 0 ? "▲" : "▼"} {Math.abs(change).toFixed(1)}%
             </span>
           </div>
-          <p className="text-xs text-muted mt-0.5">전월 대비 · 중위 거래가</p>
+          <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>전월 대비 · 중위 거래가</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* area filter */}
           {complex.areas.map((a) => (
             <button
               key={a}
@@ -114,27 +130,19 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 selectedArea === a
                   ? "bg-accent text-white"
+                  : light
+                  ? "bg-gray-100 border border-gray-200 text-gray-600 hover:text-gray-900"
                   : "bg-bg-hover border border-border text-gray-400 hover:text-white"
               }`}
             >
               {a}㎡
             </button>
           ))}
-
-          {complex.vrInfo && (
-            <button
-              onClick={() => setShowVR(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 hover:bg-accent hover:border-accent text-accent hover:text-white rounded-lg text-xs font-medium transition-all"
-            >
-              <Eye size={13} />
-              VR 보기
-            </button>
-          )}
         </div>
       </div>
 
       {chartData.length === 0 && (
-        <div className="h-60 flex items-center justify-center text-sm text-muted">
+        <div className={`h-60 flex items-center justify-center text-sm ${light ? "text-gray-400" : "text-muted"}`}>
           거래 데이터가 없습니다
         </div>
       )}
@@ -147,23 +155,23 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
               <stop offset="100%" stopColor="#5b6ef5" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
           <XAxis
             dataKey="month"
-            tick={{ fill: "#6b7280", fontSize: 10 }}
+            tick={{ fill: tickColor, fontSize: 10 }}
             tickLine={false}
             axisLine={false}
             interval={5}
           />
           <YAxis
-            tick={{ fill: "#6b7280", fontSize: 10 }}
+            tick={{ fill: tickColor, fontSize: 10 }}
             tickLine={false}
             axisLine={false}
             tickFormatter={fmt}
             width={55}
             domain={[(dataMin: number) => Math.round(dataMin * 0.95 / 100) * 100, "auto"]}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip light={light} />} />
           <Area
             type="monotone"
             dataKey="high"
@@ -175,7 +183,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
             type="monotone"
             dataKey="low"
             stroke="transparent"
-            fill="#0f1117"
+            fill={areaFill}
             connectNulls
           />
           <Line
@@ -205,17 +213,17 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
       <div className="flex items-center gap-5 mt-3">
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-0.5 bg-accent" />
-          <span className="text-xs text-muted">매매 중위</span>
+          <span className={`text-xs ${light ? "text-gray-500" : "text-muted"}`}>매매 중위</span>
         </div>
         {rentData.length > 0 && (
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-0.5 bg-emerald-500" />
-            <span className="text-xs text-muted">전세 중위</span>
+            <span className={`text-xs ${light ? "text-gray-500" : "text-muted"}`}>전세 중위</span>
           </div>
         )}
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-3 rounded-sm opacity-30" style={{ background: "linear-gradient(to bottom, #5b6ef5, transparent)" }} />
-          <span className="text-xs text-muted">범위</span>
+          <span className={`text-xs ${light ? "text-gray-500" : "text-muted"}`}>범위</span>
         </div>
       </div>
 

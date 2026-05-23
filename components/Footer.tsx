@@ -13,7 +13,7 @@ export default function Footer() {
             </div>
             <p className="text-sm text-muted leading-relaxed">
               부산 강서구 부동산 통합 플랫폼<br />
-              VR투어 · 실거래가 · 가게홍보
+              VR투어 · 실거래가 · 지도보기
             </p>
           </div>
           <div>
@@ -22,7 +22,7 @@ export default function Footer() {
               {[
                 { href: "/vr-tour", label: "VR투어" },
                 { href: "/real-estate", label: "실거래가" },
-                { href: "/store", label: "가게홍보" },
+                { href: "/map", label: "지도보기" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-muted hover:text-accent transition-colors">

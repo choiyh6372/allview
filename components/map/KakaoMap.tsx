@@ -298,7 +298,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     kakao.maps.event.addListener(map, "click", hidePopupOverlay);
 
     // ── 줌 레벨별 마커 가시성 ────────────────────────────────────────────────
-    const ZOOM_THRESHOLD = 8; // 이 레벨 이상(더 축소)이면 지역명만 표시
+    const ZOOM_THRESHOLD = 6; // 이 레벨 이상(더 축소)이면 지역명만 표시
     const aptOverlays: KakaoCustomOverlay[] = [];
     const regionOverlays: KakaoCustomOverlay[] = [];
 

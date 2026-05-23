@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapPin, ImageOff } from "lucide-react";
+import { ImageOff } from "lucide-react";
 import type { PromotionStore } from "@/lib/promotionStore";
 
 
@@ -20,11 +20,7 @@ function StoreCard({ store, compact }: { store: PromotionStore; compact?: boolea
         )}
       </div>
       <div className={compact ? "p-2" : "p-3"}>
-        <p className={`${compact ? "text-xs" : "text-sm"} font-semibold text-white mb-0.5 truncate`}>{store.name}</p>
-        <div className="flex items-center gap-1 text-xs text-muted">
-          <MapPin size={9} />
-          <span className="truncate">{store.region}</span>
-        </div>
+        <p className={`${compact ? "text-xs" : "text-sm"} font-semibold text-white truncate`}>{store.name}</p>
       </div>
     </div>
   );

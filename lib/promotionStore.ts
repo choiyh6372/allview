@@ -10,6 +10,8 @@ export interface PromotionStore {
   category: string;
   region: string;
   photos: string[];
+  lat?: number;
+  lng?: number;
   promotionDays?: number;
   promotionEndDate?: string;
   createdAt: string;

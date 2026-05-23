@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, MapPin, Loader2, Store, ImageOff } from "lucide-react";
+import { Search, Loader2, Store, ImageOff } from "lucide-react";
 import PromotionDetailModal from "@/components/store/PromotionDetailModal";
 import type { PromotionStore } from "@/lib/promotionStore";
 
@@ -24,11 +24,6 @@ const categoryColors: Record<string, string> = {
   기타: "bg-gray-500/10 text-gray-400 border-gray-500/20",
 };
 
-const regionColors: Record<string, string> = {
-  오션시티: "text-blue-400",
-  국제신도시: "text-purple-400",
-  에코델타: "text-green-400",
-};
 
 export default function StorePage() {
   const [stores, setStores] = useState<PromotionStore[]>([]);
@@ -157,7 +152,6 @@ function StorePhotoCard({
   onClick: () => void;
 }) {
   const catColor = categoryColors[store.category] ?? "bg-accent/10 text-accent border-accent/20";
-  const regColor = regionColors[store.region] ?? "text-muted";
   const photo = store.photos[0];
 
   return (
@@ -192,11 +186,7 @@ function StorePhotoCard({
 
       {/* Info */}
       <div className="p-3">
-        <h3 className="text-sm font-bold text-white mb-1 truncate">{store.name}</h3>
-        <div className="flex items-center gap-1 mb-1">
-          <MapPin size={10} className={regColor} />
-          <span className={`text-xs ${regColor}`}>{store.region}</span>
-        </div>
+        <h3 className="text-sm font-bold text-white truncate">{store.name}</h3>
       </div>
     </div>
   );

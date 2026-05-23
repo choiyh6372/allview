@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Eye, TrendingUp, Store } from "lucide-react";
+import { Eye, TrendingUp, Map } from "lucide-react";
 
 const services = [
   {
@@ -23,11 +23,11 @@ const services = [
     iconColor: "text-green-400",
   },
   {
-    icon: Store,
-    title: "가게 홍보",
-    desc: "단지 주변 상권 정보를 업종별로 탐색하고, 네이버 플레이스와 연동된 상세 정보를 확인하세요. 입주 전 상권 파악에 최적화되어 있습니다.",
-    href: "/store",
-    badge: "PRO",
+    icon: Map,
+    title: "지도 보기",
+    desc: "카카오맵 기반으로 아파트 단지 위치와 주변 상권을 한눈에 확인하세요. 마커를 클릭하면 실거래가와 단지 정보를 바로 조회할 수 있습니다.",
+    href: "/map",
+    badge: "MAP",
     gradient: "from-purple-500/10 to-pink-500/10",
     border: "border-purple-500/20",
     iconColor: "text-purple-400",

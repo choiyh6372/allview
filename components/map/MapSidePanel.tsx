@@ -83,12 +83,34 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
           <div className="p-4 space-y-4">
             {/* 헤더 */}
             <div>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full mb-2 inline-block bg-orange-100 text-orange-500">
-                {selectedStore.category}
-              </span>
               <h2 className="text-xl font-bold text-gray-900">{selectedStore.name}</h2>
-              {selectedStore.region && (
-                <p className="text-xs text-gray-400 mt-0.5">{selectedStore.region}</p>
+            </div>
+
+            {/* 상세 정보 */}
+            <div className="space-y-2 text-sm">
+              {selectedStore.address && (
+                <div className="flex items-start gap-2 text-gray-600">
+                  <Navigation size={14} className="mt-0.5 shrink-0 text-gray-400" />
+                  <span>{selectedStore.address}</span>
+                </div>
+              )}
+              {selectedStore.phone && (
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Phone size={14} className="shrink-0 text-gray-400" />
+                  <a href={`tel:${selectedStore.phone}`} className="hover:text-orange-500 transition-colors">
+                    {selectedStore.phone}
+                  </a>
+                </div>
+              )}
+              {selectedStore.naverUrl && (
+                <a
+                  href={selectedStore.naverUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                >
+                  네이버 플레이스 보기
+                </a>
               )}
             </div>
 
@@ -140,34 +162,6 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
                 ))}
               </div>
             )}
-
-            {/* 상세 정보 */}
-            <div className="space-y-2 text-sm">
-              {selectedStore.address && (
-                <div className="flex items-start gap-2 text-gray-600">
-                  <Navigation size={14} className="mt-0.5 shrink-0 text-gray-400" />
-                  <span>{selectedStore.address}</span>
-                </div>
-              )}
-              {selectedStore.phone && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone size={14} className="shrink-0 text-gray-400" />
-                  <a href={`tel:${selectedStore.phone}`} className="hover:text-orange-500 transition-colors">
-                    {selectedStore.phone}
-                  </a>
-                </div>
-              )}
-              {selectedStore.naverUrl && (
-                <a
-                  href={selectedStore.naverUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
-                >
-                  네이버 플레이스 보기
-                </a>
-              )}
-            </div>
           </div>
         )}
 

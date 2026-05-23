@@ -16,6 +16,11 @@ interface KakaoMapInstance {
 interface KakaoCustomOverlay {
   setMap: (map: KakaoMapInstance | null) => void;
 }
+interface KakaoMarker {
+  getPosition: () => KakaoLatLng;
+  setPosition: (latlng: KakaoLatLng) => void;
+  setMap: (map: KakaoMapInstance | null) => void;
+}
 interface KakaoGeocoder {
   addressSearch: (addr: string, cb: (result: Array<{ x: string; y: string }>, status: string) => void) => void;
 }
@@ -24,7 +29,8 @@ interface KakaoMaps {
   Map: new (el: HTMLElement, opts: object) => KakaoMapInstance;
   LatLng: new (lat: number, lng: number) => KakaoLatLng;
   CustomOverlay: new (opts: object) => KakaoCustomOverlay;
-  event: { addListener: (target: KakaoMapInstance, type: string, cb: () => void) => void };
+  Marker: new (opts: { position: KakaoLatLng; draggable?: boolean; map?: KakaoMapInstance }) => KakaoMarker;
+  event: { addListener: (target: KakaoMapInstance | KakaoMarker, type: string, cb: () => void) => void };
   services: {
     Geocoder: new () => KakaoGeocoder;
     Status: { OK: string };
@@ -309,12 +315,16 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       overlay.setMap(map);
     });
 
-    // 가게 핀 (주소 → 좌표 변환 후 배치)
+    // 가게 핀 (저장된 좌표 있으면 직접 사용, 없으면 주소 geocoding)
     fetch("/api/stores")
       .then((r) => r.json())
       .then((stores: PromotionStore[]) => {
         const geocoder = new kakao.maps.services.Geocoder();
         stores.forEach((store) => {
+          if (store.lat && store.lng) {
+            placeStoreMarker(store, store.lat, store.lng, map);
+            return;
+          }
           if (!store.address) return;
           geocoder.addressSearch(store.address, (result, status) => {
             if (status !== kakao.maps.services.Status.OK || !result[0]) return;

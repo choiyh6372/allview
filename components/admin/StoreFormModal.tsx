@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useRef, useState } from "react";
-import { X, Upload, Trash2, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, Upload, Trash2, Loader2, MapPin } from "lucide-react";
 import { STORE_CATEGORIES, STORE_REGIONS, type PromotionStore } from "@/lib/promotionStore";
+import CropModal from "@/components/admin/CropModal";
 
 interface Props {
   initial?: PromotionStore | null;
@@ -38,28 +39,35 @@ function ImageSlot({ index, url, storeId, onUploaded, onRemove }: SlotProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    if (inputRef.current) inputRef.current.value = "";
     if (!file) return;
 
     const MAX_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       setError(`파일 크기가 너무 큽니다 (${(file.size / 1024 / 1024).toFixed(1)}MB → 최대 10MB)`);
-      if (inputRef.current) inputRef.current.value = "";
       return;
     }
     if (!file.type.startsWith("image/")) {
       setError("이미지 파일만 업로드할 수 있습니다");
-      if (inputRef.current) inputRef.current.value = "";
       return;
     }
 
+    setError("");
+    setCropSrc(URL.createObjectURL(file));
+  }
+
+  async function handleCropConfirm(blob: Blob) {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
     setUploading(true);
     setError("");
     try {
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", blob, `photo-${Date.now()}.jpg`);
       form.append("storeId", storeId);
       form.append("index", index.toString());
       const res = await fetch("/api/admin/upload", { method: "POST", body: form });
@@ -73,12 +81,23 @@ function ImageSlot({ index, url, storeId, onUploaded, onRemove }: SlotProps) {
       setError(err instanceof Error ? err.message : "업로드 실패");
     } finally {
       setUploading(false);
-      if (inputRef.current) inputRef.current.value = "";
     }
+  }
+
+  function handleCropCancel() {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
   }
 
   return (
     <div className="relative group">
+      {cropSrc && (
+        <CropModal
+          src={cropSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
+        />
+      )}
       <input
         ref={inputRef}
         type="file"
@@ -155,7 +174,112 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  // 미니맵 state
+  const [showMap, setShowMap] = useState(() => !!(initial?.lat && initial?.lng));
+  const [sdkReady, setSdkReady] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
+  const miniMapRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const miniMapInstanceRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markerRef = useRef<any>(null);
+
   const photos = Array.from({ length: 5 }, (_, i) => form.photos[i] ?? "");
+
+  // Kakao SDK 로드
+  useEffect(() => {
+    fetch("/api/map-config")
+      .then((r) => r.json())
+      .then(({ kakaoKey }: { kakaoKey: string }) => {
+        if (!kakaoKey) return;
+
+        function onReady() {
+          window.kakao.maps.load(() => setSdkReady(true));
+        }
+
+        if (window.kakao?.maps) {
+          onReady();
+          return;
+        }
+
+        const scriptId = "kakao-map-sdk";
+        const existing = document.getElementById(scriptId);
+        if (existing) {
+          existing.addEventListener("load", onReady);
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false&libraries=services`;
+        script.onload = onReady;
+        document.head.appendChild(script);
+      });
+  }, []);
+
+  // showMap + sdkReady 둘 다 true가 되면 미니맵 초기화
+  useEffect(() => {
+    if (!showMap || !sdkReady || miniMapInstanceRef.current || !miniMapRef.current) return;
+
+    const { kakao } = window;
+    const initLat = form.lat ?? 35.1684;
+    const initLng = form.lng ?? 128.9656;
+    const center = new kakao.maps.LatLng(initLat, initLng);
+
+    const map = new kakao.maps.Map(miniMapRef.current, { center, level: 3 });
+    miniMapInstanceRef.current = map;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const marker = new (kakao.maps as any).Marker({ position: center, draggable: true, map });
+    markerRef.current = marker;
+
+    // 드래그 끝날 때 좌표 업데이트
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (kakao.maps as any).event.addListener(marker, "dragend", () => {
+      const pos = marker.getPosition();
+      setForm((p) => ({ ...p, lat: pos.getLat(), lng: pos.getLng() }));
+    });
+
+    // 저장된 좌표 없고 주소 있으면 자동 지오코딩
+    if (!form.lat && !form.lng && form.address) {
+      const geocoder = new kakao.maps.services.Geocoder();
+      setGeocoding(true);
+      geocoder.addressSearch(
+        form.address,
+        (result: Array<{ x: string; y: string }>, status: string) => {
+          setGeocoding(false);
+          if (status !== kakao.maps.services.Status.OK || !result[0]) return;
+          const lat = parseFloat(result[0].y);
+          const lng = parseFloat(result[0].x);
+          const pos = new kakao.maps.LatLng(lat, lng);
+          marker.setPosition(pos);
+          map.setCenter(pos);
+          setForm((p) => ({ ...p, lat, lng }));
+        }
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showMap, sdkReady]);
+
+  function geocodeAndMove() {
+    const { kakao } = window;
+    if (!kakao?.maps || !miniMapInstanceRef.current || !markerRef.current || !form.address) return;
+    const geocoder = new kakao.maps.services.Geocoder();
+    setGeocoding(true);
+    geocoder.addressSearch(
+      form.address,
+      (result: Array<{ x: string; y: string }>, status: string) => {
+        setGeocoding(false);
+        if (status !== kakao.maps.services.Status.OK || !result[0]) return;
+        const lat = parseFloat(result[0].y);
+        const lng = parseFloat(result[0].x);
+        const pos = new kakao.maps.LatLng(lat, lng);
+        markerRef.current.setPosition(pos);
+        miniMapInstanceRef.current.setCenter(pos);
+        setForm((p) => ({ ...p, lat, lng }));
+      }
+    );
+  }
 
   function setPhoto(index: number, url: string) {
     setForm((prev) => {
@@ -204,9 +328,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div
         className="bg-bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -273,6 +395,54 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                 placeholder="상세 주소를 입력하세요"
                 className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
               />
+            </div>
+
+            {/* 지도 위치 지정 */}
+            <div className="col-span-2">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-muted">지도 위치</label>
+                {form.lat && form.lng && (
+                  <span className="text-xs text-muted font-mono">
+                    {form.lat.toFixed(5)}, {form.lng.toFixed(5)}
+                  </span>
+                )}
+              </div>
+
+              {!showMap ? (
+                <button
+                  type="button"
+                  onClick={() => setShowMap(true)}
+                  className="w-full py-2.5 border border-dashed border-border rounded-xl text-sm text-muted hover:text-white hover:border-accent/50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <MapPin size={14} />
+                  {form.lat && form.lng ? "지도에서 위치 수정" : "지도에서 위치 지정"}
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <div
+                      ref={miniMapRef}
+                      className="w-full h-52 rounded-xl overflow-hidden border border-border bg-bg-hover"
+                    />
+                    {(!sdkReady || geocoding) && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-bg-hover/80 rounded-xl">
+                        <Loader2 size={20} className="text-accent animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted">핀을 드래그해 위치를 조정할 수 있습니다</p>
+                    <button
+                      type="button"
+                      onClick={geocodeAndMove}
+                      disabled={!sdkReady || !form.address || geocoding}
+                      className="text-xs text-accent hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      주소로 이동
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

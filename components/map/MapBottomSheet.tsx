@@ -115,11 +115,13 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
   }, [isVisible]);
 
   useEffect(() => {
-    const handler = () => {
+    const handler = (e: PopStateEvent) => {
       if (ignoringPopstateRef.current) {
         ignoringPopstateRef.current = false;
         return;
       }
+      // VR·자식 모달이 닫히며 돌아오는 경우 → 바텀시트 유지
+      if (e.state?.bottomSheet === true || e.state?.vrModal === true) return;
       if (pushedStateRef.current) {
         pushedStateRef.current = false;
         onClose();

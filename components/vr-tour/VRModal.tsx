@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, ExternalLink, Loader2 } from "lucide-react";
 import { VRComplex, getVRUrl } from "@/lib/vrData";
@@ -33,15 +33,19 @@ export default function VRModal({ complex, onClose }: Props) {
   const [activeVRUrl, setActiveVRUrl] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string | null>(null);
 
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
 
     window.history.pushState({ vrModal: true }, "");
-    const onPopState = () => onClose();
+
+    const onPopState = () => onCloseRef.current();
     window.addEventListener("popstate", onPopState);
 
     return () => {
@@ -49,7 +53,8 @@ export default function VRModal({ complex, onClose }: Props) {
       document.body.style.overflow = "";
       window.removeEventListener("popstate", onPopState);
     };
-  }, [onClose]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const types = Object.keys(VR_AREA_MAP[complexKey] ?? {});

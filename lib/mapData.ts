@@ -1,7 +1,8 @@
 export interface AptComplex {
   id: string;
-  name: string;       // 지도 핀 표시명 (짧고 읽기 쉽게)
-  apiName?: string;   // 국토부 실거래 API aptNm 값 (name과 다를 때만 명시)
+  name: string;          // 지도 핀 표시명 (짧고 읽기 쉽게)
+  apiName?: string;      // 국토부 아파트 실거래 API aptNm (name과 다를 때만 명시)
+  silvApiNames?: string[]; // 국토부 분양권 실거래 API aptNm (apt API와 다를 때 명시)
   region: "ocean" | "kukje" | "ecodelta";
   regionName: string;
   address: string;
@@ -42,16 +43,18 @@ export const APT_COMPLEXES: AptComplex[] = [
   { id: "kukje_posco3",     name: "포스코 3단지", apiName: "더샵명지퍼스트월드3단지",            region: "kukje", regionName: "명지국제신도시", address: "부산 강서구 명지국제2로 41",  lat: 35.0947817266961, lng: 128.906874174632 },
 
   // ── 에코델타시티 ─────────────────────────────────────────────────────────
-  { id: "ecodelta_hoban",         name: "호반써밋",                 apiName: "에코델타호반써밋스마트시티", region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코대로 243",    lat: 35.1397424250911, lng: 128.907495574458 },
-  { id: "ecodelta_sujain",        name: "수자인",                   apiName: "에코델타스마트시티수자인",  region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코중앙1로 33",  lat: 35.1396035183419, lng: 128.916467746097 },
-  { id: "ecodelta_prugio_lin",    name: "푸르지오린",               region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타3로 43",  lat: 35.1428719245537, lng: 128.920043691156 },
-  { id: "ecodelta_xi",            name: "강서자이",                 apiName: "강서자이에코델타",          region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타1로 24",  lat: 35.1432134027804, lng: 128.914188933677 },
-  { id: "ecodelta_elife",         name: "이편한세상센터포인트",     region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타1로 42",  lat: 35.1453818415594, lng: 128.914411759665 },
-  { id: "ecodelta_prugio_center", name: "푸르지오센터파크",         region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타1로 66",  lat: 35.1476705701951, lng: 128.914698422940 },
-  { id: "ecodelta_theberhill",    name: "더베르힐",                 region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타5로 60",  lat: 35.1487432285020, lng: 128.914609008233 },
-  { id: "ecodelta_jungheung",     name: "중흥S클래스",              region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 강동동 4428-4",   lat: 35.1529328656849, lng: 128.915292689267 },
-  { id: "ecodelta_dietr_grand",   name: "디에트르그랑루체",         region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 강동동 4277",     lat: 35.1581754649920, lng: 128.917512514883 },
-  { id: "ecodelta_dietr_first",   name: "디에트르더퍼스트",         region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 강동동 4677-2",   lat: 35.1497955200891, lng: 128.922411247680 },
+  { id: "ecodelta_hoban",         name: "호반써밋",             apiName: "에코델타호반써밋스마트시티", silvApiNames: ["부산에코델타 7BL 호반써밋"],                                                   region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코대로 243",    lat: 35.1383113368126, lng: 128.907294875642 },
+  { id: "ecodelta_sujain",        name: "수자인",               apiName: "에코델타스마트시티수자인",   silvApiNames: ["부산 에코델타시티 한양수자인"],                                                region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코중앙1로 33",  lat: 35.1396035183419, lng: 128.916467746097 },
+  { id: "ecodelta_prugio_lin",    name: "푸르지오린",           silvApiNames: ["에코델타시티 푸르지오 린", "에코델타시티푸르지오린"],                                                               region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타3로 43",  lat: 35.1428719245537, lng: 128.920043691156 },
+  { id: "ecodelta_xi",            name: "강서자이",             apiName: "강서자이에코델타",            silvApiNames: ["강서자이에코델타", "강서자이 에코델타(20블록)"],                              region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타1로 24",  lat: 35.1432134027804, lng: 128.914188933677 },
+  { id: "ecodelta_elife",         name: "이편한세상센터포인트", silvApiNames: ["이편한세상에코델타센터포인트", "e편한세상 에코델타 센터포인트"],                                                      region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타1로 42",  lat: 35.1453818415594, lng: 128.914411759665 },
+  { id: "ecodelta_prugio_center", name: "푸르지오센터파크",     silvApiNames: ["에코델타시티 푸르지오 센터파크", "에코델타시티푸르지오센터파크"],                                                   region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타1로 66",  lat: 35.1476705701951, lng: 128.914698422940 },
+  { id: "ecodelta_theberhill",    name: "더베르힐",             silvApiNames: ["에코델타더베르힐", "에코델타시티 대성베르힐 17BL"],                                                                   region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 에코델타5로 60",  lat: 35.1498659152938, lng: 128.915778407351 },
+  { id: "ecodelta_jungheung",     name: "중흥S클래스",          silvApiNames: ["부산 에코델타시티 16블록 중흥S-클래스"],                                                                              region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 강동동 4428-4",   lat: 35.1529328656849, lng: 128.915292689267 },
+  { id: "ecodelta_dietr_grand",   name: "디에트르그랑루체",     silvApiNames: ["부산에코델타시티 디에트르 그랑루체(13BL)"],                                                                          region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 강동동 4277",     lat: 35.1581754649920, lng: 128.917512514883 },
+  { id: "ecodelta_dietr_first",   name: "디에트르더퍼스트",     silvApiNames: ["부산에코델타시티 디에트르 더 퍼스트(28BL)"],                                                                         region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 강동동 4677-2",   lat: 35.1497955200891, lng: 128.922411247680 },
+  { id: "ecodelta_atheara",       name: "아테라",               silvApiNames: ["에코델타시티 아테라(24BL)"],                                                                                                      region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 강동동 4680-4",   lat: 35.1499452788496, lng: 128.919474638227 },
+  { id: "ecodelta_daebang",       name: "대방엘리움리버뷰",     silvApiNames: ["부산에코델타시티 대방 엘리움 리버뷰"],                                                                                             region: "ecodelta", regionName: "에코델타시티", address: "부산 강서구 대저2동 5428-9",  lat: 35.1405523816491, lng: 128.927407692621 },
 ];
 
 export const REGION_COLORS: Record<AptComplex["region"], string> = {

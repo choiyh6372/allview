@@ -7,17 +7,18 @@ import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
 import { buildComplexList, buildRentTransactions } from "@/lib/aptTradeApi";
-import type { Complex } from "@/lib/realEstateData";
+import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import { type AptComplex } from "@/lib/mapData";
 import type { PromotionStore } from "@/lib/promotionStore";
 
-interface RealEstateData {
+interface MapEstateData {
   aptComplexes: Complex[];
+  silvComplexes: Complex[];
   rentItems: RentRawItem[];
 }
 
-async function fetchData(): Promise<RealEstateData> {
+async function fetchData(): Promise<MapEstateData> {
   const [aptRes, silvRes, rentRes] = await Promise.all([
     fetch("/api/apt-trade?lawdCd=26440&months=60"),
     fetch("/api/silv-trade?lawdCd=26440&months=60"),
@@ -26,11 +27,32 @@ async function fetchData(): Promise<RealEstateData> {
   const [aptData, silvData, rentData] = await Promise.all([
     aptRes.json(), silvRes.json(), rentRes.json(),
   ]);
-  const aptComplexes = buildComplexList([
-    ...(aptData.items ?? []),
-    ...(silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권"),
-  ]);
-  return { aptComplexes, rentItems: rentData.items ?? [] };
+  const aptComplexes = buildComplexList(aptData.items ?? []);
+  const silvComplexes = buildComplexList(
+    (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
+  );
+  return { aptComplexes, silvComplexes, rentItems: rentData.items ?? [] };
+}
+
+function mergePriceArrays(apt: MonthlyPrice[], silv: MonthlyPrice[]): MonthlyPrice[] {
+  const map = new Map<string, MonthlyPrice>();
+  for (const p of silv) map.set(p.month, p);
+  for (const p of apt) map.set(p.month, p);
+  return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
+}
+
+function mergeComplexes(apt: Complex, silv: Complex): Complex {
+  const transactions = [...apt.transactions, ...silv.transactions]
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const areas = Array.from(new Set([...apt.areas, ...silv.areas]))
+    .sort((a, b) => parseInt(a) - parseInt(b));
+  const allAreaKeys = Array.from(new Set([...Object.keys(apt.monthlyPricesByArea), ...Object.keys(silv.monthlyPricesByArea)]));
+  const monthlyPricesByArea: Record<string, MonthlyPrice[]> = {};
+  for (const area of allAreaKeys) {
+    monthlyPricesByArea[area] = mergePriceArrays(apt.monthlyPricesByArea[area] ?? [], silv.monthlyPricesByArea[area] ?? []);
+  }
+  const monthlyPrices = mergePriceArrays(apt.monthlyPrices, silv.monthlyPrices);
+  return { ...apt, transactions, areas, monthlyPrices, monthlyPricesByArea };
 }
 
 interface Props {
@@ -40,7 +62,7 @@ interface Props {
 }
 
 export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Props) {
-  const { data, isLoading } = useSWR<RealEstateData>("real-estate-data", fetchData, {
+  const { data, isLoading } = useSWR<MapEstateData>("real-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     dedupingInterval: 5 * 60 * 1000,
@@ -49,9 +71,23 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
   const [selectedArea, setSelectedArea] = useState("");
   const [photoIndex, setPhotoIndex] = useState(0);
 
-  const complex = selectedApt
-    ? (data?.aptComplexes.find((c) => c.name === (selectedApt.apiName ?? selectedApt.name)) ?? null)
+  const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
+  const aptComplex = aptName ? (data?.aptComplexes.find((c) => c.name === aptName) ?? null) : null;
+
+  const silvNames: string[] = selectedApt?.silvApiNames?.length
+    ? selectedApt.silvApiNames
+    : (aptName ? [aptName] : []);
+  const silvComplex = (data?.silvComplexes ?? []).length > 0
+    ? silvNames.reduce<Complex | null>((acc, n) => {
+        const found = data!.silvComplexes.find((c) => c.name === n) ?? null;
+        if (!found) return acc;
+        return acc ? mergeComplexes(acc, found) : found;
+      }, null)
     : null;
+
+  const complex =
+    aptComplex && silvComplex ? mergeComplexes(aptComplex, silvComplex)
+    : aptComplex ?? silvComplex ?? null;
 
   useEffect(() => {
     setSelectedArea(complex?.areas[0] ?? "");

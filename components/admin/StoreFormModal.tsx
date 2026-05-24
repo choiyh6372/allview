@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X, Upload, Trash2, Loader2, MapPin } from "lucide-react";
+import { X, Upload, Trash2, Loader2, MapPin, GripVertical } from "lucide-react";
 import { STORE_CATEGORIES, STORE_REGIONS, type PromotionStore } from "@/lib/promotionStore";
 import CropModal from "@/components/admin/CropModal";
 
@@ -185,6 +185,17 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
   const markerRef = useRef<any>(null);
 
   const photos = Array.from({ length: 10 }, (_, i) => form.photos[i] ?? "");
+
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
+
+  function reorderPhotos(from: number, to: number) {
+    if (from === to) return;
+    const arr = Array.from({ length: 10 }, (_, i) => form.photos[i] ?? "");
+    const [item] = arr.splice(from, 1);
+    arr.splice(to, 0, item);
+    setForm(f => ({ ...f, photos: arr.filter(Boolean) }));
+  }
 
   // Kakao SDK 로드
   useEffect(() => {
@@ -505,14 +516,32 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
             </label>
             <div className="grid grid-cols-5 gap-2">
               {photos.map((url, i) => (
-                <ImageSlot
+                <div
                   key={i}
-                  index={i}
-                  url={url}
-                  storeId={storeId}
-                  onUploaded={(newUrl) => setPhoto(i, newUrl)}
-                  onRemove={() => removePhoto(i)}
-                />
+                  draggable={!!url}
+                  onDragStart={() => { dragIndexRef.current = i; }}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(i); }}
+                  onDrop={() => {
+                    if (dragIndexRef.current !== null) reorderPhotos(dragIndexRef.current, i);
+                    dragIndexRef.current = null;
+                    setDragOver(null);
+                  }}
+                  onDragEnd={() => { dragIndexRef.current = null; setDragOver(null); }}
+                  className={`relative transition-opacity ${dragOver === i && dragIndexRef.current !== i ? "ring-2 ring-accent rounded-xl" : ""}`}
+                >
+                  {url && (
+                    <div className="absolute top-1 left-1 z-10 cursor-grab text-white/70 hover:text-white">
+                      <GripVertical size={14} />
+                    </div>
+                  )}
+                  <ImageSlot
+                    index={i}
+                    url={url}
+                    storeId={storeId}
+                    onUploaded={(newUrl) => setPhoto(i, newUrl)}
+                    onRemove={() => removePhoto(i)}
+                  />
+                </div>
               ))}
             </div>
             <p className="text-xs text-muted mt-1.5">첫 번째 사진이 카드의 대표 사진으로 사용됩니다.</p>

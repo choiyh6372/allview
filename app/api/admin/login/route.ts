@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const COOKIE_NAME = "admin_auth";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7일
+const COOKIE_MAX_AGE = 60 * 60 * 24; // 24시간
 
 function bufToHex(buf: ArrayBuffer): string {
   return Array.from(new Uint8Array(buf))

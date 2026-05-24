@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { X, ExternalLink, Loader2 } from "lucide-react";
 import { VRComplex, getVRUrl } from "@/lib/vrData";
 import { VR_AREA_MAP } from "@/lib/vrAreaMapping";
@@ -87,15 +88,15 @@ export default function VRModal({ complex, onClose }: Props) {
     [complex]
   );
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm md:p-3"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black md:p-3"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="w-full h-full md:w-[92vw] md:max-w-6xl md:h-[98vh] bg-bg-card border border-border md:rounded-2xl overflow-hidden flex flex-col">
 
         {/* 상단: 단지명 / 평형 / 지역 */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-b border-border shrink-0">
+        <div className="flex items-center justify-between px-4 py-2 md:px-6 md:py-3.5 border-b border-border shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-base font-bold text-white truncate">{complex.name}</span>
             {activeType ? (
@@ -127,7 +128,7 @@ export default function VRModal({ complex, onClose }: Props) {
         </div>
 
         {/* 평형 버튼들 */}
-        <div className="px-6 py-3 border-b border-border shrink-0 grid grid-cols-3 gap-2 max-h-36 overflow-y-auto md:flex md:flex-wrap md:max-h-none md:overflow-visible scrollbar-light">
+        <div className="px-4 py-2 md:px-6 md:py-3 border-b border-border shrink-0 grid grid-cols-3 gap-1.5 max-h-32 overflow-y-auto md:flex md:flex-wrap md:gap-2 md:max-h-none md:overflow-visible scrollbar-light">
           {allTypes.map((type) => {
             const status = typeStatuses[type];
             const sqm = areaMap[type];
@@ -186,6 +187,7 @@ export default function VRModal({ complex, onClose }: Props) {
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

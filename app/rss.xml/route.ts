@@ -26,11 +26,21 @@ async function fetchByQuery(
 }
 
 function stripHtml(str: string): string {
-  return str.replace(/<[^>]+>/g, "").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+  return str
+    .replace(/<[^>]+>/g, "")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
 }
 
-function escapeUrl(str: string): string {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 export async function GET() {
@@ -57,12 +67,12 @@ export async function GET() {
   }
 
   const itemsXml = items.map((item) => {
-    const link = escapeUrl(item.originallink || item.link);
-    const title = stripHtml(item.title);
+    const link = escapeXml(item.originallink || item.link);
+    const title = escapeXml(stripHtml(item.title));
     const description = stripHtml(item.description);
     const pubDate = new Date(item.pubDate).toUTCString();
     return `<item>
-      <title><![CDATA[${title}]]></title>
+      <title>${title}</title>
       <link>${link}</link>
       <description><![CDATA[${description}]]></description>
       <pubDate>${pubDate}</pubDate>

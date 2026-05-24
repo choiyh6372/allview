@@ -131,16 +131,24 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
 
   // 드래그로 닫기
   const startYRef = useRef<number | null>(null);
+  const startXRef = useRef<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  function onTouchStart(e: React.TouchEvent) {
+  function onSheetTouchStart(e: React.TouchEvent) {
     startYRef.current = e.touches[0].clientY;
+    startXRef.current = e.touches[0].clientX;
   }
-  function onTouchEnd(e: React.TouchEvent) {
+  function onSheetTouchEnd(e: React.TouchEvent) {
     if (startYRef.current === null) return;
     const dy = e.changedTouches[0].clientY - startYRef.current;
-    if (dy > 80) onClose();
+    const dx = e.changedTouches[0].clientX - (startXRef.current ?? 0);
     startYRef.current = null;
+    startXRef.current = null;
+    // 아래로 80px 이상, 수직이 수평보다 크고, 콘텐츠가 최상단일 때만 닫기
+    if (dy > 80 && Math.abs(dy) > Math.abs(dx) && (scrollRef.current?.scrollTop ?? 0) === 0) {
+      onClose();
+    }
   }
 
   const rentItems = data?.rentItems ?? [];
@@ -177,13 +185,11 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
           isVisible ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ maxHeight: "78vh" }}
+        onTouchStart={onSheetTouchStart}
+        onTouchEnd={onSheetTouchEnd}
       >
         {/* 드래그 핸들 */}
-        <div
-          className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-        >
+        <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
 
@@ -196,7 +202,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
         </button>
 
         {/* 스크롤 콘텐츠 */}
-        <div className="overflow-y-auto scrollbar-light pb-6" style={{ maxHeight: "calc(78vh - 48px)" }}>
+        <div ref={scrollRef} className="overflow-y-auto scrollbar-light pb-6" style={{ maxHeight: "calc(78vh - 48px)" }}>
 
           {/* 가게 정보 */}
           {selectedStore && (

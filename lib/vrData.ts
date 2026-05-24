@@ -28,7 +28,7 @@ export const complexData: VRComplex[] = [
   { id: "ocean_qweendom_einstein", slug: "qweendom_einstein", name: "퀸덤 아인슈타인", regionId: "ocean", regionName: "명지오션시티",
     types: ["33a","33b","39c","39d","46a","46c","55"] },
   { id: "ocean_samjung", slug: "samjung", name: "삼정", regionId: "ocean", regionName: "명지오션시티",
-    types: ["29","31","34a","34b","39"] },
+    types: ["28","31","34a","34b","39"] },
   { id: "ocean_solmare", slug: "solmare", name: "솔마레", regionId: "ocean", regionName: "명지오션시티",
     types: ["29","32","33a","33b","33c","36","36a","36b","39","42"] },
   // 명지국제신도시 (kukje)

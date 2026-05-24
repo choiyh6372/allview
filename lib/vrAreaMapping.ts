@@ -46,7 +46,7 @@ export const VR_AREA_MAP: Record<string, Record<string, number>> = {
     "55": 145,
   },
   ocean_samjung: {
-    "29": 71, "31": 79, "34a": 85, "34b": 85, "39": 98,
+    "28": 71, "31": 79, "34a": 85, "34b": 85, "39": 98,
   },
   ocean_solmare: {
     "29": 73, "32": 79,

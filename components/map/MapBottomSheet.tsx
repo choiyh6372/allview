@@ -98,6 +98,37 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
     setPhotoIndex(0);
   }, [selectedStore?.id]);
 
+  // 뒤로가기로 닫기 (History API)
+  const pushedStateRef = useRef(false);
+  const ignoringPopstateRef = useRef(false);
+
+  useEffect(() => {
+    if (isVisible) {
+      history.pushState({ bottomSheet: true }, "");
+      pushedStateRef.current = true;
+    } else if (pushedStateRef.current) {
+      // X버튼·드래그 등으로 닫힌 경우 → 푸시했던 state 정리
+      pushedStateRef.current = false;
+      ignoringPopstateRef.current = true;
+      history.back();
+    }
+  }, [isVisible]);
+
+  useEffect(() => {
+    const handler = () => {
+      if (ignoringPopstateRef.current) {
+        ignoringPopstateRef.current = false;
+        return;
+      }
+      if (pushedStateRef.current) {
+        pushedStateRef.current = false;
+        onClose();
+      }
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [onClose]);
+
   // 드래그로 닫기
   const startYRef = useRef<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);

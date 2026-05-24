@@ -90,10 +90,10 @@ export default function VRModal({ complex, onClose }: Props) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black md:p-3"
+      className="fixed inset-0 z-[9999] bg-black md:flex md:items-center md:justify-center md:p-3"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full h-full md:w-[92vw] md:max-w-6xl md:h-[98vh] bg-bg-card border border-border md:rounded-2xl overflow-hidden flex flex-col">
+      <div className="w-full h-dvh md:h-[98vh] md:w-[92vw] md:max-w-6xl bg-bg-card border border-border md:rounded-2xl overflow-hidden flex flex-col">
 
         {/* 상단: 단지명 / 평형 / 지역 */}
         <div className="flex items-center justify-between px-4 py-2 md:px-6 md:py-3.5 border-b border-border shrink-0">

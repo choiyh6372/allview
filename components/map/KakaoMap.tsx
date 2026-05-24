@@ -350,18 +350,25 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       { region: "kukje"    as const, name: "명지국제신도시",  ...REGION_CENTER.kukje },
       { region: "ecodelta" as const, name: "에코델타시티",    ...REGION_CENTER.ecodelta },
     ];
-    REGION_LABELS.forEach(({ region, name, lat, lng }) => {
+    REGION_LABELS.forEach(({ region, name, lat, lng, level }) => {
       const color = REGION_COLORS[region];
       const content = document.createElement("div");
-      content.style.cssText = "display:flex;flex-direction:column;align-items:center;pointer-events:none;";
+      content.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
       content.innerHTML = `
         <div style="background:${color};color:#fff;font-size:13px;font-weight:800;
           padding:6px 14px;border-radius:8px;white-space:nowrap;letter-spacing:-0.3px;
-          box-shadow:0 3px 12px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.25);">
+          box-shadow:0 3px 12px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.25);
+          transition:transform 0.15s,box-shadow 0.15s;"
+          onmouseover="this.style.transform='scale(1.07)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
+          onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(0,0,0,0.5)';">
           ${name}
         </div>
         <div style="width:0;height:0;border-left:8px solid transparent;
           border-right:8px solid transparent;border-top:10px solid ${color};margin-top:-1px;"></div>`;
+      content.addEventListener("click", () => {
+        map.setCenter(new kakao.maps.LatLng(lat, lng));
+        map.setLevel(level, { animate: true });
+      });
       const overlay = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(lat, lng),
         content,

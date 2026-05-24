@@ -8,13 +8,17 @@ function fmt(v: number) {
   return `${v.toLocaleString()}만`;
 }
 
+function fmtMan(v: number) {
+  return v.toLocaleString();
+}
+
 function RentPrice({ deposit, monthlyRent }: { deposit: number; monthlyRent: number }) {
   if (monthlyRent === 0) {
     return <span className="font-semibold text-inherit">{fmt(deposit)}</span>;
   }
   return (
     <span className="font-semibold text-inherit">
-      {fmt(deposit)} / {monthlyRent.toLocaleString()}만
+      {fmtMan(deposit)} / {fmtMan(monthlyRent)}
     </span>
   );
 }
@@ -169,7 +173,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
                   <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
                   <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>유형</th>
-                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세</th>
+                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세(만원)</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${divRow} ${txt}`}>
@@ -206,7 +210,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
                   <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
                   <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>유형</th>
-                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세</th>
+                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세(만원)</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${divRow}`}>

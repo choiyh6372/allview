@@ -89,10 +89,10 @@ export default function VRModal({ complex, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm md:p-3"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-[92vw] max-w-6xl h-[92vh] bg-bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
+      <div className="w-full h-full md:w-[92vw] md:max-w-6xl md:h-[98vh] bg-bg-card border border-border md:rounded-2xl overflow-hidden flex flex-col">
 
         {/* 상단: 단지명 / 평형 / 지역 */}
         <div className="flex items-center justify-between px-6 py-3.5 border-b border-border shrink-0">
@@ -127,7 +127,7 @@ export default function VRModal({ complex, onClose }: Props) {
         </div>
 
         {/* 평형 버튼들 */}
-        <div className="px-6 py-3 border-b border-border shrink-0 flex flex-wrap gap-2 max-h-24 overflow-y-auto md:max-h-none md:overflow-visible scrollbar-light">
+        <div className="px-6 py-3 border-b border-border shrink-0 grid grid-cols-3 gap-2 max-h-36 overflow-y-auto md:flex md:flex-wrap md:max-h-none md:overflow-visible scrollbar-light">
           {allTypes.map((type) => {
             const status = typeStatuses[type];
             const sqm = areaMap[type];
@@ -141,7 +141,7 @@ export default function VRModal({ complex, onClose }: Props) {
                 key={type}
                 disabled={isChecking || isUnavailable}
                 onClick={isChecking || isUnavailable ? undefined : () => handleTypeClick(type)}
-                className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all ${
                   isChecking
                     ? "bg-bg-hover border border-border text-gray-500 cursor-wait"
                     : isUnavailable

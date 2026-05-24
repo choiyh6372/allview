@@ -25,14 +25,12 @@ async function fetchByQuery(
   }
 }
 
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;")
-    .replace(/<\/?b>/gi, "");
+function stripHtml(str: string): string {
+  return str.replace(/<[^>]+>/g, "").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+}
+
+function escapeUrl(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 export async function GET() {
@@ -58,35 +56,35 @@ export async function GET() {
       .slice(0, 50);
   }
 
-  const itemsXml = items
-    .map(
-      (item) => `
-    <item>
-      <title>${escapeXml(item.title)}</title>
-      <link>${escapeXml(item.originallink || item.link)}</link>
-      <description>${escapeXml(item.description)}</description>
-      <pubDate>${new Date(item.pubDate).toUTCString()}</pubDate>
-      <guid isPermaLink="true">${escapeXml(item.originallink || item.link)}</guid>
-    </item>`
-    )
-    .join("");
+  const itemsXml = items.map((item) => {
+    const link = escapeUrl(item.originallink || item.link);
+    const title = stripHtml(item.title);
+    const description = stripHtml(item.description);
+    const pubDate = new Date(item.pubDate).toUTCString();
+    return `<item>
+      <title><![CDATA[${title}]]></title>
+      <link>${link}</link>
+      <description><![CDATA[${description}]]></description>
+      <pubDate>${pubDate}</pubDate>
+      <guid isPermaLink="true">${link}</guid>
+    </item>`;
+  }).join("\n    ");
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0">
   <channel>
     <title>올뷰 - 부산 서부산권 부동산 뉴스</title>
     <link>https://allview.kr</link>
     <description>명지오션시티, 명지국제신도시, 에코델타시티 최신 부동산 뉴스</description>
     <language>ko</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="https://allview.kr/rss.xml" rel="self" type="application/rss+xml"/>
     ${itemsXml}
   </channel>
 </rss>`;
 
   return new Response(xml, {
     headers: {
-      "Content-Type": "application/xml; charset=utf-8",
+      "Content-Type": "application/rss+xml; charset=utf-8",
       "Cache-Control": "s-maxage=600, stale-while-revalidate=60",
     },
   });

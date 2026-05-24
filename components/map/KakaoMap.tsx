@@ -367,7 +367,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           border-right:8px solid transparent;border-top:10px solid ${color};margin-top:-1px;"></div>`;
       content.addEventListener("click", () => {
         map.setCenter(new kakao.maps.LatLng(lat, lng));
-        map.setLevel(level, { animate: true });
+        map.setLevel(level);
       });
       const overlay = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(lat, lng),

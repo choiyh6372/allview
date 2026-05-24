@@ -146,6 +146,20 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
   const rentItems = data?.rentItems ?? [];
   const photos = selectedStore?.photos ?? [];
 
+  // 사진 스와이프
+  const photoSwipeStartXRef = useRef<number | null>(null);
+  function onPhotoTouchStart(e: React.TouchEvent) {
+    photoSwipeStartXRef.current = e.touches[0].clientX;
+  }
+  function onPhotoTouchEnd(e: React.TouchEvent) {
+    if (photoSwipeStartXRef.current === null) return;
+    const dx = e.changedTouches[0].clientX - photoSwipeStartXRef.current;
+    photoSwipeStartXRef.current = null;
+    if (Math.abs(dx) < 40) return;
+    if (dx < 0) setPhotoIndex((i) => (i + 1) % photos.length);
+    else setPhotoIndex((i) => (i - 1 + photos.length) % photos.length);
+  }
+
   return (
     <>
       {/* 백드롭 */}
@@ -216,7 +230,11 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
               </div>
 
               {photos.length > 0 && (
-                <div className="relative rounded-xl overflow-hidden bg-gray-100">
+                <div
+                  className="relative rounded-xl overflow-hidden bg-gray-100"
+                  onTouchStart={onPhotoTouchStart}
+                  onTouchEnd={onPhotoTouchEnd}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={photos[photoIndex]}

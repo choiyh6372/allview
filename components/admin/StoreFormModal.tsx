@@ -184,7 +184,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markerRef = useRef<any>(null);
 
-  const photos = Array.from({ length: 5 }, (_, i) => form.photos[i] ?? "");
+  const photos = Array.from({ length: 10 }, (_, i) => form.photos[i] ?? "");
 
   // Kakao SDK 로드
   useEffect(() => {
@@ -501,7 +501,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
           {/* Photos */}
           <div>
             <label className="block text-xs font-medium text-muted mb-2">
-              사진 (최대 5장, 자동 4:3 크롭)
+              사진 (최대 10장, 자동 4:3 크롭)
             </label>
             <div className="grid grid-cols-5 gap-2">
               {photos.map((url, i) => (

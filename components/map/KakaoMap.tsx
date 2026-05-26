@@ -366,7 +366,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       { region: "ecodelta" as const, name: "에코델타시티",    ...REGION_CENTER.ecodelta },
       { region: "other"    as const, name: "신호동",          color: "#8b5cf6", lat: 35.0850, lng: 128.8775, level: 5 },
       { region: "other"    as const, name: "화전동",          color: "#06b6d4", lat: 35.1062, lng: 128.8830, level: 5 },
-      { region: "other"    as const, name: "지사동",          color: "#10b981", lat: 35.1437, lng: 128.8236, level: 5 },
+      { region: "other"    as const, name: "지사동",          color: "#10b981", lat: 35.1513, lng: 128.8369, level: 5 },
       { region: "other"    as const, name: "대저동",          color: "#f43f5e", lat: 35.2143, lng: 128.9794, level: 5 },
     ];
     REGION_LABELS.forEach(({ region, name, lat, lng, level, color: labelColor }) => {

@@ -11,6 +11,7 @@ import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import { type AptComplex } from "@/lib/mapData";
 import type { PromotionStore } from "@/lib/promotionStore";
+import { complexData as vrComplexData } from "@/lib/vrData";
 
 interface MapEstateData {
   aptComplexes: Complex[];
@@ -278,7 +279,11 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
         {selectedApt && !selectedStore && !isLoading && complex && (
           <div className="p-4 space-y-4">
             <PriceChart
-              complex={selectedApt.name !== complex.name ? { ...complex, name: selectedApt.name } : complex}
+              complex={(() => {
+                const vrOverride = vrComplexData.find((c) => c.id === selectedApt.id);
+                const overrideVrInfo = vrOverride ? { regionId: vrOverride.regionId, slug: vrOverride.slug, types: vrOverride.types } : complex.vrInfo;
+                return { ...complex, name: selectedApt.name, vrInfo: overrideVrInfo };
+              })()}
               rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
               selectedArea={selectedArea}
               onAreaChange={setSelectedArea}

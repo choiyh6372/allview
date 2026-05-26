@@ -11,8 +11,12 @@ export interface VRComplex {
 
 export const complexData: VRComplex[] = [
   // 명지오션시티 (ocean)
-  { id: "ocean_blueocean", slug: "blueocean", name: "엘크루블루오션", regionId: "ocean", regionName: "명지오션시티",
-    types: ["46a","46b","54a","54b","64","65","66","67a","68a","68b","69b","76","77","78","79","87a","87b","88a","88b"] },
+  { id: "ocean_blueocean4", slug: "blueocean4", name: "엘크루블루오션 4단지", regionId: "ocean", regionName: "명지오션시티",
+    types: ["46a","46b","54a","54b","65","66","68b","69b","76","78","79","87b","88b"] },
+  { id: "ocean_blueocean5", slug: "blueocean5", name: "엘크루블루오션 5단지", regionId: "ocean", regionName: "명지오션시티",
+    types: ["46a","46b","54a","54b","64","66","67a","68a","76","77","78","87a","87b","88a","88b"] },
+  { id: "ocean_blueocean6", slug: "blueocean6", name: "엘크루블루오션 6단지", regionId: "ocean", regionName: "명지오션시티",
+    types: ["46a","46b","54a","54b","64","65","66","67a","68b","69b","76","78","79","87a","87b","88a","88b"] },
   { id: "ocean_doosan", slug: "doosan", name: "두산위브", regionId: "ocean", regionName: "명지오션시티",
     types: ["28","33a","33b","33c","33d","49"] },
   { id: "ocean_hansin", slug: "hansin", name: "한신휴플러스", regionId: "ocean", regionName: "명지오션시티",

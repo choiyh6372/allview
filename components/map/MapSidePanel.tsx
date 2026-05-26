@@ -90,6 +90,12 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
             <span className="font-semibold text-gray-800">{apt.heatType}</span>
           </div>
         )}
+        {apt.officeTel && (
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">관리사무소</span>
+            <span className="font-semibold text-gray-800">{apt.officeTel}</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -57,15 +57,22 @@ function mergeComplexes(apt: Complex, silv: Complex): Complex {
 
 function AptInfoCard({ apt }: { apt: AptComplex }) {
   if (!apt.hoCnt && !apt.buildYear && !apt.parkingCnt && !apt.heatType && !apt.address) return null;
-  const rows = [
-    { label: "도로명주소", value: apt.address      || null, href: null },
-    { label: "법정동주소", value: apt.legalAddress || null, href: null },
-    { label: "세대수",     value: apt.hoCnt      ? `${apt.hoCnt.toLocaleString()}세대` : null, href: null },
-    { label: "건축연도",   value: apt.buildYear  ? `${apt.buildYear}년` : null, href: null },
-    { label: "주차대수",   value: apt.parkingCnt ? `${apt.parkingCnt.toLocaleString()}대` : null, href: null },
-    { label: "난방방식",   value: apt.heatType   || null, href: null },
-    { label: "관리사무소", value: apt.officeTel  || null, href: apt.officeTel ? `tel:${apt.officeTel}` : null },
-  ].filter((r) => r.value !== null);
+  type Single = { kind: "single"; label: string; value: string; href?: string };
+  type Pair   = { kind: "pair"; items: { label: string; value: string }[] };
+  const rows: (Single | Pair)[] = [
+    apt.address      ? { kind: "single", label: "도로명주소", value: apt.address } : null,
+    apt.legalAddress ? { kind: "single", label: "법정동주소", value: apt.legalAddress } : null,
+    (apt.hoCnt || apt.buildYear) ? {
+      kind: "pair",
+      items: [
+        ...(apt.hoCnt     ? [{ label: "세대수",   value: `${apt.hoCnt.toLocaleString()}세대` }] : []),
+        ...(apt.buildYear ? [{ label: "건축연도",  value: `${apt.buildYear}년` }] : []),
+      ],
+    } : null,
+    apt.parkingCnt ? { kind: "single", label: "주차대수", value: `${apt.parkingCnt.toLocaleString()}대` } : null,
+    apt.heatType   ? { kind: "single", label: "난방방식", value: apt.heatType } : null,
+    apt.officeTel  ? { kind: "single", label: "관리사무소", value: apt.officeTel, href: `tel:${apt.officeTel}` } : null,
+  ].filter(Boolean) as (Single | Pair)[];
   return (
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
       <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -75,15 +82,26 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
           <span className="text-xs text-gray-400">기본정보</span>
         </div>
       </div>
-      {rows.map(({ label, value, href }) => (
-        <div key={label} className="flex items-center justify-between gap-4 px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
-          <span className="text-gray-500 shrink-0">{label}</span>
-          {href
-            ? <a href={href} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors text-right">{value}</a>
-            : <span className="font-semibold text-gray-900 text-right">{value}</span>
-          }
-        </div>
-      ))}
+      {rows.map((row, i) =>
+        row.kind === "pair" ? (
+          <div key={i} className="flex border-b border-gray-100 last:border-b-0">
+            {row.items.map(({ label, value }) => (
+              <div key={label} className="flex-1 flex items-center justify-between gap-2 px-6 py-3 hover:bg-gray-50 transition-colors first:border-r first:border-gray-100">
+                <span className="text-gray-500 shrink-0">{label}</span>
+                <span className="font-semibold text-gray-900">{value}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div key={row.label} className="flex items-center justify-between gap-4 px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
+            <span className="text-gray-500 shrink-0">{row.label}</span>
+            {row.href
+              ? <a href={row.href} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors text-right">{row.value}</a>
+              : <span className="font-semibold text-gray-900 text-right">{row.value}</span>
+            }
+          </div>
+        )
+      )}
     </div>
   );
 }

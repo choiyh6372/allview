@@ -47,7 +47,7 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
   const duration = base.length * 10;
 
   return (
-    <section className={compact ? "py-4 overflow-hidden" : "py-16 overflow-hidden"}>
+    <section className={compact ? "pt-1 pb-1 overflow-hidden" : "py-16 overflow-hidden"}>
       <div className={compact ? "px-4 mb-3 flex items-center justify-between" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8"}>
         {compact ? (
           <p className="text-sm font-semibold text-white">주변 추천 가게</p>

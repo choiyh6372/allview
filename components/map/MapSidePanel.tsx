@@ -300,7 +300,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
         )}
 
         {/* 가게 홍보 슬라이드 */}
-        <div className="border-t border-gray-200 bg-white">
+        <div className="border-t border-gray-200 bg-white pb-10">
           <StoreBanner compact />
         </div>
       </div>

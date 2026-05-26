@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAptPositions, saveAptPositions } from "@/lib/aptPositionStore";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const data = await getAptPositions();
   return NextResponse.json(data);

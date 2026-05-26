@@ -57,7 +57,8 @@ function mergeComplexes(apt: Complex, silv: Complex): Complex {
 function AptInfoCard({ apt }: { apt: AptComplex }) {
   if (!apt.hoCnt && !apt.buildYear && !apt.parkingCnt && !apt.heatType && !apt.address) return null;
   const rows = [
-    { label: "도로명주소", value: apt.address    || null, href: null },
+    { label: "도로명주소", value: apt.address      || null, href: null },
+    { label: "법정동주소", value: apt.legalAddress || null, href: null },
     { label: "세대수",     value: apt.hoCnt      ? `${apt.hoCnt.toLocaleString()}세대` : null, href: null },
     { label: "건축연도",   value: apt.buildYear  ? `${apt.buildYear}년` : null, href: null },
     { label: "주차대수",   value: apt.parkingCnt ? `${apt.parkingCnt.toLocaleString()}대` : null, href: null },

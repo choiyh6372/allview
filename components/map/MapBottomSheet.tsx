@@ -66,6 +66,9 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
   ].filter((r) => r.value !== null);
   return (
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h2 className="text-sm font-semibold text-gray-900">{apt.name}</h2>
+      </div>
       {rows.map(({ label, value, href }) => (
         <div key={label} className="flex items-center justify-between gap-4 px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
           <span className="text-gray-500 shrink-0">{label}</span>

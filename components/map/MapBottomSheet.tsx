@@ -75,6 +75,7 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
         ...(apt.heatType ? [{ label: "난방방식", value: apt.heatType }] : []),
       ],
     } : null,
+    apt.evChargerCnt ? { kind: "single", label: "전기차충전기", value: `${apt.evChargerCnt}기` } : null,
     apt.officeTel  ? { kind: "single", label: "관리사무소", value: apt.officeTel, href: `tel:${apt.officeTel}` } : null,
   ].filter(Boolean) as (Single | Pair)[];
   return (
@@ -358,7 +359,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
           {selectedApt && !selectedStore && !isLoading && complex && (
             <div className="p-4 space-y-4">
               <PriceChart
-                complex={complex}
+                complex={selectedApt.name !== complex.name ? { ...complex, name: selectedApt.name } : complex}
                 rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
                 selectedArea={selectedArea}
                 onAreaChange={setSelectedArea}

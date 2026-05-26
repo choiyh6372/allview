@@ -3,7 +3,7 @@ export interface AptComplex {
   name: string;          // 지도 핀 표시명 (짧고 읽기 쉽게)
   apiName?: string;      // 국토부 아파트 실거래 API aptNm (name과 다를 때만 명시)
   silvApiNames?: string[]; // 국토부 분양권 실거래 API aptNm (apt API와 다를 때 명시)
-  region: "ocean" | "kukje" | "ecodelta";
+  region: "ocean" | "kukje" | "ecodelta" | "other";
   regionName: string;
   address: string;
   lat: number;
@@ -61,9 +61,10 @@ export const REGION_COLORS: Record<AptComplex["region"], string> = {
   ocean:    "#5b6ef5",
   kukje:    "#22c55e",
   ecodelta: "#f59e0b",
+  other:    "#6b7280",
 };
 
-export const REGION_CENTER: Record<AptComplex["region"], { lat: number; lng: number; level: number }> = {
+export const REGION_CENTER: Partial<Record<AptComplex["region"], { lat: number; lng: number; level: number }>> & Record<"ocean" | "kukje" | "ecodelta", { lat: number; lng: number; level: number }> = {
   ocean:    { lat: 35.0848, lng: 128.9009, level: 5 },
   kukje:    { lat: 35.1013, lng: 128.9159, level: 5 },
   ecodelta: { lat: 35.1488, lng: 128.9154, level: 5 },

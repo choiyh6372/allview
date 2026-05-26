@@ -25,6 +25,20 @@ interface KakaoMarker {
 interface KakaoGeocoder {
   addressSearch: (addr: string, cb: (result: Array<{ x: string; y: string }>, status: string) => void) => void;
 }
+interface KakaoPlacesResult {
+  x: string;
+  y: string;
+  place_name: string;
+  address_name: string;
+  road_address_name: string;
+}
+interface KakaoPlaces {
+  keywordSearch: (
+    query: string,
+    cb: (result: KakaoPlacesResult[], status: string) => void,
+    opts?: { size?: number }
+  ) => void;
+}
 interface KakaoMaps {
   load: (cb: () => void) => void;
   Map: new (el: HTMLElement, opts: object) => KakaoMapInstance;
@@ -34,6 +48,7 @@ interface KakaoMaps {
   event: { addListener: (target: KakaoMapInstance | KakaoMarker, type: string, cb: () => void) => void };
   services: {
     Geocoder: new () => KakaoGeocoder;
+    Places: new () => KakaoPlaces;
     Status: { OK: string };
   };
 }
@@ -349,9 +364,12 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       { region: "ocean"    as const, name: "명지오션시티",    ...REGION_CENTER.ocean },
       { region: "kukje"    as const, name: "명지국제신도시",  ...REGION_CENTER.kukje },
       { region: "ecodelta" as const, name: "에코델타시티",    ...REGION_CENTER.ecodelta },
+      { region: "other"    as const, name: "신호동",          color: "#8b5cf6", lat: 35.0850, lng: 128.8775, level: 5 },
+      { region: "other"    as const, name: "화전동",          color: "#06b6d4", lat: 35.1062, lng: 128.8830, level: 5 },
+      { region: "other"    as const, name: "대저동",          color: "#f43f5e", lat: 35.2143, lng: 128.9794, level: 5 },
     ];
-    REGION_LABELS.forEach(({ region, name, lat, lng, level }) => {
-      const color = REGION_COLORS[region];
+    REGION_LABELS.forEach(({ region, name, lat, lng, level, color: labelColor }) => {
+      const color = labelColor ?? REGION_COLORS[region];
       const content = document.createElement("div");
       content.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
       content.innerHTML = `
@@ -403,6 +421,76 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       .catch(() => {});
 
     setLoaded(true);
+
+    // 강서구 전체 거래 단지 동적 마커 (Places keywordSearch)
+    fetch("/api/apt-complexes")
+      .then((r) => r.json())
+      .then(async (list: { aptNm: string; umdNm: string }[]) => {
+        const ps = new kakao.maps.services.Places();
+        const BATCH = 5;
+        for (let i = 0; i < list.length; i += BATCH) {
+          await Promise.all(
+            list.slice(i, i + BATCH).map(
+              (apt) =>
+                new Promise<void>((resolve) => {
+                  const query = `부산 강서구 ${apt.umdNm ? apt.umdNm + " " : ""}${apt.aptNm}`;
+                  ps.keywordSearch(
+                    query,
+                    (result, status) => {
+                      if (status === kakao.maps.services.Status.OK && result[0]) {
+                        const lat = parseFloat(result[0].y);
+                        const lng = parseFloat(result[0].x);
+
+                        const aptObj: AptComplex = {
+                          id: `dynamic_${apt.aptNm}`,
+                          name: apt.aptNm,
+                          region: "other",
+                          regionName: apt.umdNm || "강서구",
+                          address:
+                            result[0].road_address_name ||
+                            result[0].address_name ||
+                            `부산 강서구 ${apt.umdNm}`,
+                          lat,
+                          lng,
+                        };
+
+                        const color = REGION_COLORS["other"];
+                        const content = document.createElement("div");
+                        content.style.cssText =
+                          "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+                        content.innerHTML = `
+                          <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
+                            padding:4px 8px;border-radius:6px;white-space:nowrap;
+                            box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
+                            ${apt.aptNm}
+                          </div>
+                          <div style="width:0;height:0;border-left:6px solid transparent;
+                            border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
+                        content.addEventListener("click", (e) => {
+                          e.stopPropagation();
+                          openPopup(aptObj, map);
+                          map.setCenter(new kakao.maps.LatLng(lat, lng));
+                        });
+
+                        const overlay = new kakao.maps.CustomOverlay({
+                          position: new kakao.maps.LatLng(lat, lng),
+                          content,
+                          yAnchor: 1,
+                          zIndex: 2,
+                        });
+                        overlay.setMap(map.getLevel() >= ZOOM_THRESHOLD ? null : map);
+                        aptOverlays.push(overlay);
+                      }
+                      resolve();
+                    },
+                    { size: 1 }
+                  );
+                })
+            )
+          );
+        }
+      })
+      .catch(() => {});
   }
 
   return (

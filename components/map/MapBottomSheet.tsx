@@ -92,7 +92,7 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
         {apt.officeTel && (
           <div className="flex flex-col gap-0.5">
             <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">관리사무소</span>
-            <span className="font-semibold text-gray-800">{apt.officeTel}</span>
+            <a href={`tel:${apt.officeTel}`} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors">{apt.officeTel}</a>
           </div>
         )}
       </div>

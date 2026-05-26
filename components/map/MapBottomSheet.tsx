@@ -68,7 +68,13 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
         ...(apt.buildYear ? [{ label: "건축연도",  value: `${apt.buildYear}년` }] : []),
       ],
     } : null,
-    apt.heatType ? { kind: "single", label: "난방방식", value: apt.heatType } : null,
+    (apt.dongCnt || apt.heatType) ? {
+      kind: "pair",
+      items: [
+        ...(apt.dongCnt  ? [{ label: "동수",     value: `${apt.dongCnt}개동` }] : []),
+        ...(apt.heatType ? [{ label: "난방방식", value: apt.heatType }] : []),
+      ],
+    } : null,
     apt.officeTel  ? { kind: "single", label: "관리사무소", value: apt.officeTel, href: `tel:${apt.officeTel}` } : null,
   ].filter(Boolean) as (Single | Pair)[];
   return (

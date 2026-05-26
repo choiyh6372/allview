@@ -43,7 +43,7 @@ export const APT_COMPLEXES: AptComplex[] = [
   { id: "kukje_posco3",     name: "포스코 3단지", apiName: "더샵명지퍼스트월드3단지",            region: "kukje", regionName: "명지국제신도시", address: "부산 강서구 명지국제2로 41",  lat: 35.0947817266961, lng: 128.906874174632 },
 
   // ── 지사동 ───────────────────────────────────────────────────────────────
-  { id: "jisa_elysian",   name: "협성DS앨리시안",  apiName: "협성앨리시안",             region: "other", regionName: "지사동", address: "부산 강서구 과학산단로306번길 10", lat: 35.15007, lng: 128.83817 },
+  { id: "jisa_elysian",   name: "협성DS엘리시안",  apiName: "협성·DS엘리시안",          region: "other", regionName: "지사동", address: "부산 강서구 과학산단로306번길 10", lat: 35.15007, lng: 128.83817 },
   { id: "jisa_kumkang",   name: "지사금강펜테리움", region: "other", regionName: "지사동", address: "부산 강서구 과학산단2로20번길 69",  lat: 35.15156, lng: 128.83848 },
   { id: "jisa_humansia",  name: "지사휴먼시아",    apiName: "부산지사휴먼시아",          region: "other", regionName: "지사동", address: "부산 강서구 과학산단2로20번길 35",  lat: 35.15169, lng: 128.83371 },
 

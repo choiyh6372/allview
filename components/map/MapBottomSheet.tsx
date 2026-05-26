@@ -65,13 +65,13 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
     { label: "관리사무소", value: apt.officeTel  || null, href: apt.officeTel ? `tel:${apt.officeTel}` : null },
   ].filter((r) => r.value !== null);
   return (
-    <div className="rounded-xl bg-gray-50 px-4 py-3 text-sm divide-y divide-gray-200">
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
       {rows.map(({ label, value, href }) => (
-        <div key={label} className="flex items-center justify-between gap-4 py-1.5 first:pt-0 last:pb-0">
-          <span className="text-gray-400 shrink-0">{label}</span>
+        <div key={label} className="flex items-center justify-between gap-4 px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
+          <span className="text-gray-500 shrink-0">{label}</span>
           {href
             ? <a href={href} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors text-right">{value}</a>
-            : <span className="font-semibold text-gray-800 text-right">{value}</span>
+            : <span className="font-semibold text-gray-900 text-right">{value}</span>
           }
         </div>
       ))}

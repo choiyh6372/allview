@@ -169,23 +169,23 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             <table className="w-full text-sm">
               <thead className={stickyBg}>
                 <tr className={hdr}>
-                  <th className={`text-left px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래일</th>
-                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
-                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
-                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>유형</th>
-                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세(만원)</th>
+                  <th className={`text-left px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래일</th>
+                  <th className={`text-right px-2 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
+                  <th className={`text-right px-1 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
+                  <th className={`text-right px-1 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>유형</th>
+                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증/월세(만원)</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${divRow} ${txt}`}>
                 {visibleRent.map((t, i) => (
                   <tr key={i} className={`${hover} transition-colors`}>
-                    <td className={`px-4 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
-                    <td className={`px-3 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
-                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
-                    <td className="px-3 py-3 text-right whitespace-nowrap">
+                    <td className={`px-3 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
+                    <td className={`px-2 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
+                    <td className={`px-1 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
+                    <td className="px-1 py-3 text-right whitespace-nowrap">
                       <RentBadge monthlyRent={t.monthlyRent} />
                     </td>
-                    <td className={`px-4 py-3 text-right ${txt} whitespace-nowrap`}>
+                    <td className={`px-3 py-3 text-right ${txt} whitespace-nowrap`}>
                       <RentPrice deposit={t.deposit} monthlyRent={t.monthlyRent} />
                     </td>
                   </tr>
@@ -206,23 +206,23 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             <table className={`w-full text-sm ${txt}`}>
               <thead className={stickyBg}>
                 <tr className={hdr}>
-                  <th className={`text-left px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래일</th>
-                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
-                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
-                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>유형</th>
-                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증금/월세(만원)</th>
+                  <th className={`text-left px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래일</th>
+                  <th className={`text-right px-2 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
+                  <th className={`text-right px-1 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
+                  <th className={`text-right px-1 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>유형</th>
+                  <th className={`text-right px-3 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>보증/월세(만원)</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${divRow}`}>
                 {visibleRent.map((t, i) => (
                   <tr key={i} className={`${hover} transition-colors`}>
-                    <td className={`px-4 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
-                    <td className={`px-3 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
-                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
-                    <td className="px-3 py-3 text-right whitespace-nowrap">
+                    <td className={`px-3 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
+                    <td className={`px-2 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
+                    <td className={`px-1 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
+                    <td className="px-1 py-3 text-right whitespace-nowrap">
                       <RentBadge monthlyRent={t.monthlyRent} />
                     </td>
-                    <td className={`px-4 py-3 text-right ${txt} whitespace-nowrap`}>
+                    <td className={`px-3 py-3 text-right ${txt} whitespace-nowrap`}>
                       <RentPrice deposit={t.deposit} monthlyRent={t.monthlyRent} />
                     </td>
                   </tr>

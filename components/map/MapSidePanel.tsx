@@ -69,7 +69,10 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
       <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-900">{apt.name}</h2>
-        <span className="text-xs text-gray-400">기본정보</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-blue-500">국토부</span>
+          <span className="text-xs text-gray-400">기본정보</span>
+        </div>
       </div>
       {rows.map(({ label, value, href }) => (
         <div key={label} className="flex items-center justify-between gap-4 px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">

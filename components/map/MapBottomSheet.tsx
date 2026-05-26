@@ -54,6 +54,26 @@ function mergeComplexes(apt: Complex, silv: Complex): Complex {
   return { ...apt, transactions, areas, monthlyPrices, monthlyPricesByArea };
 }
 
+function AptInfoCard({ apt }: { apt: AptComplex }) {
+  if (!apt.hoCnt && !apt.buildYear && !apt.parkingCnt && !apt.heatType) return null;
+  const items = [
+    { label: "세대수",   value: apt.hoCnt      ? `${apt.hoCnt.toLocaleString()}세대` : null },
+    { label: "건축연도", value: apt.buildYear   ? `${apt.buildYear}년` : null },
+    { label: "주차대수", value: apt.parkingCnt  ? `${apt.parkingCnt.toLocaleString()}대` : null },
+    { label: "난방방식", value: apt.heatType    || null },
+  ].filter((i) => i.value !== null);
+  return (
+    <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl bg-gray-50 px-4 py-3 text-sm">
+      {items.map(({ label, value }) => (
+        <div key={label} className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">{label}</span>
+          <span className="font-semibold text-gray-800">{value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 interface Props {
   selectedApt: AptComplex | null;
   selectedStore: PromotionStore | null;
@@ -291,16 +311,17 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
 
           {/* 아파트 데이터 없음 */}
           {selectedApt && !selectedStore && !isLoading && !complex && (
-            <div className="flex flex-col items-center justify-center py-10 gap-3 px-6 text-center">
-              <MapPin size={32} className="text-gray-300" />
+            <div className="p-4 space-y-3">
               <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
-              <p className="text-xs text-gray-400">실거래가 데이터가 없습니다</p>
+              <AptInfoCard apt={selectedApt} />
+              <p className="text-xs text-gray-400 text-center">실거래가 데이터가 없습니다</p>
             </div>
           )}
 
           {/* 실거래가 데이터 */}
           {selectedApt && !selectedStore && !isLoading && complex && (
             <div className="p-4 space-y-4">
+              <AptInfoCard apt={selectedApt} />
               <PriceChart
                 complex={complex}
                 rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}

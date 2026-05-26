@@ -55,21 +55,31 @@ function mergeComplexes(apt: Complex, silv: Complex): Complex {
 }
 
 function AptInfoCard({ apt }: { apt: AptComplex }) {
-  if (!apt.hoCnt && !apt.buildYear && !apt.parkingCnt && !apt.heatType) return null;
+  if (!apt.hoCnt && !apt.buildYear && !apt.parkingCnt && !apt.heatType && !apt.dongCnt && !apt.officeTel && !apt.address) return null;
   const items = [
-    { label: "세대수",   value: apt.hoCnt      ? `${apt.hoCnt.toLocaleString()}세대` : null },
-    { label: "건축연도", value: apt.buildYear   ? `${apt.buildYear}년` : null },
-    { label: "주차대수", value: apt.parkingCnt  ? `${apt.parkingCnt.toLocaleString()}대` : null },
-    { label: "난방방식", value: apt.heatType    || null },
+    { label: "세대수",    value: apt.hoCnt      ? `${apt.hoCnt.toLocaleString()}세대` : null },
+    { label: "건축연도",  value: apt.buildYear   ? `${apt.buildYear}년` : null },
+    { label: "주차대수",  value: apt.parkingCnt  ? `${apt.parkingCnt.toLocaleString()}대` : null },
+    { label: "난방방식",  value: apt.heatType    || null },
+    { label: "동수",      value: apt.dongCnt     ? `${apt.dongCnt}개동` : null },
+    { label: "관리사무소", value: apt.officeTel  || null },
   ].filter((i) => i.value !== null);
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl bg-gray-50 px-4 py-3 text-sm">
-      {items.map(({ label, value }) => (
-        <div key={label} className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">{label}</span>
-          <span className="font-semibold text-gray-800">{value}</span>
+    <div className="rounded-xl bg-gray-50 px-4 py-3 text-sm space-y-2">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+        {items.map(({ label, value }) => (
+          <div key={label} className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">{label}</span>
+            <span className="font-semibold text-gray-800">{value}</span>
+          </div>
+        ))}
+      </div>
+      {apt.address && (
+        <div className="flex flex-col gap-0.5 pt-1.5 border-t border-gray-200">
+          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">도로명주소</span>
+          <span className="font-semibold text-gray-800 text-xs leading-snug">{apt.address}</span>
         </div>
-      ))}
+      )}
     </div>
   );
 }

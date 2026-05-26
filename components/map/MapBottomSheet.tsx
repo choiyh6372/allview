@@ -55,7 +55,7 @@ function mergeComplexes(apt: Complex, silv: Complex): Complex {
 }
 
 function AptInfoCard({ apt }: { apt: AptComplex }) {
-  if (!apt.hoCnt && !apt.buildYear && !apt.parkingCnt && !apt.heatType && !apt.address) return null;
+  if (!apt.hoCnt && !apt.buildYear && !apt.heatType && !apt.address) return null;
   type Single = { kind: "single"; label: string; value: string; href?: string };
   type Pair   = { kind: "pair"; items: { label: string; value: string }[] };
   const rows: (Single | Pair)[] = [
@@ -68,13 +68,7 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
         ...(apt.buildYear ? [{ label: "건축연도",  value: `${apt.buildYear}년` }] : []),
       ],
     } : null,
-    (apt.parkingCnt || apt.heatType) ? {
-      kind: "pair",
-      items: [
-        ...(apt.parkingCnt ? [{ label: "주차대수", value: `${apt.parkingCnt.toLocaleString()}대` }] : []),
-        ...(apt.heatType   ? [{ label: "난방방식", value: apt.heatType }] : []),
-      ],
-    } : null,
+    apt.heatType ? { kind: "single", label: "난방방식", value: apt.heatType } : null,
     apt.officeTel  ? { kind: "single", label: "관리사무소", value: apt.officeTel, href: `tel:${apt.officeTel}` } : null,
   ].filter(Boolean) as (Single | Pair)[];
   return (

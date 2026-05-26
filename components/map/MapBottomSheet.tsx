@@ -326,7 +326,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
           {/* 실거래가 데이터 */}
           {selectedApt && !selectedStore && !isLoading && complex && (
             <div className="p-4 space-y-4">
-              <AptInfoCard apt={selectedApt} />
               <PriceChart
                 complex={complex}
                 rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
@@ -334,6 +333,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
                 onAreaChange={setSelectedArea}
                 light
               />
+              <AptInfoCard apt={selectedApt} />
               <TransactionTable
                 complex={complex}
                 rentTransactions={buildRentTransactions(rentItems, complex.name)}

@@ -100,7 +100,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
                     <td className={`px-4 py-3 text-right ${cell}`}>{t.area}㎡</td>
-                    <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}층</td>
+                    <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}</td>
                     <td className={`px-6 py-3 text-right ${txt}`}>
                       <span className="font-semibold">{fmt(t.price)}</span>
                     </td>
@@ -133,7 +133,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
                     <td className={`px-4 py-3 text-right ${cell}`}>{t.area}㎡</td>
-                    <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}층</td>
+                    <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}</td>
                     <td className={`px-6 py-3 text-right ${txt}`}>
                       <span className="font-semibold">{fmt(t.price)}</span>
                     </td>
@@ -181,7 +181,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-4 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
                     <td className={`px-3 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
-                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}층</td>
+                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
                     <td className="px-3 py-3 text-right whitespace-nowrap">
                       <RentBadge monthlyRent={t.monthlyRent} />
                     </td>
@@ -218,7 +218,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-4 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
                     <td className={`px-3 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}㎡</td>
-                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}층</td>
+                    <td className={`px-3 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
                     <td className="px-3 py-3 text-right whitespace-nowrap">
                       <RentBadge monthlyRent={t.monthlyRent} />
                     </td>

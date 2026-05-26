@@ -70,6 +70,13 @@ export const REGION_COLORS: Record<AptComplex["region"], string> = {
   other:    "#6b7280",
 };
 
+export const REGION_NAME_COLORS: Record<string, string> = {
+  "신호동": "#8b5cf6",
+  "화전동": "#06b6d4",
+  "지사동": "#10b981",
+  "대저동": "#f43f5e",
+};
+
 export const REGION_CENTER: Partial<Record<AptComplex["region"], { lat: number; lng: number; level: number }>> & Record<"ocean" | "kukje" | "ecodelta", { lat: number; lng: number; level: number }> = {
   ocean:    { lat: 35.0848, lng: 128.9009, level: 5 },
   kukje:    { lat: 35.1013, lng: 128.9159, level: 5 },

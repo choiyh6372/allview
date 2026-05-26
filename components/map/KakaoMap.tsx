@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { APT_COMPLEXES, REGION_COLORS, REGION_CENTER, type AptComplex } from "@/lib/mapData";
+import { APT_COMPLEXES, REGION_COLORS, REGION_NAME_COLORS, REGION_CENTER, type AptComplex } from "@/lib/mapData";
 import MapSidePanel from "@/components/map/MapSidePanel";
 import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
@@ -116,7 +116,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     setSelectedStoreRef.current?.(null);
     console.log('[Map] 클릭:', apt.name, '→ API명:', apt.apiName ?? apt.name);
 
-    const color = REGION_COLORS[apt.region];
+    const color = REGION_NAME_COLORS[apt.regionName] ?? REGION_COLORS[apt.region];
 
     const card = document.createElement("div");
     card.style.cssText = `
@@ -331,7 +331,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const lng = posOverrides[apt.id]?.lng ?? apt.lng;
       const aptWithPos = { ...apt, lat, lng };
 
-      const color = REGION_COLORS[apt.region];
+      const color = REGION_NAME_COLORS[apt.regionName] ?? REGION_COLORS[apt.region];
       const content = document.createElement("div");
       content.style.cssText =
         "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
@@ -455,7 +455,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                           lng,
                         };
 
-                        const color = REGION_COLORS["other"];
+                        const color = REGION_NAME_COLORS[apt.umdNm] ?? REGION_COLORS["other"];
                         const content = document.createElement("div");
                         content.style.cssText =
                           "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";

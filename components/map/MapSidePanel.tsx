@@ -57,46 +57,25 @@ function mergeComplexes(apt: Complex, silv: Complex): Complex {
 
 function AptInfoCard({ apt }: { apt: AptComplex }) {
   if (!apt.hoCnt && !apt.buildYear && !apt.parkingCnt && !apt.heatType && !apt.address) return null;
+  const rows = [
+    { label: "도로명주소", value: apt.address    || null, href: null },
+    { label: "세대수",     value: apt.hoCnt      ? `${apt.hoCnt.toLocaleString()}세대` : null, href: null },
+    { label: "건축연도",   value: apt.buildYear  ? `${apt.buildYear}년` : null, href: null },
+    { label: "주차대수",   value: apt.parkingCnt ? `${apt.parkingCnt.toLocaleString()}대` : null, href: null },
+    { label: "난방방식",   value: apt.heatType   || null, href: null },
+    { label: "관리사무소", value: apt.officeTel  || null, href: apt.officeTel ? `tel:${apt.officeTel}` : null },
+  ].filter((r) => r.value !== null);
   return (
-    <div className="rounded-xl bg-gray-50 px-4 py-3 text-sm space-y-2.5">
-      {apt.address && (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">도로명주소</span>
-          <span className="font-semibold text-gray-800 text-xs leading-snug">{apt.address}</span>
+    <div className="rounded-xl bg-gray-50 px-4 py-3 text-sm divide-y divide-gray-200">
+      {rows.map(({ label, value, href }) => (
+        <div key={label} className="flex items-center justify-between gap-4 py-1.5 first:pt-0 last:pb-0">
+          <span className="text-gray-400 shrink-0">{label}</span>
+          {href
+            ? <a href={href} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors text-right">{value}</a>
+            : <span className="font-semibold text-gray-800 text-right">{value}</span>
+          }
         </div>
-      )}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-        {apt.hoCnt && (
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">세대수</span>
-            <span className="font-semibold text-gray-800">{apt.hoCnt.toLocaleString()}세대</span>
-          </div>
-        )}
-        {apt.buildYear && (
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">건축연도</span>
-            <span className="font-semibold text-gray-800">{apt.buildYear}년</span>
-          </div>
-        )}
-        {apt.parkingCnt && (
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">주차대수</span>
-            <span className="font-semibold text-gray-800">{apt.parkingCnt.toLocaleString()}대</span>
-          </div>
-        )}
-        {apt.heatType && (
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">난방방식</span>
-            <span className="font-semibold text-gray-800">{apt.heatType}</span>
-          </div>
-        )}
-        {apt.officeTel && (
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">관리사무소</span>
-            <a href={`tel:${apt.officeTel}`} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors">{apt.officeTel}</a>
-          </div>
-        )}
-      </div>
+      ))}
     </div>
   );
 }

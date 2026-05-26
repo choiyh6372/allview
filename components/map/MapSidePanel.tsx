@@ -210,7 +210,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
 
         {/* 아파트 데이터 없음 */}
         {selectedApt && !selectedStore && !isLoading && !complex && (
-          <div className="h-full flex flex-col items-center justify-center gap-2 px-8 text-center">
+          <div className="h-full flex flex-col items-center justify-center gap-3 px-6 text-center">
             <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
             <p className="text-xs text-gray-400">실거래가 데이터가 없습니다</p>
           </div>

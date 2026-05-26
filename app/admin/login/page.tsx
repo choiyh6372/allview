@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
             <Lock size={22} className="text-accent" />
           </div>
           <h1 className="text-xl font-bold text-white">관리자 로그인</h1>
-          <p className="text-sm text-muted mt-1">AllView 가게홍보 관리</p>
+          <p className="text-sm text-muted mt-1">AllView360 가게홍보 관리</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-bg-card border border-border rounded-2xl p-6 space-y-4">

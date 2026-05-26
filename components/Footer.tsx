@@ -7,9 +7,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <div className="flex items-center gap-1 mb-3">
+            <div className="flex items-center gap-0.5 mb-3">
               <span className="text-xl font-black text-accent">All</span>
               <span className="text-xl font-black text-white">View</span>
+              <span className="text-xl font-black text-accent">360</span>
             </div>
             <p className="text-sm text-muted leading-relaxed">
               부산 강서구 부동산 통합 플랫폼<br />
@@ -39,7 +40,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-muted">© 2026 AllView. All rights reserved.</p>
+          <p className="text-xs text-muted">© 2026 AllView360(올뷰360). All rights reserved.</p>
           <p className="text-xs text-muted">부산광역시 강서구</p>
         </div>
       </div>

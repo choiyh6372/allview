@@ -39,7 +39,7 @@ export default function ServiceCards() {
     <section className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <h2 className="text-3xl font-black text-white mb-4">AllView 핵심 서비스</h2>
+          <h2 className="text-3xl font-black text-white mb-4">AllView360 핵심 서비스</h2>
           <p className="text-gray-400 text-base">부동산 탐색의 모든 단계를 하나의 플랫폼에서</p>
         </div>
 

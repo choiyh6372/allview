@@ -4,10 +4,10 @@ import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
 
 export const metadata: Metadata = {
-  title: "AllView(올뷰) - 부산 강서구 부동산 통합 플랫폼",
-  description: "AllView(올뷰) - 부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 아파트 VR투어, 실거래가, 지도보기",
+  title: "AllView360(올뷰360) - 부산 강서구 부동산 통합 플랫폼",
+  description: "AllView360(올뷰360) - 부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 아파트 VR투어, 실거래가, 지도보기",
   openGraph: {
-    siteName: "AllView(올뷰)",
+    siteName: "AllView360(올뷰360)",
     locale: "ko_KR",
     type: "website",
     images: [
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         url: "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "AllView(올뷰) - 부산 강서구 부동산 통합 플랫폼",
+        alt: "AllView360(올뷰360) - 부산 강서구 부동산 통합 플랫폼",
       },
     ],
   },

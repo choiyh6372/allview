@@ -83,7 +83,7 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>올뷰 - 부산 서부산권 부동산 뉴스</title>
+    <title>올뷰360(AllView360) - 부산 서부산권 부동산 뉴스</title>
     <link>https://allview.kr</link>
     <description>명지오션시티, 명지국제신도시, 에코델타시티 최신 부동산 뉴스</description>
     <language>ko</language>

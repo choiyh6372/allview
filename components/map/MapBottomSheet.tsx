@@ -291,7 +291,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
 
           {/* 아파트 데이터 없음 */}
           {selectedApt && !selectedStore && !isLoading && !complex && (
-            <div className="flex flex-col items-center justify-center py-12 gap-2 px-8 text-center">
+            <div className="flex flex-col items-center justify-center py-10 gap-3 px-6 text-center">
               <MapPin size={32} className="text-gray-300" />
               <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
               <p className="text-xs text-gray-400">실거래가 데이터가 없습니다</p>

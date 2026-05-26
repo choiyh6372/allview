@@ -25,7 +25,7 @@ export default function HeroSection() {
           <p className="text-lg text-gray-400 leading-relaxed mb-10 max-w-xl">
             VR 가상투어로 집을 직접 방문하지 않아도 생생하게,
             실거래가로 시장 흐름을 정확하게,
-            주변 상권 정보까지 AllView 하나로.
+            주변 상권 정보까지 AllView360 하나로.
           </p>
 
           <div className="flex flex-wrap gap-4">

@@ -26,9 +26,10 @@ export default function Navbar() {
     <nav className="fixed top-0 inset-x-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-1">
             <span className="text-2xl font-black text-accent tracking-tight">All</span>
             <span className="text-2xl font-black text-white tracking-tight">View</span>
+            <span className="text-2xl font-black text-accent tracking-tight">360</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1">

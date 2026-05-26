@@ -20,7 +20,7 @@ export default function PromotionCTA() {
         </div>
 
         <h2 className="text-2xl sm:text-3xl font-black text-white mb-3">
-          내 가게를 AllView에 홍보하세요
+          내 가게를 AllView360에 홍보하세요
         </h2>
         <p className="text-gray-400 mb-8">
           입주 예정 주민 수천 명에게 가게를 알릴 수 있습니다.<br />

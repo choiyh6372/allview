@@ -86,6 +86,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const [schoolZoneLoading, setSchoolZoneLoading] = useState(false);
   const schoolPolygonsRef = useRef<KakaoPolygon[]>([]);
   const schoolLabelsRef = useRef<KakaoCustomOverlay[]>([]);
+  const schoolMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const schoolZonesLoadedRef = useRef(false);
   const schoolDeselectRef = useRef<(() => void) | null>(null);
 
@@ -224,6 +225,48 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
       schoolPolygonsRef.current = allPolygons;
       schoolLabelsRef.current = allLabels;
+
+      // 학교 위치 검색 후 마커 표시
+      const ps = new kakao.maps.services.Places();
+      const schoolMarkers: KakaoCustomOverlay[] = [];
+      for (let fi = 0; fi < geojson.features.length; fi++) {
+        const name = (geojson.features[fi].properties.HAKGUDO_NM as string).replace("통학구역", "");
+        await new Promise<void>((resolve) => {
+          ps.keywordSearch(
+            `부산 강서구 ${name}`,
+            (results, status) => {
+              if (status === kakao.maps.services.Status.OK && results[0]) {
+                const lat = parseFloat(results[0].y);
+                const lng = parseFloat(results[0].x);
+                const pin = document.createElement("div");
+                pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+                pin.innerHTML = `
+                  <div style="background:#1d4ed8;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.45);border:1.5px solid rgba(255,255,255,0.3);">
+                    🏫 ${name}
+                  </div>
+                  <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #1d4ed8;"></div>`;
+                const capturedIdx = fi;
+                pin.addEventListener("click", (e) => {
+                  e.stopPropagation();
+                  hidePopupOverlay();
+                  applySelection(capturedIdx);
+                });
+                const marker = new kakao.maps.CustomOverlay({
+                  position: new kakao.maps.LatLng(lat, lng),
+                  content: pin,
+                  yAnchor: 1,
+                  zIndex: 5,
+                });
+                marker.setMap(map);
+                schoolMarkers.push(marker);
+              }
+              resolve();
+            },
+            { size: 1 }
+          );
+        });
+      }
+      schoolMarkersRef.current = schoolMarkers;
     } catch (e) {
       console.error("[학구도] 로딩 실패", e);
     } finally {
@@ -241,11 +284,13 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       } else {
         schoolPolygonsRef.current.forEach((p) => p.setMap(map));
         schoolLabelsRef.current.forEach((l) => l.setMap(map));
+        schoolMarkersRef.current.forEach((m) => m.setMap(map));
       }
     } else {
       schoolDeselectRef.current?.();
       schoolPolygonsRef.current.forEach((p) => p.setMap(null));
       schoolLabelsRef.current.forEach((l) => l.setMap(null));
+      schoolMarkersRef.current.forEach((m) => m.setMap(null));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSchoolZones]);

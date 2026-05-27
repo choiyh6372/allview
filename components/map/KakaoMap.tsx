@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { APT_COMPLEXES, REGION_COLORS, REGION_NAME_COLORS, REGION_CENTER, type AptComplex } from "@/lib/mapData";
+import { SCHOOL_POS_OVERRIDES } from "@/lib/schoolPositions";
 import MapSidePanel from "@/components/map/MapSidePanel";
 import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
@@ -240,7 +241,8 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         const cLat = (Math.min(...lats) + Math.max(...lats)) / 2;
         const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "");
 
-        const placePos = await new Promise<{ lat: number; lng: number } | null>((resolve) => {
+        const override = SCHOOL_POS_OVERRIDES[name];
+        const placePos = override ?? await new Promise<{ lat: number; lng: number } | null>((resolve) => {
           ps.keywordSearch(`부산 강서구 ${name}`, (results, status) => {
             if (status !== kakao.maps.services.Status.OK || !results[0]) { resolve(null); return; }
             const lat = parseFloat(results[0].y);

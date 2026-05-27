@@ -225,45 +225,41 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       schoolPolygonsRef.current = allPolygons;
       schoolLabelsRef.current = allLabels;
 
-      // 학교 위치 검색 후 마커 표시
-      const ps = new kakao.maps.services.Places();
+      // 학구도 폴리곤 중심점에 학교 마커 표시
       const schoolMarkers: KakaoCustomOverlay[] = [];
       for (let fi = 0; fi < geojson.features.length; fi++) {
-        const name = (geojson.features[fi].properties.HAKGUDO_NM as string).replace("통학구역", "");
-        await new Promise<void>((resolve) => {
-          ps.keywordSearch(
-            `부산 강서구 ${name}`,
-            (results, status) => {
-              if (status === kakao.maps.services.Status.OK && results[0]) {
-                const lat = parseFloat(results[0].y);
-                const lng = parseFloat(results[0].x);
-                const pin = document.createElement("div");
-                pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
-                pin.innerHTML = `
-                  <div style="background:#1d4ed8;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.45);border:1.5px solid rgba(255,255,255,0.3);">
-                    🏫 ${name}
-                  </div>
-                  <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #1d4ed8;"></div>`;
-                const capturedIdx = fi;
-                pin.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  hidePopupOverlay();
-                  applySelection(capturedIdx);
-                });
-                const marker = new kakao.maps.CustomOverlay({
-                  position: new kakao.maps.LatLng(lat, lng),
-                  content: pin,
-                  yAnchor: 1,
-                  zIndex: 5,
-                });
-                marker.setMap(map);
-                schoolMarkers.push(marker);
-              }
-              resolve();
-            },
-            { size: 1 }
-          );
+        const feature = geojson.features[fi];
+        const rings = feature.geometry.type === "MultiPolygon"
+          ? feature.geometry.coordinates.map((p: [number, number][][]) => p[0])
+          : [feature.geometry.coordinates[0]];
+        const ring0 = rings[0] as [number, number][];
+        const lngs = ring0.map((c: [number, number]) => c[0]);
+        const lats = ring0.map((c: [number, number]) => c[1]);
+        const cLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+        const cLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+        const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "");
+
+        const pin = document.createElement("div");
+        pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+        pin.innerHTML = `
+          <div style="background:#1d4ed8;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.45);border:1.5px solid rgba(255,255,255,0.3);">
+            🏫 ${name}
+          </div>
+          <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #1d4ed8;"></div>`;
+        const capturedIdx = fi;
+        pin.addEventListener("click", (e) => {
+          e.stopPropagation();
+          hidePopupOverlay();
+          applySelection(capturedIdx);
         });
+        const marker = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(cLat, cLng),
+          content: pin,
+          yAnchor: 1,
+          zIndex: 5,
+        });
+        marker.setMap(map);
+        schoolMarkers.push(marker);
       }
       schoolMarkersRef.current = schoolMarkers;
     } catch (e) {

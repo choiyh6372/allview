@@ -216,5 +216,5 @@ export function buildRentOnlyComplexes(rentItems: RentRawItem[], existingNames: 
       ).sort((a, b) => parseFloat(a) - parseFloat(b));
       return { id: 9000 + idx + 1, name, region, areas, monthlyPrices: [], monthlyPricesByArea: {}, transactions: [] };
     })
-    .filter((c): c is Complex => c !== null && c.areas.length > 0);
+    .filter((c): c is NonNullable<typeof c> => c !== null && c.areas.length > 0) as Complex[];
 }

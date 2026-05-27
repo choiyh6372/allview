@@ -6,7 +6,6 @@ import MapSidePanel from "@/components/map/MapSidePanel";
 import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
 
-
 // ── Kakao SDK type declarations ───────────────────────────────────────────────
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
 interface KakaoMapInstance {
@@ -39,12 +38,24 @@ interface KakaoPlaces {
     opts?: { size?: number }
   ) => void;
 }
+interface KakaoPolygon {
+  setMap: (map: KakaoMapInstance | null) => void;
+}
 interface KakaoMaps {
   load: (cb: () => void) => void;
   Map: new (el: HTMLElement, opts: object) => KakaoMapInstance;
   LatLng: new (lat: number, lng: number) => KakaoLatLng;
   CustomOverlay: new (opts: object) => KakaoCustomOverlay;
   Marker: new (opts: { position: KakaoLatLng; draggable?: boolean; map?: KakaoMapInstance }) => KakaoMarker;
+  Polygon: new (opts: {
+    path: KakaoLatLng[];
+    strokeWeight?: number;
+    strokeColor?: string;
+    strokeOpacity?: number;
+    fillColor?: string;
+    fillOpacity?: number;
+    zIndex?: number;
+  }) => KakaoPolygon;
   event: { addListener: (target: KakaoMapInstance | KakaoMarker, type: string, cb: () => void) => void };
   services: {
     Geocoder: new () => KakaoGeocoder;
@@ -70,6 +81,11 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const [selectedApt, setSelectedApt] = useState<AptComplex | null>(null);
   const [selectedStore, setSelectedStore] = useState<PromotionStore | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [showSchoolZones, setShowSchoolZones] = useState(false);
+  const [schoolZoneLoading, setSchoolZoneLoading] = useState(false);
+  const schoolPolygonsRef = useRef<KakaoPolygon[]>([]);
+  const schoolLabelsRef = useRef<KakaoCustomOverlay[]>([]);
+  const schoolZonesLoadedRef = useRef(false);
 
   useEffect(() => { setSelectedAptRef.current = setSelectedApt; }, []);
   useEffect(() => { setSelectedStoreRef.current = setSelectedStore; }, []);
@@ -98,6 +114,76 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     document.head.appendChild(script);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function loadSchoolZones(map: KakaoMapInstance) {
+    const { kakao } = window;
+    const SCHOOL_ZONE_URL = "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/%EA%B0%95%EC%84%9C%EA%B5%AC%EC%B4%88%EB%93%B1%ED%95%99%EA%B5%90%ED%86%B5%ED%95%99%EA%B5%AC%EC%97%AD.json";
+    setSchoolZoneLoading(true);
+    try {
+      const res = await fetch(SCHOOL_ZONE_URL);
+      const geojson = await res.json();
+      console.log("[학구도] features:", geojson.features?.length);
+      const polygons: KakaoPolygon[] = [];
+      const labels: KakaoCustomOverlay[] = [];
+      for (const feature of geojson.features) {
+        const rings = feature.geometry.type === "MultiPolygon"
+          ? feature.geometry.coordinates.map((p: [number, number][][]) => p[0])
+          : [feature.geometry.coordinates[0]];
+        for (const ring of rings) {
+          const path = (ring as [number, number][]).map(([lng, lat]) =>
+            new kakao.maps.LatLng(lat, lng)
+          );
+          const polygon = new kakao.maps.Polygon({
+            path,
+            strokeWeight: 2,
+            strokeColor: "#2563eb",
+            strokeOpacity: 1,
+            fillColor: "#3b82f6",
+            fillOpacity: 0.15,
+            zIndex: 1,
+          });
+          polygon.setMap(map);
+          polygons.push(polygon);
+        }
+        const ring0 = rings[0] as [number, number][];
+        const lngs = ring0.map((c) => c[0]);
+        const lats = ring0.map((c) => c[1]);
+        const centroidLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+        const centroidLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+        const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "");
+        const el = document.createElement("div");
+        el.style.cssText = "background:rgba(37,99,235,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;pointer-events:none;";
+        el.textContent = name;
+        const overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(centroidLat, centroidLng), content: el, zIndex: 2 });
+        overlay.setMap(map);
+        labels.push(overlay);
+      }
+      schoolPolygonsRef.current = polygons;
+      schoolLabelsRef.current = labels;
+    } catch (e) {
+      console.error("[학구도] 로딩 실패", e);
+    } finally {
+      setSchoolZoneLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (showSchoolZones) {
+      if (!schoolZonesLoadedRef.current) {
+        schoolZonesLoadedRef.current = true;
+        loadSchoolZones(map);
+      } else {
+        schoolPolygonsRef.current.forEach((p) => p.setMap(map));
+        schoolLabelsRef.current.forEach((l) => l.setMap(map));
+      }
+    } else {
+      schoolPolygonsRef.current.forEach((p) => p.setMap(null));
+      schoolLabelsRef.current.forEach((l) => l.setMap(null));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSchoolZones]);
 
   function hidePopupOverlay() {
     popupOverlayRef.current?.setMap(null);
@@ -514,6 +600,19 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           <div className="absolute inset-0 flex items-center justify-center bg-bg">
             <span className="text-gray-400 text-sm">지도 로딩 중...</span>
           </div>
+        )}
+        {loaded && (
+          <button
+            onClick={() => setShowSchoolZones((v) => !v)}
+            disabled={schoolZoneLoading}
+            className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
+              showSchoolZones
+                ? "bg-blue-500 text-white border-blue-600"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+            } disabled:opacity-60`}
+          >
+            {schoolZoneLoading ? "로딩 중..." : "🏫 학구도"}
+          </button>
         )}
       </div>
     </div>

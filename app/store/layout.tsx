@@ -8,6 +8,13 @@ export const metadata: Metadata = {
     title: "가게 홍보 | AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
     description: "명지오션시티, 명지국제신도시, 에코델타시티 입주 단지 주변 가게를 업종별·지역별로 찾아보세요.",
     url: "https://allview.kr/store",
+    images: [
+      {
+        url: "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/og-image.jpg",
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
 };
 

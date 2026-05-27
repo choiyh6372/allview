@@ -50,7 +50,7 @@ interface KakaoMaps {
   CustomOverlay: new (opts: object) => KakaoCustomOverlay;
   Marker: new (opts: { position: KakaoLatLng; draggable?: boolean; map?: KakaoMapInstance }) => KakaoMarker;
   Polygon: new (opts: {
-    path: KakaoLatLng[];
+    path: KakaoLatLng[] | KakaoLatLng[][];
     strokeWeight?: number;
     strokeColor?: string;
     strokeOpacity?: number;
@@ -172,14 +172,16 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
       for (let fi = 0; fi < geojson.features.length; fi++) {
         const feature = geojson.features[fi];
-        const rings = feature.geometry.type === "MultiPolygon"
-          ? feature.geometry.coordinates.map((p: [number, number][][]) => p[0])
-          : [feature.geometry.coordinates[0]];
+        // MultiPolygon → 서브폴리곤 배열, Polygon → 단일 서브폴리곤 배열
+        const subPolygons: [number, number][][][] = feature.geometry.type === "MultiPolygon"
+          ? feature.geometry.coordinates
+          : [feature.geometry.coordinates];
 
         const groupPolygons: KakaoPolygon[] = [];
-        for (const ring of rings) {
-          const path = (ring as [number, number][]).map(([lng, lat]) =>
-            new kakao.maps.LatLng(lat, lng)
+        for (const subPoly of subPolygons) {
+          // subPoly[0] = 외곽링, subPoly[1..] = 구멍(holes)
+          const path = (subPoly as [number, number][][]).map((ring) =>
+            ring.map(([lng, lat]) => new kakao.maps.LatLng(lat, lng))
           );
           const polygon = new kakao.maps.Polygon({
             path,
@@ -200,7 +202,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           });
         }
 
-        const ring0 = rings[0] as [number, number][];
+        const ring0 = subPolygons[0][0] as [number, number][];
         const lngs = ring0.map((c) => c[0]);
         const lats = ring0.map((c) => c[1]);
         const centroidLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;

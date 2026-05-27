@@ -6,7 +6,7 @@ import { MapPin, Phone, Navigation } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
-import { buildComplexList, buildRentTransactions } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import { type AptComplex } from "@/lib/mapData";
@@ -28,7 +28,9 @@ async function fetchData(): Promise<MapEstateData> {
   const [aptData, silvData, rentData] = await Promise.all([
     aptRes.json(), silvRes.json(), rentRes.json(),
   ]);
-  const aptComplexes = buildComplexList(aptData.items ?? []);
+  const base = buildComplexList(aptData.items ?? []);
+  const rentOnly = buildRentOnlyComplexes(rentData.items ?? [], new Set(base.map((c) => c.name)));
+  const aptComplexes = [...base, ...rentOnly];
   const silvComplexes = buildComplexList(
     (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
   );

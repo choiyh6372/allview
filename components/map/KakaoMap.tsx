@@ -134,23 +134,23 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const applySelection = (idx: number) => {
         if (selectedIdx === idx) {
           selectedIdx = -1;
-          groups.forEach(({ polygons, labelEl }) => {
-            polygons.forEach((p) => p.setOptions({ fillOpacity: 0.15, strokeOpacity: 1, strokeWeight: 2 }));
-            labelEl.style.opacity = "1";
-            labelEl.style.fontWeight = "700";
+          groups.forEach(({ polygons, label }) => {
+            polygons.forEach((p) => p.setMap(null));
+            label.setMap(null);
           });
           return;
         }
         selectedIdx = idx;
-        groups.forEach(({ polygons, labelEl }, i) => {
+        groups.forEach(({ polygons, label }, i) => {
           if (i === idx) {
-            polygons.forEach((p) => p.setOptions({ fillOpacity: 0.45, strokeOpacity: 1, strokeWeight: 3 }));
-            labelEl.style.opacity = "1";
-            labelEl.style.fontWeight = "900";
+            polygons.forEach((p) => {
+              p.setOptions({ fillOpacity: 0.3, strokeOpacity: 1, strokeWeight: 2 });
+              p.setMap(map);
+            });
+            label.setMap(map);
           } else {
-            polygons.forEach((p) => p.setOptions({ fillOpacity: 0.04, strokeOpacity: 0.25, strokeWeight: 1 }));
-            labelEl.style.opacity = "0.35";
-            labelEl.style.fontWeight = "700";
+            polygons.forEach((p) => p.setMap(null));
+            label.setMap(null);
           }
         });
       };
@@ -158,10 +158,9 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const deselectAll = () => {
         if (selectedIdx === -1) return;
         selectedIdx = -1;
-        groups.forEach(({ polygons, labelEl }) => {
-          polygons.forEach((p) => p.setOptions({ fillOpacity: 0.15, strokeOpacity: 1, strokeWeight: 2 }));
-          labelEl.style.opacity = "1";
-          labelEl.style.fontWeight = "700";
+        groups.forEach(({ polygons, label }) => {
+          polygons.forEach((p) => p.setMap(null));
+          label.setMap(null);
         });
       };
       schoolDeselectRef.current = deselectAll;
@@ -191,7 +190,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
             fillOpacity: 0.15,
             zIndex: 1,
           });
-          polygon.setMap(map);
+          polygon.setMap(null);
           groupPolygons.push(polygon);
           allPolygons.push(polygon);
           const capturedIdx = fi;
@@ -218,7 +217,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         });
 
         const overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(centroidLat, centroidLng), content: el, zIndex: 2 });
-        overlay.setMap(map);
+        overlay.setMap(null);
         allLabels.push(overlay);
         groups.push({ polygons: groupPolygons, label: overlay, labelEl: el });
       }
@@ -282,14 +281,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         schoolZonesLoadedRef.current = true;
         loadSchoolZones(map);
       } else {
-        schoolPolygonsRef.current.forEach((p) => p.setMap(map));
-        schoolLabelsRef.current.forEach((l) => l.setMap(map));
         schoolMarkersRef.current.forEach((m) => m.setMap(map));
       }
     } else {
       schoolDeselectRef.current?.();
-      schoolPolygonsRef.current.forEach((p) => p.setMap(null));
-      schoolLabelsRef.current.forEach((l) => l.setMap(null));
       schoolMarkersRef.current.forEach((m) => m.setMap(null));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

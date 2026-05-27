@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "단지 지도 | AllView360(올뷰360) - 부산 강서구 부동산 통합 플랫폼",
@@ -12,7 +13,9 @@ export default function MapPage() {
   const apiKey = process.env.KAKAO_MAP_KEY ?? "";
   return (
     <div className="h-[calc(100vh-64px)] w-full">
-      <KakaoMap apiKey={apiKey} />
+      <Suspense fallback={null}>
+        <KakaoMap apiKey={apiKey} />
+      </Suspense>
     </div>
   );
 }

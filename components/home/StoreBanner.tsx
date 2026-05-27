@@ -2,14 +2,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ImageOff } from "lucide-react";
 import type { PromotionStore } from "@/lib/promotionStore";
 
 
-function StoreCard({ store, compact }: { store: PromotionStore; compact?: boolean }) {
+function StoreCard({ store, compact, onClick }: { store: PromotionStore; compact?: boolean; onClick?: () => void }) {
   const photo = store.photos[0];
   return (
-    <div className={`flex-shrink-0 ${compact ? "w-36" : "w-64"} rounded-xl bg-bg-card border border-border hover:border-accent/30 transition-colors overflow-hidden`}>
+    <div onClick={onClick} className={`flex-shrink-0 ${compact ? "w-36" : "w-64"} rounded-xl bg-bg-card border border-border hover:border-accent/30 transition-colors overflow-hidden${onClick ? " cursor-pointer" : ""}`}>
       <div className={`w-full ${compact ? "h-20" : "aspect-video"} bg-bg-hover overflow-hidden`}>
         {photo ? (
           <img src={photo} alt={store.name} className="w-full h-full object-cover" />
@@ -28,6 +29,7 @@ function StoreCard({ store, compact }: { store: PromotionStore; compact?: boolea
 
 export default function StoreBanner({ compact }: { compact?: boolean }) {
   const [stores, setStores] = useState<PromotionStore[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/stores")
@@ -68,7 +70,7 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
           }}
         >
           {loopItems.map((s, i) => (
-            <StoreCard key={i} store={s} compact={compact} />
+            <StoreCard key={i} store={s} compact={compact} onClick={() => router.push(`/map?storeId=${s.id}`)} />
           ))}
         </div>
         <div className={`pointer-events-none absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r ${compact ? "from-white" : "from-bg"} to-transparent`} />

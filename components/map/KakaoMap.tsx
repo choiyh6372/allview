@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { APT_COMPLEXES, REGION_COLORS, REGION_NAME_COLORS, REGION_CENTER, type AptComplex } from "@/lib/mapData";
 import { SCHOOL_POS_OVERRIDES } from "@/lib/schoolPositions";
 import MapSidePanel from "@/components/map/MapSidePanel";
@@ -79,6 +80,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const popupOverlayRef = useRef<KakaoCustomOverlay | null>(null);
   const setSelectedAptRef = useRef<((a: AptComplex | null) => void) | null>(null);
   const setSelectedStoreRef = useRef<((s: PromotionStore | null) => void) | null>(null);
+  const storePositionsRef = useRef<Map<string, { store: PromotionStore; lat: number; lng: number }>>(new Map());
+  const pendingStoreIdRef = useRef<string | null>(null);
+
+  const searchParams = useSearchParams();
 
   const [selectedApt, setSelectedApt] = useState<AptComplex | null>(null);
   const [selectedStore, setSelectedStore] = useState<PromotionStore | null>(null);
@@ -95,6 +100,19 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
   useEffect(() => { setSelectedAptRef.current = setSelectedApt; }, []);
   useEffect(() => { setSelectedStoreRef.current = setSelectedStore; }, []);
+
+  useEffect(() => {
+    const storeId = searchParams.get("storeId");
+    if (!storeId) return;
+    const map = mapRef.current;
+    const entry = storePositionsRef.current.get(storeId);
+    if (entry && map) {
+      activateStore(entry.store, entry.lat, entry.lng, map);
+      return;
+    }
+    pendingStoreIdRef.current = storeId;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     const scriptId = "kakao-map-sdk";
@@ -311,6 +329,108 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     popupOverlayRef.current = null;
   }
 
+  function openStorePopupOverlay(store: PromotionStore, lat: number, lng: number, map: KakaoMapInstance) {
+    const { kakao } = window;
+    const card = document.createElement("div");
+    card.style.cssText = `
+      background:rgba(15,17,23,0.96);border:1px solid rgba(42,45,62,1);
+      border-radius:12px;padding:12px 14px 10px;min-width:200px;max-width:260px;
+      box-shadow:0 6px 24px rgba(0,0,0,0.7);position:relative;
+    `;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "×";
+    closeBtn.style.cssText =
+      "position:absolute;top:7px;right:9px;background:none;border:none;color:#6b7280;font-size:17px;cursor:pointer;line-height:1;padding:0;";
+    closeBtn.addEventListener("click", (ev) => { ev.stopPropagation(); hidePopupOverlay(); });
+
+    const storeName = document.createElement("div");
+    storeName.textContent = store.name;
+    storeName.style.cssText =
+      "color:#fff;font-size:13px;font-weight:700;margin-bottom:8px;padding-right:20px;";
+
+    card.append(closeBtn, storeName);
+
+    if (store.photos?.length > 0) {
+      let current = 0;
+      const photos = store.photos;
+
+      const carousel = document.createElement("div");
+      carousel.style.cssText = "position:relative;width:100%;border-radius:8px;overflow:hidden;";
+
+      const img = document.createElement("img");
+      img.src = photos[0];
+      img.style.cssText = "width:100%;height:150px;object-fit:cover;display:block;";
+      carousel.appendChild(img);
+
+      if (photos.length > 1) {
+        const counter = document.createElement("div");
+        counter.style.cssText =
+          "position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 6px;border-radius:99px;";
+        counter.textContent = `1 / ${photos.length}`;
+
+        const btnStyle =
+          "position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:16px;cursor:pointer;padding:4px 8px;border-radius:4px;line-height:1;";
+
+        const prev = document.createElement("button");
+        prev.textContent = "‹";
+        prev.style.cssText = btnStyle + "left:4px;";
+        prev.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          current = (current - 1 + photos.length) % photos.length;
+          img.src = photos[current];
+          counter.textContent = `${current + 1} / ${photos.length}`;
+        });
+
+        const next = document.createElement("button");
+        next.textContent = "›";
+        next.style.cssText = btnStyle + "right:4px;";
+        next.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          current = (current + 1) % photos.length;
+          img.src = photos[current];
+          counter.textContent = `${current + 1} / ${photos.length}`;
+        });
+
+        carousel.append(prev, next, counter);
+      }
+
+      card.appendChild(carousel);
+    }
+
+    const arrow = document.createElement("div");
+    arrow.style.cssText =
+      "width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:9px solid rgba(42,45,62,1);margin:0 auto;";
+
+    const spacer = document.createElement("div");
+    spacer.style.height = "30px";
+
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;";
+    wrap.addEventListener("click", (e) => e.stopPropagation());
+    wrap.addEventListener("mousedown", (e) => e.stopPropagation());
+    wrap.append(card, arrow, spacer);
+
+    const overlay = new kakao.maps.CustomOverlay({
+      position: new kakao.maps.LatLng(lat, lng),
+      content: wrap,
+      yAnchor: 1,
+      zIndex: 10,
+    });
+    overlay.setMap(map);
+    popupOverlayRef.current = overlay;
+  }
+
+  function activateStore(store: PromotionStore, lat: number, lng: number, map: KakaoMapInstance) {
+    const { kakao } = window;
+    hidePopupOverlay();
+    setSelectedAptRef.current?.(null);
+    setSelectedStoreRef.current?.(store);
+    openStorePopupOverlay(store, lat, lng, map);
+    map.setCenter(new kakao.maps.LatLng(lat, lng));
+    map.setLevel(3);
+  }
+
   function closePopup() {
     hidePopupOverlay();
     setSelectedAptRef.current?.(null);
@@ -401,101 +521,9 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           border-right:5px solid transparent;border-top:6px solid #f97316;"></div>`;
     }
 
-    // 클릭 시 아파트 팝업과 동일한 스타일
     pin.addEventListener("click", (e) => {
       e.stopPropagation();
-      hidePopupOverlay();
-      setSelectedAptRef.current?.(null);
-      setSelectedStoreRef.current?.(store);
-
-      const card = document.createElement("div");
-      card.style.cssText = `
-        background:rgba(15,17,23,0.96);border:1px solid rgba(42,45,62,1);
-        border-radius:12px;padding:12px 14px 10px;min-width:200px;max-width:260px;
-        box-shadow:0 6px 24px rgba(0,0,0,0.7);position:relative;
-      `;
-
-      const closeBtn = document.createElement("button");
-      closeBtn.textContent = "×";
-      closeBtn.style.cssText =
-        "position:absolute;top:7px;right:9px;background:none;border:none;color:#6b7280;font-size:17px;cursor:pointer;line-height:1;padding:0;";
-      closeBtn.addEventListener("click", (ev) => { ev.stopPropagation(); hidePopupOverlay(); });
-
-      const storeName = document.createElement("div");
-      storeName.textContent = store.name;
-      storeName.style.cssText =
-        "color:#fff;font-size:13px;font-weight:700;margin-bottom:8px;padding-right:20px;";
-
-      card.append(closeBtn, storeName);
-
-      if (store.photos?.length > 0) {
-        let current = 0;
-        const photos = store.photos;
-
-        const carousel = document.createElement("div");
-        carousel.style.cssText = "position:relative;width:100%;border-radius:8px;overflow:hidden;";
-
-        const img = document.createElement("img");
-        img.src = photos[0];
-        img.style.cssText = "width:100%;height:150px;object-fit:cover;display:block;";
-        carousel.appendChild(img);
-
-        if (photos.length > 1) {
-          const counter = document.createElement("div");
-          counter.style.cssText =
-            "position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 6px;border-radius:99px;";
-          counter.textContent = `1 / ${photos.length}`;
-
-          const btnStyle =
-            "position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:16px;cursor:pointer;padding:4px 8px;border-radius:4px;line-height:1;";
-
-          const prev = document.createElement("button");
-          prev.textContent = "‹";
-          prev.style.cssText = btnStyle + "left:4px;";
-          prev.addEventListener("click", (ev) => {
-            ev.stopPropagation();
-            current = (current - 1 + photos.length) % photos.length;
-            img.src = photos[current];
-            counter.textContent = `${current + 1} / ${photos.length}`;
-          });
-
-          const next = document.createElement("button");
-          next.textContent = "›";
-          next.style.cssText = btnStyle + "right:4px;";
-          next.addEventListener("click", (ev) => {
-            ev.stopPropagation();
-            current = (current + 1) % photos.length;
-            img.src = photos[current];
-            counter.textContent = `${current + 1} / ${photos.length}`;
-          });
-
-          carousel.append(prev, next, counter);
-        }
-
-        card.appendChild(carousel);
-      }
-
-      const arrow = document.createElement("div");
-      arrow.style.cssText =
-        "width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:9px solid rgba(42,45,62,1);margin:0 auto;";
-
-      const spacer = document.createElement("div");
-      spacer.style.height = "30px";
-
-      const wrap = document.createElement("div");
-      wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;";
-      wrap.addEventListener("click", (e) => e.stopPropagation());
-      wrap.addEventListener("mousedown", (e) => e.stopPropagation());
-      wrap.append(card, arrow, spacer);
-
-      const overlay = new kakao.maps.CustomOverlay({
-        position: new kakao.maps.LatLng(lat, lng),
-        content: wrap,
-        yAnchor: 1,
-        zIndex: 10,
-      });
-      overlay.setMap(map);
-      popupOverlayRef.current = overlay;
+      activateStore(store, lat, lng, map);
     });
 
     const overlay = new kakao.maps.CustomOverlay({
@@ -612,17 +640,25 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       .then((r) => r.json())
       .then((stores: PromotionStore[]) => {
         const geocoder = new kakao.maps.services.Geocoder();
+
+        const addStore = (store: PromotionStore, sLat: number, sLng: number) => {
+          storePositionsRef.current.set(store.id, { store, lat: sLat, lng: sLng });
+          placeStoreMarker(store, sLat, sLng, map);
+          if (pendingStoreIdRef.current === store.id) {
+            pendingStoreIdRef.current = null;
+            activateStore(store, sLat, sLng, map);
+          }
+        };
+
         stores.forEach((store) => {
           if (store.lat && store.lng) {
-            placeStoreMarker(store, store.lat, store.lng, map);
+            addStore(store, store.lat, store.lng);
             return;
           }
           if (!store.address) return;
           geocoder.addressSearch(store.address, (result, status) => {
             if (status !== kakao.maps.services.Status.OK || !result[0]) return;
-            const lat = parseFloat(result[0].y);
-            const lng = parseFloat(result[0].x);
-            placeStoreMarker(store, lat, lng, map);
+            addStore(store, parseFloat(result[0].y), parseFloat(result[0].x));
           });
         });
       })

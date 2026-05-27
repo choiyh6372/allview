@@ -256,13 +256,13 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         const pin = document.createElement("div");
         pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.45));";
         pin.innerHTML = `
-          <div style="background:#fff;border:3px solid #1d4ed8;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:22px;">
+          <div style="background:#fff;border:3px solid #ec4899;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:22px;">
             🏫
           </div>
-          <div style="background:#1d4ed8;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;margin-top:3px;white-space:nowrap;letter-spacing:-0.2px;">
+          <div style="background:#ec4899;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;margin-top:3px;white-space:nowrap;letter-spacing:-0.2px;">
             ${name}
           </div>
-          <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #1d4ed8;"></div>`;
+          <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #ec4899;"></div>`;
         const capturedIdx = fi;
         pin.addEventListener("click", (e) => {
           e.stopPropagation();

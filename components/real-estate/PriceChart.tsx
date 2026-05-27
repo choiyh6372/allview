@@ -72,7 +72,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
     (i) => parseInt((i.monthlyRent ?? "0").replace(/,/g, "").trim() || "0") === 0
   );
   const filteredRentItems = selectedArea
-    ? jeonseItems.filter((i) => String(Math.round(parseFloat(i.excluUseAr ?? "0"))) === selectedArea)
+    ? jeonseItems.filter((i) => String(parseFloat(i.excluUseAr ?? "0")) === selectedArea)
     : jeonseItems;
   const rentData = buildRentMonthlyPrices(filteredRentItems, 60);
 

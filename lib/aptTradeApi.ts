@@ -79,7 +79,7 @@ export function buildRentTransactions(items: RentRawItem[], aptName: string): Re
     .map((item) => {
       const deposit = Math.round(parseInt((item.deposit ?? "0").replace(/,/g, "").trim() || "0") / 100) * 100;
       const monthlyRent = parseInt((item.monthlyRent ?? "0").replace(/,/g, "").trim() || "0");
-      const area = Math.round(parseFloat(item.excluUseAr ?? "0")).toString();
+      const area = String(parseFloat(item.excluUseAr ?? "0"));
       const month = (item.dealMonth ?? "1").padStart(2, "0");
       const day = (item.dealDay ?? "1").padStart(2, "0");
       return { date: `${item.dealYear}.${month}.${day}`, area, floor: parseInt(item.floor ?? "1") || 1, deposit, monthlyRent };
@@ -92,7 +92,7 @@ export function toTransaction(item: RawItem): Transaction {
   const priceRaw = (item.dealAmount ?? "0").replace(/,/g, "").trim();
   const price = Math.round(parseInt(priceRaw || "0") / 100) * 100;
   const areaRaw = parseFloat(item.excluUseAr ?? "0");
-  const area = Math.round(areaRaw).toString();
+  const area = String(areaRaw);
   const month = (item.dealMonth ?? "1").padStart(2, "0");
   const day = (item.dealDay ?? "1").padStart(2, "0");
 
@@ -165,7 +165,7 @@ export function buildComplexList(items: RawItem[]): Complex[] {
       const areas = Array.from(
         new Set(
           aptItems
-            .map((i) => String(Math.round(parseFloat(i.excluUseAr ?? "0"))))
+            .map((i) => String(parseFloat(i.excluUseAr ?? "0")))
             .filter((a) => a !== "0")
         )
       ).sort((a, b) => parseInt(a) - parseInt(b));
@@ -181,7 +181,7 @@ export function buildComplexList(items: RawItem[]): Complex[] {
       const monthlyPricesByArea: Record<string, MonthlyPrice[]> = {};
       for (const area of areas) {
         const areaItems = aptItems.filter(
-          (i) => String(Math.round(parseFloat(i.excluUseAr ?? "0"))) === area
+          (i) => String(parseFloat(i.excluUseAr ?? "0")) === area
         );
         monthlyPricesByArea[area] = buildMonthlyPrices(areaItems, 60);
       }

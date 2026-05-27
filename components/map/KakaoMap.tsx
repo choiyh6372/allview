@@ -254,12 +254,15 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
         const { lat: mLat, lng: mLng } = placePos ?? { lat: cLat, lng: cLng };
         const pin = document.createElement("div");
-        pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+        pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.45));";
         pin.innerHTML = `
-          <div style="background:#1d4ed8;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.45);border:1.5px solid rgba(255,255,255,0.3);">
-            🏫 ${name}
+          <div style="background:#fff;border:3px solid #1d4ed8;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:22px;">
+            🏫
           </div>
-          <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #1d4ed8;"></div>`;
+          <div style="background:#1d4ed8;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;margin-top:3px;white-space:nowrap;letter-spacing:-0.2px;">
+            ${name}
+          </div>
+          <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #1d4ed8;"></div>`;
         const capturedIdx = fi;
         pin.addEventListener("click", (e) => {
           e.stopPropagation();

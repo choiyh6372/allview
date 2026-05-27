@@ -40,6 +40,7 @@ interface KakaoPlaces {
 }
 interface KakaoPolygon {
   setMap: (map: KakaoMapInstance | null) => void;
+  setOptions: (opts: { fillOpacity?: number; strokeOpacity?: number; strokeWeight?: number }) => void;
 }
 interface KakaoMaps {
   load: (cb: () => void) => void;
@@ -56,7 +57,7 @@ interface KakaoMaps {
     fillOpacity?: number;
     zIndex?: number;
   }) => KakaoPolygon;
-  event: { addListener: (target: KakaoMapInstance | KakaoMarker, type: string, cb: () => void) => void };
+  event: { addListener: (target: KakaoMapInstance | KakaoMarker | KakaoPolygon, type: string, cb: (e?: MouseEvent) => void) => void };
   services: {
     Geocoder: new () => KakaoGeocoder;
     Places: new () => KakaoPlaces;
@@ -86,6 +87,9 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const schoolPolygonsRef = useRef<KakaoPolygon[]>([]);
   const schoolLabelsRef = useRef<KakaoCustomOverlay[]>([]);
   const schoolZonesLoadedRef = useRef(false);
+  const schoolDeselectRef = useRef<(() => void) | null>(null);
+
+  type SchoolGroup = { polygons: KakaoPolygon[]; label: KakaoCustomOverlay; labelEl: HTMLElement };
 
   useEffect(() => { setSelectedAptRef.current = setSelectedApt; }, []);
   useEffect(() => { setSelectedStoreRef.current = setSelectedStore; }, []);
@@ -122,13 +126,57 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     try {
       const res = await fetch(SCHOOL_ZONE_URL);
       const geojson = await res.json();
-      console.log("[학구도] features:", geojson.features?.length);
-      const polygons: KakaoPolygon[] = [];
-      const labels: KakaoCustomOverlay[] = [];
-      for (const feature of geojson.features) {
+
+      const groups: SchoolGroup[] = [];
+      let selectedIdx = -1;
+
+      const applySelection = (idx: number) => {
+        if (selectedIdx === idx) {
+          selectedIdx = -1;
+          groups.forEach(({ polygons, labelEl }) => {
+            polygons.forEach((p) => p.setOptions({ fillOpacity: 0.15, strokeOpacity: 1, strokeWeight: 2 }));
+            labelEl.style.opacity = "1";
+            labelEl.style.fontWeight = "700";
+          });
+          return;
+        }
+        selectedIdx = idx;
+        groups.forEach(({ polygons, labelEl }, i) => {
+          if (i === idx) {
+            polygons.forEach((p) => p.setOptions({ fillOpacity: 0.45, strokeOpacity: 1, strokeWeight: 3 }));
+            labelEl.style.opacity = "1";
+            labelEl.style.fontWeight = "900";
+          } else {
+            polygons.forEach((p) => p.setOptions({ fillOpacity: 0.04, strokeOpacity: 0.25, strokeWeight: 1 }));
+            labelEl.style.opacity = "0.35";
+            labelEl.style.fontWeight = "700";
+          }
+        });
+      };
+
+      const deselectAll = () => {
+        if (selectedIdx === -1) return;
+        selectedIdx = -1;
+        groups.forEach(({ polygons, labelEl }) => {
+          polygons.forEach((p) => p.setOptions({ fillOpacity: 0.15, strokeOpacity: 1, strokeWeight: 2 }));
+          labelEl.style.opacity = "1";
+          labelEl.style.fontWeight = "700";
+        });
+      };
+      schoolDeselectRef.current = deselectAll;
+
+      kakao.maps.event.addListener(map, "click", deselectAll);
+
+      const allPolygons: KakaoPolygon[] = [];
+      const allLabels: KakaoCustomOverlay[] = [];
+
+      for (let fi = 0; fi < geojson.features.length; fi++) {
+        const feature = geojson.features[fi];
         const rings = feature.geometry.type === "MultiPolygon"
           ? feature.geometry.coordinates.map((p: [number, number][][]) => p[0])
           : [feature.geometry.coordinates[0]];
+
+        const groupPolygons: KakaoPolygon[] = [];
         for (const ring of rings) {
           const path = (ring as [number, number][]).map(([lng, lat]) =>
             new kakao.maps.LatLng(lat, lng)
@@ -143,23 +191,39 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
             zIndex: 1,
           });
           polygon.setMap(map);
-          polygons.push(polygon);
+          groupPolygons.push(polygon);
+          allPolygons.push(polygon);
+          const capturedIdx = fi;
+          kakao.maps.event.addListener(polygon, "click", (e) => {
+            e?.stopPropagation?.();
+            applySelection(capturedIdx);
+          });
         }
+
         const ring0 = rings[0] as [number, number][];
         const lngs = ring0.map((c) => c[0]);
         const lats = ring0.map((c) => c[1]);
         const centroidLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
         const centroidLat = (Math.min(...lats) + Math.max(...lats)) / 2;
         const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "");
+
         const el = document.createElement("div");
-        el.style.cssText = "background:rgba(37,99,235,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;pointer-events:none;";
+        el.style.cssText = "background:rgba(37,99,235,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;cursor:pointer;transition:opacity 0.15s;";
         el.textContent = name;
+        const capturedIdx = fi;
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          applySelection(capturedIdx);
+        });
+
         const overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(centroidLat, centroidLng), content: el, zIndex: 2 });
         overlay.setMap(map);
-        labels.push(overlay);
+        allLabels.push(overlay);
+        groups.push({ polygons: groupPolygons, label: overlay, labelEl: el });
       }
-      schoolPolygonsRef.current = polygons;
-      schoolLabelsRef.current = labels;
+
+      schoolPolygonsRef.current = allPolygons;
+      schoolLabelsRef.current = allLabels;
     } catch (e) {
       console.error("[학구도] 로딩 실패", e);
     } finally {
@@ -179,6 +243,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         schoolLabelsRef.current.forEach((l) => l.setMap(map));
       }
     } else {
+      schoolDeselectRef.current?.();
       schoolPolygonsRef.current.forEach((p) => p.setMap(null));
       schoolLabelsRef.current.forEach((l) => l.setMap(null));
     }

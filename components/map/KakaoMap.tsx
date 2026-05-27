@@ -123,10 +123,9 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
   async function loadSchoolZones(map: KakaoMapInstance) {
     const { kakao } = window;
-    const SCHOOL_ZONE_URL = "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/%EA%B0%95%EC%84%9C%EA%B5%AC%EC%B4%88%EB%93%B1%ED%95%99%EA%B5%90%ED%86%B5%ED%95%99%EA%B5%AC%EC%97%AD.json";
     setSchoolZoneLoading(true);
     try {
-      const res = await fetch(SCHOOL_ZONE_URL);
+      const res = await fetch("/api/school-zones");
       const geojson = await res.json();
 
       const groups: SchoolGroup[] = [];

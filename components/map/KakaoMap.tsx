@@ -206,7 +206,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         const lats = ring0.map((c) => c[1]);
         const centroidLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
         const centroidLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-        const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "");
+        const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "").trim();
 
         const el = document.createElement("div");
         el.style.cssText = "background:rgba(37,99,235,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;cursor:pointer;transition:opacity 0.15s;";
@@ -239,7 +239,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         const lats = ring0.map((c: [number, number]) => c[1]);
         const cLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
         const cLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-        const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "");
+        const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "").trim();
 
         const override = SCHOOL_POS_OVERRIDES[name];
         const placePos = override ?? await new Promise<{ lat: number; lng: number } | null>((resolve) => {

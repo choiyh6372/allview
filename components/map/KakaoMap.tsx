@@ -225,7 +225,8 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       schoolPolygonsRef.current = allPolygons;
       schoolLabelsRef.current = allLabels;
 
-      // 학구도 폴리곤 중심점에 학교 마커 표시
+      // Places API로 학교 위치 검색, 학구도 밖이면 중심점으로 대체
+      const ps = new kakao.maps.services.Places();
       const schoolMarkers: KakaoCustomOverlay[] = [];
       for (let fi = 0; fi < geojson.features.length; fi++) {
         const feature = geojson.features[fi];
@@ -239,6 +240,19 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         const cLat = (Math.min(...lats) + Math.max(...lats)) / 2;
         const name = (feature.properties.HAKGUDO_NM as string).replace("통학구역", "");
 
+        const placePos = await new Promise<{ lat: number; lng: number } | null>((resolve) => {
+          ps.keywordSearch(`부산 강서구 ${name}`, (results, status) => {
+            if (status !== kakao.maps.services.Status.OK || !results[0]) { resolve(null); return; }
+            const lat = parseFloat(results[0].y);
+            const lng = parseFloat(results[0].x);
+            const margin = 0.01;
+            const inBounds = lat >= Math.min(...lats) - margin && lat <= Math.max(...lats) + margin
+                          && lng >= Math.min(...lngs) - margin && lng <= Math.max(...lngs) + margin;
+            resolve(inBounds ? { lat, lng } : null);
+          }, { size: 1 });
+        });
+
+        const { lat: mLat, lng: mLng } = placePos ?? { lat: cLat, lng: cLng };
         const pin = document.createElement("div");
         pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
         pin.innerHTML = `
@@ -253,7 +267,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           applySelection(capturedIdx);
         });
         const marker = new kakao.maps.CustomOverlay({
-          position: new kakao.maps.LatLng(cLat, cLng),
+          position: new kakao.maps.LatLng(mLat, mLng),
           content: pin,
           yAnchor: 1,
           zIndex: 5,

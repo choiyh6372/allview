@@ -201,3 +201,20 @@ export function buildComplexList(items: RawItem[]): Complex[] {
     })
     .sort((a, b) => a.name.localeCompare(b.name, "ko"));
 }
+
+const RENT_ONLY_APTS = ["부산명지행복주택", "부산신호사랑으로부영3차", "부산신호사랑으로부영5차"];
+
+export function buildRentOnlyComplexes(rentItems: RentRawItem[], existingNames: Set<string>): Complex[] {
+  return RENT_ONLY_APTS
+    .map((name, idx) => {
+      if (existingNames.has(name)) return null;
+      const items = rentItems.filter((i) => i.aptNm?.trim() === name);
+      if (!items.length) return null;
+      const region = items[0]?.umdNm?.trim() ?? "";
+      const areas = Array.from(
+        new Set(items.map((i) => String(parseFloat(i.excluUseAr ?? "0"))).filter((a) => a !== "0"))
+      ).sort((a, b) => parseFloat(a) - parseFloat(b));
+      return { id: 9000 + idx + 1, name, region, areas, monthlyPrices: [], monthlyPricesByArea: {}, transactions: [] };
+    })
+    .filter((c): c is Complex => c !== null && c.areas.length > 0);
+}

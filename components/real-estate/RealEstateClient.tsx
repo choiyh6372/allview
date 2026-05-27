@@ -7,7 +7,7 @@ import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
 import { type Complex } from "@/lib/realEstateData";
-import { buildComplexList, buildRentTransactions } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 
 type TradeType = "apt" | "silv";
@@ -36,7 +36,11 @@ async function fetchRealEstateData(): Promise<RealEstateData> {
     rentRes.json(),
   ]);
 
-  const aptComplexes = buildComplexList(aptData.items ?? []);
+  const aptComplexes = (() => {
+    const base = buildComplexList(aptData.items ?? []);
+    const rentOnly = buildRentOnlyComplexes(rentData.items ?? [], new Set(base.map((c) => c.name)));
+    return [...base, ...rentOnly].sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  })();
   const silvComplexes = buildComplexList(
     (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
   );

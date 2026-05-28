@@ -6,7 +6,6 @@ interface SiteStats {
   vrComplexes: number;
   vrTypes: number;
   transactions: number;
-  stores: number;
 }
 
 function fmt(n: number): string {
@@ -15,11 +14,16 @@ function fmt(n: number): string {
 
 export default function StatsSection() {
   const [stats, setStats] = useState<SiteStats | null>(null);
+  const [storeCount, setStoreCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/site-stats")
       .then((r) => r.json())
       .then(setStats)
+      .catch(() => {});
+    fetch("/api/stores")
+      .then((r) => r.json())
+      .then((data: unknown[]) => setStoreCount(Array.isArray(data) ? data.length : 0))
       .catch(() => {});
   }, []);
 
@@ -40,7 +44,7 @@ export default function StatsSection() {
       label: "실거래 (최근 5년)",
     },
     {
-      value: stats ? fmt(stats.stores) : "—",
+      value: storeCount !== null ? fmt(storeCount) : "—",
       unit: "개",
       label: "등록 가게",
     },

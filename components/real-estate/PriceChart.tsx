@@ -106,7 +106,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
           {!hideVrButton && complex.vrInfo && (
             <button
               onClick={() => setShowVR(true)}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 rounded-lg text-xs font-semibold transition-all"
+              className="shrink-0 flex items-center gap-1.5 px-5 py-1.5 bg-accent text-white hover:bg-accent/80 rounded-lg text-xs font-semibold transition-all"
             >
               <Eye size={12} />
               VR 보기
@@ -122,12 +122,12 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
         <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>전월 대비 · 중위 거래가</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 mb-6">
+      <div className="grid grid-cols-4 gap-2 mb-6">
         {complex.areas.map((a) => (
           <button
             key={a}
             onClick={() => onAreaChange(a)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`py-1.5 rounded-lg text-xs font-medium transition-colors text-center ${
               selectedArea === a
                 ? "bg-accent text-white"
                 : light

@@ -34,7 +34,9 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
   const isDraggingRef = useRef(false);
   const hasDraggedRef = useRef(false);
   const startXRef = useRef(0);
-  const startScrollRef = useRef(0);
+  const posRef = useRef(0);         // 현재 translateX (음수 = 왼쪽으로 이동)
+  const dragStartPosRef = useRef(0);
+  const halfRef = useRef(0);        // 아이템 1세트 너비 (캐시)
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -44,18 +46,21 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
       .catch(() => {});
   }, []);
 
-  // requestAnimationFrame 기반 자동 스크롤
   useEffect(() => {
     const el = trackRef.current;
     if (!el || stores.length === 0) return;
 
     const PX_PER_FRAME = 0.4;
 
+    // 렌더 후 너비 측정
+    halfRef.current = el.offsetWidth / 2;
+    const half = halfRef.current;
+
     function tick() {
-      if (!pausedRef.current && el) {
-        el.scrollLeft += PX_PER_FRAME;
-        const half = el.scrollWidth / 2;
-        if (el.scrollLeft >= half) el.scrollLeft -= half;
+      if (!pausedRef.current && half > 0 && el) {
+        posRef.current -= PX_PER_FRAME;
+        if (posRef.current <= -half) posRef.current += half;
+        el.style.transform = `translateX(${posRef.current}px)`;
       }
       rafRef.current = requestAnimationFrame(tick);
     }
@@ -71,7 +76,7 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
     isDraggingRef.current = true;
     hasDraggedRef.current = false;
     startXRef.current = clientX;
-    startScrollRef.current = trackRef.current?.scrollLeft ?? 0;
+    dragStartPosRef.current = posRef.current;
   }
 
   function doDrag(clientX: number) {
@@ -80,16 +85,17 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
     if (!el) return;
     const dx = clientX - startXRef.current;
     if (Math.abs(dx) > 4) hasDraggedRef.current = true;
-    let next = startScrollRef.current - dx;
-    const half = el.scrollWidth / 2;
-    if (next < 0) next += half;
-    else if (next >= half) next -= half;
-    el.scrollLeft = next;
+    const half = halfRef.current;
+    if (!half) return;
+    let next = dragStartPosRef.current + dx;
+    if (next > 0) next -= half;
+    else if (next <= -half) next += half;
+    posRef.current = next;
+    el.style.transform = `translateX(${next}px)`;
   }
 
   function endDrag() {
     isDraggingRef.current = false;
-    // 드래그 후 click 이벤트가 발생하기 전에 잠시 대기
     setTimeout(() => {
       pausedRef.current = false;
       hasDraggedRef.current = false;
@@ -119,7 +125,7 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
         <div
           ref={trackRef}
           className="flex gap-4 px-4 select-none"
-          style={{ overflowX: "hidden", cursor: "grab" }}
+          style={{ width: "max-content", cursor: "grab" }}
           onMouseDown={(e) => { startDrag(e.clientX); e.preventDefault(); }}
           onMouseMove={(e) => doDrag(e.clientX)}
           onMouseUp={endDrag}

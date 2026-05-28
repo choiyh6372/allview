@@ -173,8 +173,7 @@ export function buildComplexList(items: RawItem[]): Complex[] {
       const transactions = aptItems
         .map(toTransaction)
         .filter((t) => t.price > 0)
-        .sort((a, b) => b.date.localeCompare(a.date))
-        .slice(0, 50);
+        .sort((a, b) => b.date.localeCompare(a.date));
 
       const monthlyPrices = buildMonthlyPrices(aptItems, 60);
 

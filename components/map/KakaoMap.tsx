@@ -78,6 +78,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
   const popupOverlayRef = useRef<KakaoCustomOverlay | null>(null);
+  const hoverOverlayRef = useRef<KakaoCustomOverlay | null>(null);
   const setSelectedAptRef = useRef<((a: AptComplex | null) => void) | null>(null);
   const setSelectedStoreRef = useRef<((s: PromotionStore | null) => void) | null>(null);
   const storePositionsRef = useRef<Map<string, { store: PromotionStore; lat: number; lng: number }>>(new Map());
@@ -521,24 +522,57 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           border-right:5px solid transparent;border-top:6px solid #f97316;"></div>`;
     }
 
-    const tooltip = document.createElement("div");
-    tooltip.style.cssText =
-      "position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);" +
-      "background:rgba(15,17,23,0.95);border:1px solid rgba(255,255,255,0.1);" +
-      "border-radius:10px;overflow:hidden;width:140px;pointer-events:none;" +
-      "opacity:0;transition:opacity 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.5);";
-    tooltip.innerHTML = photo
-      ? `<img src="${photo}" style="width:100%;height:80px;object-fit:cover;display:block;" />
-         <div style="padding:5px 8px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${store.name}</div>`
-      : `<div style="padding:6px 10px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;">${store.name}</div>`;
-    pin.style.position = "relative";
-    pin.appendChild(tooltip);
+    pin.addEventListener("mouseenter", () => {
+      hoverOverlayRef.current?.setMap(null);
 
-    pin.addEventListener("mouseenter", () => { tooltip.style.opacity = "1"; });
-    pin.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; });
+      const card = document.createElement("div");
+      card.style.cssText = `
+        background:rgba(15,17,23,0.96);border:1px solid rgba(42,45,62,1);
+        border-radius:12px;padding:12px 14px 10px;min-width:200px;max-width:260px;
+        box-shadow:0 6px 24px rgba(0,0,0,0.7);
+      `;
+
+      const storeName = document.createElement("div");
+      storeName.textContent = store.name;
+      storeName.style.cssText = "color:#fff;font-size:13px;font-weight:700;margin-bottom:8px;";
+      card.appendChild(storeName);
+
+      if (store.photos?.length > 0) {
+        const img = document.createElement("img");
+        img.src = store.photos[0];
+        img.style.cssText = "width:100%;height:130px;object-fit:cover;border-radius:8px;display:block;";
+        card.appendChild(img);
+      }
+
+      const arrow = document.createElement("div");
+      arrow.style.cssText = "width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:9px solid rgba(42,45,62,1);margin:0 auto;";
+
+      const spacer = document.createElement("div");
+      spacer.style.height = "30px";
+
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;pointer-events:none;";
+      wrap.append(card, arrow, spacer);
+
+      const overlay = new kakao.maps.CustomOverlay({
+        position: new kakao.maps.LatLng(lat, lng),
+        content: wrap,
+        yAnchor: 1,
+        zIndex: 9,
+      });
+      overlay.setMap(map);
+      hoverOverlayRef.current = overlay;
+    });
+
+    pin.addEventListener("mouseleave", () => {
+      hoverOverlayRef.current?.setMap(null);
+      hoverOverlayRef.current = null;
+    });
 
     pin.addEventListener("click", (e) => {
       e.stopPropagation();
+      hoverOverlayRef.current?.setMap(null);
+      hoverOverlayRef.current = null;
       activateStore(store, lat, lng, map);
     });
 

@@ -9,6 +9,7 @@ import StoreBanner from "@/components/home/StoreBanner";
 import { type Complex } from "@/lib/realEstateData";
 import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
+import { APT_COMPLEXES } from "@/lib/mapData";
 
 type TradeType = "apt" | "silv";
 
@@ -85,6 +86,9 @@ export default function RealEstateClient() {
   const selectedId = activeTab === "apt" ? selectedAptId : selectedSilvId;
   const setSelectedId = activeTab === "apt" ? setSelectedAptId : setSelectedSilvId;
   const complex = complexes.find((c) => c.id === selectedId) ?? null;
+  const naverUrl = complex
+    ? (APT_COMPLEXES.find((a) => (a.apiName ?? a.name) === complex.name)?.naverUrl ?? null)
+    : null;
 
   useEffect(() => {
     setSelectedArea(complex?.areas[0] ?? "");
@@ -142,6 +146,8 @@ export default function RealEstateClient() {
                   rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
                   selectedArea={selectedArea}
                   onAreaChange={setSelectedArea}
+                  naverUrl={naverUrl ?? undefined}
+                  areaCols={7}
                 />
                 <TransactionTable
                   complex={complex}

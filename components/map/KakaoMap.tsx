@@ -521,6 +521,19 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           border-right:5px solid transparent;border-top:6px solid #f97316;"></div>`;
     }
 
+    const tooltip = document.createElement("div");
+    tooltip.textContent = store.name;
+    tooltip.style.cssText =
+      "position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);" +
+      "background:rgba(15,17,23,0.92);color:#fff;font-size:11px;font-weight:600;" +
+      "padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;" +
+      "opacity:0;transition:opacity 0.15s;";
+    pin.style.position = "relative";
+    pin.appendChild(tooltip);
+
+    pin.addEventListener("mouseenter", () => { tooltip.style.opacity = "1"; });
+    pin.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; });
+
     pin.addEventListener("click", (e) => {
       e.stopPropagation();
       activateStore(store, lat, lng, map);

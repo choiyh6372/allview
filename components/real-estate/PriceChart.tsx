@@ -23,6 +23,11 @@ function fmt(v: number) {
   return `${v.toLocaleString()}만`;
 }
 
+function fmtDetail(v: number) {
+  if (v >= 10000) return `${(v / 10000).toFixed(2)}억`;
+  return `${v.toLocaleString()}만`;
+}
+
 function CustomTooltip({ active, payload, label, light }: any) {
   if (!active || !payload?.length) return null;
   const val = (key: string) => payload.find((p: any) => p.dataKey === key)?.value as number | undefined;
@@ -90,9 +95,10 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
     return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
   })();
 
-  const latest = tradeData[tradeData.length - 1];
-  const prev = tradeData[tradeData.length - 2];
-  const change = latest && prev ? ((latest.median - prev.median) / prev.median) * 100 : 0;
+  const recentTransactions = selectedArea
+    ? complex.transactions.filter((t) => t.area === selectedArea)
+    : complex.transactions;
+  const recentTx = recentTransactions[0];
 
   const gridColor = light ? "#e5e7eb" : "#2a2d3e";
   const areaFill  = light ? "#ffffff" : "#0f1117";
@@ -127,12 +133,11 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>{fmt(latest?.median ?? 0)}</span>
-          <span className={`text-sm font-semibold ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
-            {change >= 0 ? "▲" : "▼"} {Math.abs(change).toFixed(1)}%
-          </span>
+          <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>{recentTx ? fmtDetail(recentTx.price) : "-"}</span>
         </div>
-        <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>전월 대비 · 중위 거래가</p>
+        <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>
+          최근 실거래가{recentTx ? ` · ${recentTx.date}` : ""}
+        </p>
       </div>
 
       <div className={`grid gap-2 mb-6 ${areaCols === 7 ? "grid-cols-4 md:grid-cols-7" : "grid-cols-4"}`}>

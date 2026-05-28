@@ -522,12 +522,15 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     }
 
     const tooltip = document.createElement("div");
-    tooltip.textContent = store.name;
     tooltip.style.cssText =
-      "position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);" +
-      "background:rgba(15,17,23,0.92);color:#fff;font-size:11px;font-weight:600;" +
-      "padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;" +
-      "opacity:0;transition:opacity 0.15s;";
+      "position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);" +
+      "background:rgba(15,17,23,0.95);border:1px solid rgba(255,255,255,0.1);" +
+      "border-radius:10px;overflow:hidden;width:140px;pointer-events:none;" +
+      "opacity:0;transition:opacity 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.5);";
+    tooltip.innerHTML = photo
+      ? `<img src="${photo}" style="width:100%;height:80px;object-fit:cover;display:block;" />
+         <div style="padding:5px 8px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${store.name}</div>`
+      : `<div style="padding:6px 10px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;">${store.name}</div>`;
     pin.style.position = "relative";
     pin.appendChild(tooltip);
 

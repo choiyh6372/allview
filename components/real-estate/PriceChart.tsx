@@ -110,7 +110,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
                 href={naverUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 flex items-center gap-1.5 px-5 py-1.5 bg-[#03C75A] hover:bg-[#02b350] text-white rounded-lg text-xs font-semibold transition-colors"
+                className="hidden md:flex shrink-0 items-center gap-1.5 px-5 py-1.5 bg-[#03C75A] hover:bg-[#02b350] text-white rounded-lg text-xs font-semibold transition-colors"
               >
                 네이버 부동산
               </a>
@@ -135,7 +135,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
         <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>전월 대비 · 중위 거래가</p>
       </div>
 
-      <div className={`grid gap-2 mb-6 ${areaCols === 7 ? "grid-cols-7" : "grid-cols-4"}`}>
+      <div className={`grid gap-2 mb-6 ${areaCols === 7 ? "grid-cols-4 md:grid-cols-7" : "grid-cols-4"}`}>
         {complex.areas.map((a) => (
           <button
             key={a}

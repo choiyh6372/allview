@@ -149,6 +149,16 @@ export default function RealEstateClient() {
                   naverUrl={naverUrl ?? undefined}
                   areaCols={7}
                 />
+                {naverUrl && (
+                  <a
+                    href={naverUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="md:hidden flex items-center justify-center gap-2 w-full py-2.5 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                  >
+                    네이버 부동산 보기
+                  </a>
+                )}
                 <TransactionTable
                   complex={complex}
                   rentTransactions={buildRentTransactions(rentItems, complex.name)}

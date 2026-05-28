@@ -301,9 +301,18 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
               rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
               selectedArea={selectedArea}
               onAreaChange={setSelectedArea}
-              naverUrl={selectedApt.naverUrl}
               light
             />
+            {selectedApt.naverUrl && (
+              <a
+                href={selectedApt.naverUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+              >
+                네이버 부동산 보기
+              </a>
+            )}
             <AptInfoCard apt={selectedApt} />
             <TransactionTable
               complex={complex}

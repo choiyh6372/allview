@@ -30,14 +30,21 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
-  const pausedRef = useRef(false);
-  const isDraggingRef = useRef(false);
-  const hasDraggedRef = useRef(false);
-  const startXRef = useRef(0);
-  const posRef = useRef(0);         // 현재 translateX (음수 = 왼쪽으로 이동)
-  const dragStartPosRef = useRef(0);
-  const halfRef = useRef(0);        // 아이템 1세트 너비 (캐시)
-  const rafRef = useRef<number | null>(null);
+
+  const pausedRef        = useRef(false);
+  const posRef           = useRef(0);      // 현재 translateX
+  const halfRef          = useRef(0);      // 아이템 1세트 너비
+  const rafRef           = useRef<number | null>(null);
+  const hasDraggedRef    = useRef(false);  // 클릭 방지용
+  const startXRef        = useRef(0);
+  const dragStartPosRef  = useRef(0);
+
+  // 마우스
+  const mouseDownRef     = useRef(false);
+
+  // 터치 - 4px 초과 이동 시에만 드래그로 인식
+  const touchDownRef     = useRef(false);
+  const touchDragRef     = useRef(false);  // 임계값 통과 여부
 
   useEffect(() => {
     fetch("/api/stores")
@@ -51,8 +58,6 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
     if (!el || stores.length === 0) return;
 
     const PX_PER_FRAME = 0.4;
-
-    // 렌더 후 너비 측정
     halfRef.current = el.offsetWidth / 2;
     const half = halfRef.current;
 
@@ -71,22 +76,63 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
     };
   }, [stores]);
 
-  function startDrag(clientX: number) {
-    pausedRef.current = true;
-    isDraggingRef.current = true;
+  // ── 마우스: mousedown에서 바로 일시정지 ────────────────────────────────────
+  function onMouseDown(e: React.MouseEvent) {
+    mouseDownRef.current = true;
     hasDraggedRef.current = false;
-    startXRef.current = clientX;
+    pausedRef.current = true;
+    startXRef.current = e.clientX;
     dragStartPosRef.current = posRef.current;
+    e.preventDefault();
   }
 
-  function doDrag(clientX: number) {
-    if (!isDraggingRef.current) return;
+  function onMouseMove(e: React.MouseEvent) {
+    if (!mouseDownRef.current) return;
     const el = trackRef.current;
-    if (!el) return;
-    const dx = clientX - startXRef.current;
+    if (!el || !halfRef.current) return;
+    const dx = e.clientX - startXRef.current;
     if (Math.abs(dx) > 4) hasDraggedRef.current = true;
+    let next = dragStartPosRef.current + dx;
     const half = halfRef.current;
-    if (!half) return;
+    if (next > 0) next -= half;
+    else if (next <= -half) next += half;
+    posRef.current = next;
+    el.style.transform = `translateX(${next}px)`;
+  }
+
+  function onMouseUp() {
+    mouseDownRef.current = false;
+    setTimeout(() => { pausedRef.current = false; hasDraggedRef.current = false; }, 80);
+  }
+
+  // ── 터치: 4px 이상 수평 이동 시에만 드래그 시작 (미세 떨림 무시) ────────────
+  function onTouchStart(e: React.TouchEvent) {
+    touchDownRef.current = true;
+    touchDragRef.current = false;
+    hasDraggedRef.current = false;
+    startXRef.current = e.touches[0].clientX;
+    // auto-scroll은 아직 멈추지 않음
+  }
+
+  function onTouchMove(e: React.TouchEvent) {
+    if (!touchDownRef.current) return;
+    const clientX = e.touches[0].clientX;
+
+    if (!touchDragRef.current) {
+      const dx = clientX - startXRef.current;
+      if (Math.abs(dx) <= 4) return; // 임계값 미달 → 무시
+      // 임계값 초과 → 드래그 시작
+      touchDragRef.current = true;
+      pausedRef.current = true;
+      hasDraggedRef.current = true;
+      dragStartPosRef.current = posRef.current; // 현재 auto-scroll 위치 기준
+      startXRef.current = clientX;              // 기준점을 임계값 돌파 지점으로 재설정
+    }
+
+    const el = trackRef.current;
+    if (!el || !halfRef.current) return;
+    const dx = clientX - startXRef.current;
+    const half = halfRef.current;
     let next = dragStartPosRef.current + dx;
     if (next > 0) next -= half;
     else if (next <= -half) next += half;
@@ -94,12 +140,10 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
     el.style.transform = `translateX(${next}px)`;
   }
 
-  function endDrag() {
-    isDraggingRef.current = false;
-    setTimeout(() => {
-      pausedRef.current = false;
-      hasDraggedRef.current = false;
-    }, 80);
+  function onTouchEnd() {
+    touchDownRef.current = false;
+    touchDragRef.current = false;
+    setTimeout(() => { pausedRef.current = false; hasDraggedRef.current = false; }, 80);
   }
 
   if (stores.length === 0) return null;
@@ -126,14 +170,14 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
           ref={trackRef}
           className="flex gap-4 px-4 select-none"
           style={{ width: "max-content", cursor: "grab" }}
-          onMouseDown={(e) => { startDrag(e.clientX); e.preventDefault(); }}
-          onMouseMove={(e) => doDrag(e.clientX)}
-          onMouseUp={endDrag}
-          onMouseLeave={endDrag}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
           onClickCapture={(e) => { if (hasDraggedRef.current) e.stopPropagation(); }}
-          onTouchStart={(e) => startDrag(e.touches[0].clientX)}
-          onTouchMove={(e) => doDrag(e.touches[0].clientX)}
-          onTouchEnd={endDrag}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           {loopItems.map((s, i) => (
             <StoreCard key={i} store={s} compact={compact} onClick={() => router.push(`/map?storeId=${s.id}`)} />

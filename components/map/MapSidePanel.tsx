@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 import { MapPin, Phone, Navigation } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
@@ -130,6 +130,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
 
   const [selectedArea, setSelectedArea] = useState("");
   const [photoIndex, setPhotoIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
   const aptComplex = aptName ? (data?.aptComplexes.find((c) => c.name === aptName) ?? null) : null;
@@ -151,7 +152,12 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
 
   useEffect(() => {
     setSelectedArea(complex?.areas[0] ?? "");
+    scrollRef.current?.scrollTo({ top: 0 });
   }, [complex?.id]);
+
+  useEffect(() => {
+    if (selectedApt) scrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedApt?.id]);
 
   useEffect(() => {
     setPhotoIndex(0);
@@ -162,7 +168,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
 
   return (
     <div className="hidden md:flex w-[480px] shrink-0 flex-col bg-white overflow-hidden">
-      <div className="flex-1 overflow-y-auto scrollbar-light">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-light">
 
         {/* 빈 상태 */}
         {!selectedApt && !selectedStore && (

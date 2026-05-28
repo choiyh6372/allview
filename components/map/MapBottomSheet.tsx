@@ -150,7 +150,12 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
 
   useEffect(() => {
     setSelectedArea(complex?.areas[0] ?? "");
+    scrollRef.current?.scrollTo({ top: 0 });
   }, [complex?.id]);
+
+  useEffect(() => {
+    if (selectedApt) scrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedApt?.id]);
 
   useEffect(() => {
     setPhotoIndex(0);

@@ -46,7 +46,7 @@ export default function StatsSection() {
     {
       value: storeCount !== null ? fmt(storeCount) : "—",
       unit: "개",
-      label: "등록 가게",
+      label: "추천 가게",
     },
   ];
 

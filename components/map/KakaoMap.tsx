@@ -522,10 +522,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           border-right:5px solid transparent;border-top:6px solid #f97316;"></div>`;
     }
 
-    let hoverLeaveTimer: ReturnType<typeof setTimeout> | null = null;
-
     pin.addEventListener("mouseenter", () => {
-      if (hoverLeaveTimer) { clearTimeout(hoverLeaveTimer); hoverLeaveTimer = null; }
       hoverOverlayRef.current?.setMap(null);
 
       const card = document.createElement("div");
@@ -564,15 +561,15 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         zIndex: 9,
       });
       overlay.setMap(map);
+      // Kakao wraps content in its own container div — disable pointer events
+      // so the overlay doesn't intercept mouse events from the pin underneath
+      if (wrap.parentElement) wrap.parentElement.style.pointerEvents = "none";
       hoverOverlayRef.current = overlay;
     });
 
     pin.addEventListener("mouseleave", () => {
-      hoverLeaveTimer = setTimeout(() => {
-        hoverOverlayRef.current?.setMap(null);
-        hoverOverlayRef.current = null;
-        hoverLeaveTimer = null;
-      }, 120);
+      hoverOverlayRef.current?.setMap(null);
+      hoverOverlayRef.current = null;
     });
 
     pin.addEventListener("click", (e) => {

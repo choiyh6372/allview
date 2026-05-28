@@ -55,9 +55,10 @@ interface Props {
   onAreaChange: (area: string) => void;
   hideVrButton?: boolean;
   light?: boolean;
+  naverUrl?: string;
 }
 
-export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange, hideVrButton, light }: Props) {
+export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange, hideVrButton, light, naverUrl }: Props) {
   const [showVR, setShowVR] = useState(false);
 
   useEffect(() => {
@@ -102,15 +103,27 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
       <div className="mb-4">
         <div className="flex items-center justify-between gap-2 mb-1">
           <h2 className={`text-lg font-bold ${light ? "text-gray-900" : "text-white"}`}>{complex.name}</h2>
-          {!hideVrButton && complex.vrInfo && (
-            <button
-              onClick={() => setShowVR(true)}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 rounded-lg text-xs font-semibold transition-all"
-            >
-              <Eye size={12} />
-              VR 보기
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {naverUrl && (
+              <a
+                href={naverUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-[#03C75A] hover:bg-[#02b350] text-white rounded-lg text-xs font-semibold transition-colors"
+              >
+                네이버 부동산
+              </a>
+            )}
+            {!hideVrButton && complex.vrInfo && (
+              <button
+                onClick={() => setShowVR(true)}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 rounded-lg text-xs font-semibold transition-all"
+              >
+                <Eye size={12} />
+                VR 보기
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>{fmt(latest?.median ?? 0)}</span>

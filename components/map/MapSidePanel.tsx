@@ -271,7 +271,19 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
         {/* 아파트 데이터 없음 */}
         {selectedApt && !selectedStore && !isLoading && !complex && (
           <div className="p-4 space-y-4">
-            <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
+              {selectedApt.naverUrl && (
+                <a
+                  href={selectedApt.naverUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                >
+                  네이버 부동산
+                </a>
+              )}
+            </div>
             <AptInfoCard apt={selectedApt} />
             <p className="text-xs text-gray-400 text-center">실거래가 데이터가 없습니다</p>
           </div>
@@ -289,6 +301,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, onClose }: Pr
               rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
               selectedArea={selectedArea}
               onAreaChange={setSelectedArea}
+              naverUrl={selectedApt.naverUrl}
               light
             />
             <AptInfoCard apt={selectedApt} />

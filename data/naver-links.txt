@@ -1,0 +1,63 @@
+# 네이버 부동산 단지 링크
+# 형식: 단지ID | 단지명 | 네이버부동산URL
+# URL: https://land.naver.com/complex/complexMain.naver?hscpNo=XXXXX
+
+# ── 명지오션시티 ─────────────────────────────────────────────────────────────
+ocean_blueocean4        | 엘크루블루오션 4단지     |  https://new.land.naver.com/complexes/26078?ms=2z5NKS,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_blueocean5        | 엘크루블루오션 5단지     |  https://new.land.naver.com/complexes/26080?ms=2z5NKS,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_blueocean6        | 엘크루블루오션 6단지     |  https://new.land.naver.com/complexes/26079?ms=2z5NKS,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_doosan            | 두산위브                 |  https://new.land.naver.com/complexes/102843?ms=2z5NKS,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_hansin            | 한신휴플러스             |  https://new.land.naver.com/complexes/105610?ms=2z5NKS,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_kukdong           | 극동스타클래스           |  https://new.land.naver.com/complexes/25894?ms=2z5NKS,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_lotte             | 롯데캐슬                 |  https://new.land.naver.com/complexes/25769?ms=2z5Qq3,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_qweendom_edison   | 퀸덤 에디슨              |  https://new.land.naver.com/complexes/24757?ms=2z5ZSQ,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_qweendom_lincoln  | 퀸덤 링컨               |  https://new.land.naver.com/complexes/25241?ms=2z5ZSQ,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_qweendom_einstein | 퀸덤 아인슈타인          |  https://new.land.naver.com/complexes/24846?ms=2z5ZSQ,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_samjung           | 삼정그린코아             |  https://new.land.naver.com/complexes/104870?ms=2z5ZSQ,3AAsZt,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_solmare           | 솔마레                   |  https://new.land.naver.com/complexes/100118?ms=2z5V5t,3AAqOv,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ocean_happyhouse        | 명지행복주택             |
+
+# ── 명지국제신도시 ───────────────────────────────────────────────────────────
+kukje_daebang1          | 대방1차                  |  https://new.land.naver.com/complexes/106554?ms=2z6qvN,3AB5vv,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_daebang2          | 대방2차                  |  https://new.land.naver.com/complexes/107738?ms=2z6qvN,3AB5vv,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_eileen            | 에일린의뜰               |  https://new.land.naver.com/complexes/106120?ms=2z6vKG,3AB5vv,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_elife             | 이편한세상               |  https://new.land.naver.com/complexes/113505?ms=2z6vKG,3AAYBb,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_hoban1            | 호반1차                  |  https://new.land.naver.com/complexes/107717?ms=2z6vKG,3AAYBb,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_hoban2            | 호반2차                  |  https://new.land.naver.com/complexes/109074?ms=2z6B3O,3AAYBb,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_hyupsung          | 협성휴포레               |  https://new.land.naver.com/complexes/108371?ms=2z6MUh,3AAYBb,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_jungheung1        | 중흥1차                  |  https://new.land.naver.com/complexes/108771?ms=2z6ruj,3AARlg,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_jungheung2        | 중흥2차                  |  https://new.land.naver.com/complexes/109854?ms=2z6zf3,3AARlg,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_kumkang1          | 금강1차                  |  https://new.land.naver.com/complexes/106178?ms=2z6zf3,3AARlg,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_kumkang2          | 금강2차                  |  https://new.land.naver.com/complexes/107737?ms=2z6Fen,3AARlg,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_kumkang3          | 금강3차                  |
+kukje_thehill           | 더힐                     |  https://new.land.naver.com/complexes/114880?ms=2z6oyR,3AASi6,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_thewestern        | 더웨스턴                 |  https://new.land.naver.com/complexes/113098?ms=2z6qNz,3AASQI,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_samjung           | 삼정                     |  https://new.land.naver.com/complexes/112596?ms=2z6qNz,3AASQI,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_posco2            | 포스코 2단지             |  https://new.land.naver.com/complexes/119328?ms=2z6tzw,3AAQsa,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+kukje_posco3            | 포스코 3단지             |  https://new.land.naver.com/complexes/119329?ms=2z6qNz,3AAQsa,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+
+# ── 신호동 ───────────────────────────────────────────────────────────────────
+sinho_bunyoung1         | 부영사랑으로 1차         |  https://new.land.naver.com/complexes/107340?ms=2z64Ko,3Azn1b,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+sinho_bunyoung2         | 부영사랑으로 2차         |  https://new.land.naver.com/complexes/108393?ms=2z64Ko,3Azn1b,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+sinho_bunyoung3         | 부영사랑으로 3차         |
+sinho_bunyoung5         | 부영사랑으로 5차         |
+
+# ── 지사동 ───────────────────────────────────────────────────────────────────
+jisa_elysian            | 협성DS엘리시안           |  https://new.land.naver.com/complexes/106179?ms=2z8G5f,3AxM6r,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+jisa_kumkang            | 지사금강펜테리움          |  https://new.land.naver.com/complexes/104076?ms=2z8Ikt,3AxM6r,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+jisa_humansia           | 지사휴먼시아             |
+jisa_samjung           | 지사삼정그린코아             |  https://new.land.naver.com/complexes/109546?ms=2z8Ikt,3AxM6r,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+
+# ── 에코델타시티 ─────────────────────────────────────────────────────────────
+ecodelta_hoban          | 호반써밋                 |  https://new.land.naver.com/complexes/145041?ms=2z8c2t,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_sujain         | 수자인                   |  https://new.land.naver.com/complexes/144763?ms=2z8c2t,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_prugio_lin     | 푸르지오린               |  https://new.land.naver.com/complexes/159657?ms=2z8h77,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_xi             | 강서자이                 |  https://new.land.naver.com/complexes/150328?ms=2z8iHG,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_elife          | 이편한세상센터포인트      |  https://new.land.naver.com/complexes/150280?ms=2z8oBG,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_prugio_center  | 푸르지오센터파크         |  https://new.land.naver.com/complexes/153642?ms=2z8uSI,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_theberhill     | 더베르힐                 |  https://new.land.naver.com/complexes/157345?ms=2z8CVu,3AAY4y,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_jungheung      | 중흥S클래스              |  https://new.land.naver.com/complexes/194197?ms=2z8Kme,3AAKcw,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_dietr_grand    | 디에트르그랑루체         |  https://new.land.naver.com/complexes/174037?ms=2z8X6r,3AASd9,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_dietr_first    | 디에트르더퍼스트         |  https://new.land.naver.com/complexes/158598?ms=2z8DCH,3AB8qy,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_atheara        | 아테라                   |  https://new.land.naver.com/complexes/184519?ms=2z8DCH,3AB8qy,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_daebang        | 대방엘리움리버뷰         |  https://new.land.naver.com/complexes/189037?ms=2z8m8i,3ABleP,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true

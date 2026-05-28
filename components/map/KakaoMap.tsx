@@ -522,7 +522,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           border-right:5px solid transparent;border-top:6px solid #f97316;"></div>`;
     }
 
+    let hoverLeaveTimer: ReturnType<typeof setTimeout> | null = null;
+
     pin.addEventListener("mouseenter", () => {
+      if (hoverLeaveTimer) { clearTimeout(hoverLeaveTimer); hoverLeaveTimer = null; }
       hoverOverlayRef.current?.setMap(null);
 
       const card = document.createElement("div");
@@ -565,8 +568,11 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     });
 
     pin.addEventListener("mouseleave", () => {
-      hoverOverlayRef.current?.setMap(null);
-      hoverOverlayRef.current = null;
+      hoverLeaveTimer = setTimeout(() => {
+        hoverOverlayRef.current?.setMap(null);
+        hoverOverlayRef.current = null;
+        hoverLeaveTimer = null;
+      }, 120);
     });
 
     pin.addEventListener("click", (e) => {

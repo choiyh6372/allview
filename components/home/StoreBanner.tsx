@@ -49,7 +49,7 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
     const el = trackRef.current;
     if (!el || stores.length === 0) return;
 
-    const PX_PER_FRAME = 0.5;
+    const PX_PER_FRAME = 0.25;
 
     function tick() {
       if (!pausedRef.current && el) {

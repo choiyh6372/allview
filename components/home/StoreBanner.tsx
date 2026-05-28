@@ -1,11 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageOff } from "lucide-react";
 import type { PromotionStore } from "@/lib/promotionStore";
-
 
 function StoreCard({ store, compact, onClick }: { store: PromotionStore; compact?: boolean; onClick?: () => void }) {
   const photo = store.photos[0];
@@ -30,6 +29,13 @@ function StoreCard({ store, compact, onClick }: { store: PromotionStore; compact
 export default function StoreBanner({ compact }: { compact?: boolean }) {
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const router = useRouter();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(false);
+  const isDraggingRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const startXRef = useRef(0);
+  const startScrollRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetch("/api/stores")
@@ -38,15 +44,63 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
       .catch(() => {});
   }, []);
 
+  // requestAnimationFrame 기반 자동 스크롤
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el || stores.length === 0) return;
+
+    const PX_PER_FRAME = 0.5;
+
+    function tick() {
+      if (!pausedRef.current && el) {
+        el.scrollLeft += PX_PER_FRAME;
+        const half = el.scrollWidth / 2;
+        if (el.scrollLeft >= half) el.scrollLeft -= half;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [stores]);
+
+  function startDrag(clientX: number) {
+    pausedRef.current = true;
+    isDraggingRef.current = true;
+    hasDraggedRef.current = false;
+    startXRef.current = clientX;
+    startScrollRef.current = trackRef.current?.scrollLeft ?? 0;
+  }
+
+  function doDrag(clientX: number) {
+    if (!isDraggingRef.current) return;
+    const el = trackRef.current;
+    if (!el) return;
+    const dx = clientX - startXRef.current;
+    if (Math.abs(dx) > 4) hasDraggedRef.current = true;
+    let next = startScrollRef.current - dx;
+    const half = el.scrollWidth / 2;
+    if (next < 0) next += half;
+    else if (next >= half) next -= half;
+    el.scrollLeft = next;
+  }
+
+  function endDrag() {
+    isDraggingRef.current = false;
+    // 드래그 후 click 이벤트가 발생하기 전에 잠시 대기
+    setTimeout(() => {
+      pausedRef.current = false;
+      hasDraggedRef.current = false;
+    }, 80);
+  }
+
   if (stores.length === 0) return null;
 
-  // 화면을 가득 채울 만큼 복제한 뒤 2배로 늘려 무한 루프
   const minCopies = Math.max(1, Math.ceil(10 / stores.length));
   const base = Array.from({ length: minCopies }, () => stores).flat();
-  const loopItems = [...base, ...base]; // 앞쪽 50% 재생 후 순간 리셋
-
-  // 아이템 수에 비례해 속도 조정 (카드 1개당 10초)
-  const duration = base.length * 10;
+  const loopItems = [...base, ...base];
 
   return (
     <section className={compact ? "pt-1 pb-1 overflow-hidden" : "pt-16 pb-4 overflow-hidden"}>
@@ -54,20 +108,26 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
         {compact ? (
           <p className="text-sm font-semibold text-white">주변 추천 가게</p>
         ) : (
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-1">주변 추천 가게</h2>
-          <p className="text-sm text-gray-400">입주 단지 주변 홍보 가게를 확인하세요</p>
-        </div>
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-1">주변 추천 가게</h2>
+            <p className="text-sm text-gray-400">입주 단지 주변 홍보 가게를 확인하세요</p>
+          </div>
         )}
       </div>
 
       <div className="relative overflow-hidden">
         <div
-          className="flex gap-4 px-4"
-          style={{
-            width: "max-content",
-            animation: `marquee ${duration}s linear infinite`,
-          }}
+          ref={trackRef}
+          className="flex gap-4 px-4 select-none"
+          style={{ overflowX: "hidden", cursor: "grab" }}
+          onMouseDown={(e) => { startDrag(e.clientX); e.preventDefault(); }}
+          onMouseMove={(e) => doDrag(e.clientX)}
+          onMouseUp={endDrag}
+          onMouseLeave={endDrag}
+          onClickCapture={(e) => { if (hasDraggedRef.current) e.stopPropagation(); }}
+          onTouchStart={(e) => startDrag(e.touches[0].clientX)}
+          onTouchMove={(e) => doDrag(e.touches[0].clientX)}
+          onTouchEnd={endDrag}
         >
           {loopItems.map((s, i) => (
             <StoreCard key={i} store={s} compact={compact} onClick={() => router.push(`/map?storeId=${s.id}`)} />

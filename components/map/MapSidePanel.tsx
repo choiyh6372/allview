@@ -197,6 +197,10 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
     aptComplex && silvComplex ? mergeComplexes(aptComplex, silvComplex)
     : aptComplex ?? silvComplex ?? null;
 
+  const aptNaverUrl = selectedApt
+    ? (selectedApt.naverUrl ?? PROPERTY_NAVER_URLS[selectedApt.name] ?? null)
+    : null;
+
   useEffect(() => {
     setSelectedArea(complex?.areas[0] ?? "");
     scrollRef.current?.scrollTo({ top: 0 });
@@ -433,9 +437,9 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
           <div className="p-4 space-y-4">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
-              {selectedApt.naverUrl && (
+              {aptNaverUrl && (
                 <a
-                  href={selectedApt.naverUrl}
+                  href={aptNaverUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
@@ -463,9 +467,9 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               onAreaChange={setSelectedArea}
               light
             />
-            {selectedApt.naverUrl && (
+            {aptNaverUrl && (
               <a
-                href={selectedApt.naverUrl}
+                href={aptNaverUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"

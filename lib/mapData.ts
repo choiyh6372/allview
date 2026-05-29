@@ -124,6 +124,7 @@ export const PROPERTY_NAVER_URLS: Record<string, string> = {
   "오션퍼스트":                         "https://new.land.naver.com/complexes/147367?ms=2z6d3m,3AAwE2,17&a=OPST&e=RETAIL&ad=true",
   "송정 삼정그린코아 더시티":            "https://new.land.naver.com/complexes/118804?ms=2z62Jl,3AyG7Y,15&a=OPST&e=RETAIL&ad=true",
   "부산명지중흥S-클래스더테라스":        "https://new.land.naver.com/complexes/116374?ms=2z6SPF,3ABhvt,16&a=OPST:APT&e=RETAIL&ad=true",
+  "스위트팰리스":                        "https://new.land.naver.com/complexes/182118?ms=2z6SPE,3ABe9O,16&a=OPST:APT&e=RETAIL&ad=true",
 };
 
 export const OFFI_SHORT_NAMES: Record<string, string> = {

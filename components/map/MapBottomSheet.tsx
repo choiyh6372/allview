@@ -195,6 +195,10 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
     aptComplex && silvComplex ? mergeComplexes(aptComplex, silvComplex)
     : aptComplex ?? silvComplex ?? null;
 
+  const aptNaverUrl = selectedApt
+    ? (selectedApt.naverUrl ?? PROPERTY_NAVER_URLS[selectedApt.name] ?? null)
+    : null;
+
   const propertyComplex = selectedProperty
     ? (selectedProperty.propertyType === "offi"
         ? (data?.offiComplexes ?? []).find((c) => c.name === selectedProperty.name) ?? null
@@ -525,9 +529,9 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 onAreaChange={setSelectedArea}
                 light
               />
-              {selectedApt.naverUrl && (
+              {aptNaverUrl && (
                 <a
-                  href={selectedApt.naverUrl}
+                  href={aptNaverUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"

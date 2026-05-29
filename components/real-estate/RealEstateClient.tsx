@@ -9,7 +9,7 @@ import StoreBanner from "@/components/home/StoreBanner";
 import { type Complex } from "@/lib/realEstateData";
 import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
-import { APT_COMPLEXES } from "@/lib/mapData";
+import { APT_COMPLEXES, PROPERTY_NAVER_URLS } from "@/lib/mapData";
 
 type TradeType = "apt" | "silv" | "offi" | "rh";
 
@@ -127,7 +127,7 @@ export default function RealEstateClient() {
   const activeRentItems = rentItemsMap[activeTab];
   const complex = complexes.find((c) => c.id === selectedId) ?? null;
   const naverUrl = complex
-    ? (APT_COMPLEXES.find((a) => (a.apiName ?? a.name) === complex.name)?.naverUrl ?? null)
+    ? (APT_COMPLEXES.find((a) => (a.apiName ?? a.name) === complex.name)?.naverUrl ?? PROPERTY_NAVER_URLS[complex.name] ?? null)
     : null;
 
   useEffect(() => {

@@ -86,4 +86,5 @@ offi_samsung            | 삼성빌딩                        |
 
 # ── 연립다세대 ───────────────────────────────────────────────────────────────
 # 형식: API 단지명 (mhouseNm 그대로) | 표시명 | 네이버부동산URL
-rh_jungheung_terrace    | 부산명지중흥S-클래스더테라스       |
+rh_jungheung_terrace    | 부산명지중흥S-클래스더테라스       | https://new.land.naver.com/complexes/116374?ms=2z6SPF,3ABhvt,16&a=OPST:APT&e=RETAIL&ad=true
+

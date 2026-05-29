@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Eye, TrendingUp, Map } from "lucide-react";
+import { Eye, TrendingUp, Map, Home } from "lucide-react";
 
 const services = [
   {
@@ -32,6 +32,16 @@ const services = [
     border: "border-purple-500/20",
     iconColor: "text-purple-400",
   },
+  {
+    icon: Home,
+    title: "분양정보",
+    desc: "청약홈 공식 분양 공고를 한곳에서 확인하세요. 청약중·예정·완료 상태별로 부산 아파트 분양 일정과 세대수, 입주 예정 정보를 한눈에 볼 수 있습니다.",
+    href: "/subscription",
+    badge: "NEW",
+    gradient: "from-orange-500/10 to-amber-500/10",
+    border: "border-orange-500/20",
+    iconColor: "text-orange-400",
+  },
 ];
 
 export default function ServiceCards() {
@@ -43,7 +53,7 @@ export default function ServiceCards() {
           <p className="text-gray-400 text-base">부동산 탐색의 모든 단계를 하나의 플랫폼에서</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((s) => {
             const Icon = s.icon;
             return (

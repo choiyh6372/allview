@@ -3,7 +3,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, BarChart2, TrendingUp, Eye, Users } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StoreFormModal from "@/components/admin/StoreFormModal";
 import AptMapEditor from "@/components/admin/AptMapEditor";
 import type { PromotionStore } from "@/lib/promotionStore";
@@ -48,9 +49,31 @@ const categoryColors: Record<string, string> = {
   학원: "bg-indigo-500/10 text-indigo-400",
 };
 
+type VisitStats = {
+  today: number;
+  yesterday: number;
+  week: number;
+  month: number;
+  daily: { date: string; count: number }[];
+};
+
+function StatCard({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
+  return (
+    <div className="bg-bg-card border border-border rounded-2xl p-5 flex items-center gap-4">
+      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
+        {icon}
+      </div>
+      <div>
+        <p className="text-xs text-muted mb-0.5">{label}</p>
+        <p className="text-2xl font-black text-white">{value.toLocaleString()}<span className="text-sm font-normal text-muted ml-1">명</span></p>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<"stores" | "inquiries" | "apts">("stores");
+  const [tab, setTab] = useState<"stores" | "inquiries" | "apts" | "stats">("stores");
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalStore, setModalStore] = useState<PromotionStore | null | undefined>(undefined);
@@ -60,6 +83,8 @@ export default function AdminPage() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [inquiriesLoading, setInquiriesLoading] = useState(false);
   const [deletingInquiryId, setDeletingInquiryId] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<VisitStats | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   async function handleLogout() {
     await fetch("/api/admin/login", { method: "DELETE" });
@@ -92,11 +117,24 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const res = await fetch("/api/admin/analytics");
+      setAnalytics(await res.json());
+    } catch {
+      setAnalytics(null);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, []);
+
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
     if (tab === "inquiries") loadInquiries();
-  }, [tab, loadInquiries]);
+    if (tab === "stats") loadAnalytics();
+  }, [tab, loadInquiries, loadAnalytics]);
 
   async function handleDeleteInquiry(id: string) {
     if (!confirm("문의를 삭제하시겠습니까?")) return;
@@ -205,6 +243,15 @@ export default function AdminPage() {
         >
           <MapPin size={15} />
           아파트 핀 위치
+        </button>
+        <button
+          onClick={() => setTab("stats")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "stats" ? "bg-accent text-white" : "text-muted hover:text-white"
+          }`}
+        >
+          <BarChart2 size={15} />
+          방문자 통계
         </button>
       </div>
 
@@ -356,6 +403,67 @@ export default function AdminPage() {
             <p className="text-sm text-muted">단지를 선택해 핀 위치를 드래그로 조정하세요</p>
           </div>
           <AptMapEditor />
+        </div>
+      )}
+
+      {/* Stats Tab */}
+      {tab === "stats" && (
+        <div>
+          {analyticsLoading ? (
+            <div className="flex items-center justify-center py-24 text-muted">
+              <Loader2 size={24} className="animate-spin" />
+            </div>
+          ) : analytics ? (
+            <div className="space-y-6">
+              {/* Summary Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <StatCard label="오늘" value={analytics.today} icon={<Eye size={18} />} />
+                <StatCard label="어제" value={analytics.yesterday} icon={<Eye size={18} />} />
+                <StatCard label="이번 주" value={analytics.week} icon={<TrendingUp size={18} />} />
+                <StatCard label="이번 달" value={analytics.month} icon={<Users size={18} />} />
+              </div>
+
+              {/* Chart */}
+              <div className="bg-bg-card border border-border rounded-2xl p-6">
+                <p className="text-sm font-semibold text-white mb-4">최근 30일 일별 방문자</p>
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={analytics.daily} barSize={10}>
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 10, fill: "#6b7280" }}
+                      axisLine={false}
+                      tickLine={false}
+                      interval={6}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: "#6b7280" }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={24}
+                      allowDecimals={false}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: "#1a1d27", border: "1px solid #2a2d3e", borderRadius: 10, fontSize: 12 }}
+                      labelStyle={{ color: "#e5e7eb" }}
+                      formatter={(v: number) => [`${v}명`, "방문자"]}
+                      cursor={{ fill: "#5b6ef510" }}
+                    />
+                    <Bar dataKey="count" fill="#5b6ef5" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="flex justify-end">
+                <button onClick={loadAnalytics} className="text-xs text-muted hover:text-white transition-colors">
+                  새로고침
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-24 text-muted text-sm">
+              데이터를 불러오지 못했습니다.
+            </div>
+          )}
         </div>
       )}
 

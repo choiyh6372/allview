@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
+import { Analytics } from "@vercel/analytics/react";
+import VisitTracker from "@/components/VisitTracker";
 
 export const metadata: Metadata = {
   title: "AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
@@ -36,6 +38,8 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1 pt-16">{children}</main>
         <ConditionalFooter />
+        <Analytics />
+        <VisitTracker />
       </body>
     </html>
   );

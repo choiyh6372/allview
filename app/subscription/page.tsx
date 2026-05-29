@@ -93,7 +93,7 @@ export default function SubscriptionPage() {
           <div>
             <h1 className="text-2xl font-black text-white">부산 분양정보</h1>
             <p className="text-sm text-muted mt-0.5">
-              청약홈 아파트 분양 공고
+              청약홈 아파트 분양 공고 · 최근 3개월
               {!loading && items.length > 0 && (
                 <span className="ml-2">· 총 {items.length}건</span>
               )}
@@ -102,12 +102,12 @@ export default function SubscriptionPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 flex-wrap">
+        <div className="flex gap-1.5 mb-8">
           {STATUS_TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+              className={`flex-1 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
                 tab === t.key
                   ? "bg-accent text-white"
                   : "bg-bg-card border border-border text-gray-400 hover:text-white hover:border-accent/40"
@@ -116,7 +116,7 @@ export default function SubscriptionPage() {
               {t.label}
               {!loading && (
                 <span
-                  className={`text-xs px-1.5 py-0.5 rounded-full ${
+                  className={`text-xs px-1 sm:px-1.5 py-0.5 rounded-full ${
                     tab === t.key ? "bg-white/20" : "bg-bg-hover"
                   }`}
                 >

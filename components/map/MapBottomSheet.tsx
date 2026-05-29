@@ -529,6 +529,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 onAreaChange={setSelectedArea}
                 light
               />
+              <AptInfoCard apt={selectedApt} />
               {aptNaverUrl && (
                 <a
                   href={aptNaverUrl}
@@ -539,7 +540,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   네이버 부동산 보기
                 </a>
               )}
-              <AptInfoCard apt={selectedApt} />
               <TransactionTable
                 complex={complex}
                 rentTransactions={buildRentTransactions(rentItems, complex.name)}

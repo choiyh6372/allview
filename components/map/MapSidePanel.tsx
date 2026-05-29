@@ -467,6 +467,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               onAreaChange={setSelectedArea}
               light
             />
+            <AptInfoCard apt={selectedApt} />
             {aptNaverUrl && (
               <a
                 href={aptNaverUrl}
@@ -477,7 +478,6 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                 네이버 부동산 보기
               </a>
             )}
-            <AptInfoCard apt={selectedApt} />
             <TransactionTable
               complex={complex}
               rentTransactions={buildRentTransactions(rentItems, complex.name)}

@@ -7,6 +7,7 @@ import { SCHOOL_POS_OVERRIDES } from "@/lib/schoolPositions";
 import MapSidePanel from "@/components/map/MapSidePanel";
 import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
+import type { SubscriptionItem } from "@/app/api/subscription/route";
 // ── Kakao SDK type declarations ───────────────────────────────────────────────
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
 interface KakaoMapInstance {
@@ -88,8 +89,14 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
   const [selectedApt, setSelectedApt] = useState<AptComplex | null>(null);
   const [selectedStore, setSelectedStore] = useState<PromotionStore | null>(null);
+  const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionItem | null>(null);
+  const setSelectedSubscriptionRef = useRef<((s: SubscriptionItem | null) => void) | null>(null);
+  const subscriptionMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const subscriptionLoadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
   const [showSchoolZones, setShowSchoolZones] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [schoolZoneLoading, setSchoolZoneLoading] = useState(false);
   const schoolPolygonsRef = useRef<KakaoPolygon[]>([]);
   const schoolLabelsRef = useRef<KakaoCustomOverlay[]>([]);
@@ -101,6 +108,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
   useEffect(() => { setSelectedAptRef.current = setSelectedApt; }, []);
   useEffect(() => { setSelectedStoreRef.current = setSelectedStore; }, []);
+  useEffect(() => { setSelectedSubscriptionRef.current = setSelectedSubscription; }, []);
 
   useEffect(() => {
     const storeId = searchParams.get("storeId");
@@ -325,6 +333,22 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSchoolZones]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (showSubscription) {
+      if (!subscriptionLoadedRef.current) {
+        subscriptionLoadedRef.current = true;
+        loadSubscriptionMarkers(map);
+      } else {
+        subscriptionMarkersRef.current.forEach((m) => m.setMap(map));
+      }
+    } else {
+      subscriptionMarkersRef.current.forEach((m) => m.setMap(null));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSubscription]);
+
   function hidePopupOverlay() {
     popupOverlayRef.current?.setMap(null);
     popupOverlayRef.current = null;
@@ -436,6 +460,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     hidePopupOverlay();
     setSelectedAptRef.current?.(null);
     setSelectedStoreRef.current?.(null);
+    setSelectedSubscriptionRef.current?.(null);
   }
 
   function openPopup(apt: AptComplex, map: KakaoMapInstance) {
@@ -586,6 +611,78 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       zIndex: 2,
     });
     overlay.setMap(map);
+  }
+
+  function getSubStatus(item: SubscriptionItem): "active" | "upcoming" | "closed" {
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const b = (item.RCEPT_BGNDE ?? "").replace(/-/g, "").slice(0, 8);
+    const e = (item.RCEPT_ENDDE ?? "").replace(/-/g, "").slice(0, 8);
+    if (!b) return "closed";
+    if (today < b) return "upcoming";
+    if (!e || today <= e) return "active";
+    return "closed";
+  }
+
+  async function loadSubscriptionMarkers(map: KakaoMapInstance) {
+    const { kakao } = window;
+    setSubscriptionLoading(true);
+    try {
+      const res = await fetch("/api/subscription");
+      const data = await res.json();
+      const items: SubscriptionItem[] = data.items ?? [];
+      const geocoder = new kakao.maps.services.Geocoder();
+
+      const COLOR = { active: "#10b981", upcoming: "#3b82f6", closed: "#6b7280" };
+
+      await Promise.all(
+        items.map(
+          (item) =>
+            new Promise<void>((resolve) => {
+              if (!item.HSSPLY_ADRES) { resolve(); return; }
+              geocoder.addressSearch(item.HSSPLY_ADRES, (result, status) => {
+                if (status !== kakao.maps.services.Status.OK || !result[0]) { resolve(); return; }
+                const lat = parseFloat(result[0].y);
+                const lng = parseFloat(result[0].x);
+                const st = getSubStatus(item);
+                const color = COLOR[st];
+
+                const pin = document.createElement("div");
+                pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+                pin.innerHTML = `
+                  <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
+                    padding:4px 8px;border-radius:6px;white-space:nowrap;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
+                    🏗️ ${item.HOUSE_NM}
+                  </div>
+                  <div style="width:0;height:0;border-left:6px solid transparent;
+                    border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
+
+                pin.addEventListener("click", (e) => {
+                  e.stopPropagation();
+                  hidePopupOverlay();
+                  setSelectedAptRef.current?.(null);
+                  setSelectedStoreRef.current?.(null);
+                  setSelectedSubscriptionRef.current?.(item);
+                });
+
+                const overlay = new kakao.maps.CustomOverlay({
+                  position: new kakao.maps.LatLng(lat, lng),
+                  content: pin,
+                  yAnchor: 1,
+                  zIndex: 3,
+                });
+                overlay.setMap(map);
+                subscriptionMarkersRef.current.push(overlay);
+                resolve();
+              });
+            })
+        )
+      );
+    } catch (e) {
+      console.error("[분양정보] 로딩 실패", e);
+    } finally {
+      setSubscriptionLoading(false);
+    }
   }
 
   function initMap(posOverrides: Record<string, { lat: number; lng: number }> = {}) {
@@ -795,12 +892,14 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       <MapSidePanel
         selectedApt={selectedApt}
         selectedStore={selectedStore}
+        selectedSubscription={selectedSubscription}
         onClose={closePopup}
       />
 
       <MapBottomSheet
         selectedApt={selectedApt}
         selectedStore={selectedStore}
+        selectedSubscription={selectedSubscription}
         onClose={closePopup}
       />
 
@@ -812,17 +911,30 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           </div>
         )}
         {loaded && (
-          <button
-            onClick={() => setShowSchoolZones((v) => !v)}
-            disabled={schoolZoneLoading}
-            className={`absolute top-3 right-3 z-10 px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
-              showSchoolZones
-                ? "bg-blue-500 text-white border-blue-600"
-                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-            } disabled:opacity-60`}
-          >
-            {schoolZoneLoading ? "로딩 중..." : "🏫 학구도"}
-          </button>
+          <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+            <button
+              onClick={() => setShowSchoolZones((v) => !v)}
+              disabled={schoolZoneLoading}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
+                showSchoolZones
+                  ? "bg-blue-500 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              } disabled:opacity-60`}
+            >
+              {schoolZoneLoading ? "로딩 중..." : "🏫 학구도"}
+            </button>
+            <button
+              onClick={() => setShowSubscription((v) => !v)}
+              disabled={subscriptionLoading}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
+                showSubscription
+                  ? "bg-emerald-500 text-white border-emerald-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              } disabled:opacity-60`}
+            >
+              {subscriptionLoading ? "로딩 중..." : "🏗️ 분양정보"}
+            </button>
+          </div>
         )}
       </div>
     </div>

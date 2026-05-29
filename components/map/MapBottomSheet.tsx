@@ -10,6 +10,7 @@ import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import { type AptComplex } from "@/lib/mapData";
 import type { PromotionStore } from "@/lib/promotionStore";
+import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { complexData as vrComplexData } from "@/lib/vrData";
 
 interface MapEstateData {
@@ -112,14 +113,44 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
   );
 }
 
+const SUB_STATUS_STYLE = {
+  active:   "bg-emerald-50 text-emerald-700 border-emerald-200",
+  upcoming: "bg-blue-50 text-blue-700 border-blue-200",
+  closed:   "bg-gray-100 text-gray-500 border-gray-200",
+};
+const SUB_STATUS_LABEL = { active: "청약중", upcoming: "청약예정", closed: "완료" };
+
+function getSubStatus(item: SubscriptionItem): "active" | "upcoming" | "closed" {
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const b = (item.RCEPT_BGNDE ?? "").replace(/-/g, "").slice(0, 8);
+  const e = (item.RCEPT_ENDDE ?? "").replace(/-/g, "").slice(0, 8);
+  if (!b) return "closed";
+  if (today < b) return "upcoming";
+  if (!e || today <= e) return "active";
+  return "closed";
+}
+
+function fmtDate(raw: string) {
+  const d = (raw ?? "").replace(/-/g, "").slice(0, 8);
+  if (d.length < 8) return "-";
+  return `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6, 8)}`;
+}
+
+function fmtMonth(raw: string) {
+  const d = (raw ?? "").replace(/-/g, "").slice(0, 6);
+  if (d.length < 6) return "-";
+  return `${d.slice(0, 4)}년 ${d.slice(4, 6)}월`;
+}
+
 interface Props {
   selectedApt: AptComplex | null;
   selectedStore: PromotionStore | null;
+  selectedSubscription: SubscriptionItem | null;
   onClose: () => void;
 }
 
-export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: Props) {
-  const isVisible = !!(selectedApt || selectedStore);
+export default function MapBottomSheet({ selectedApt, selectedStore, selectedSubscription, onClose }: Props) {
+  const isVisible = !!(selectedApt || selectedStore || selectedSubscription);
 
   const { data, isLoading } = useSWR<MapEstateData>("real-estate-data", fetchData, {
     revalidateOnFocus: false,
@@ -268,6 +299,52 @@ export default function MapBottomSheet({ selectedApt, selectedStore, onClose }: 
 
         {/* 스크롤 콘텐츠 */}
         <div ref={scrollRef} className="overflow-y-auto scrollbar-light pb-6" style={{ maxHeight: "calc(78vh - 48px)" }}>
+
+          {/* 분양정보 */}
+          {selectedSubscription && !selectedApt && !selectedStore && (() => {
+            const st = getSubStatus(selectedSubscription);
+            return (
+              <div className="p-4 space-y-4">
+                <div>
+                  <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-semibold border mb-1.5 ${SUB_STATUS_STYLE[st]}`}>
+                    {SUB_STATUS_LABEL[st]}
+                  </span>
+                  <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedSubscription.HOUSE_NM}</h2>
+                  {selectedSubscription.HSSPLY_ADRES && (
+                    <p className="text-xs text-gray-500 mt-0.5">{selectedSubscription.HSSPLY_ADRES}</p>
+                  )}
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
+                  {[
+                    { label: "건설사", value: selectedSubscription.CNSTRCT_ENTRPS_NM },
+                    { label: "주택유형", value: selectedSubscription.HOUSE_DTL_SECD_NM || selectedSubscription.HOUSE_SECD_NM },
+                    { label: "총공급세대", value: selectedSubscription.TOT_SUPLY_HSHLDCO ? `${Number(selectedSubscription.TOT_SUPLY_HSHLDCO).toLocaleString()}세대` : null },
+                    { label: "청약 시작", value: fmtDate(selectedSubscription.RCEPT_BGNDE) },
+                    { label: "청약 마감", value: fmtDate(selectedSubscription.RCEPT_ENDDE) },
+                    { label: "당첨자 발표", value: fmtDate(selectedSubscription.PRZWNER_PRESNATN_DE) },
+                    { label: "입주 예정", value: fmtMonth(selectedSubscription.MVNIN_PREARNGE_YM) },
+                  ].filter((r) => r.value && r.value !== "-").map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-between gap-4 px-5 py-3 border-b border-gray-100 last:border-b-0">
+                      <span className="text-gray-500 shrink-0">{label}</span>
+                      <span className="font-semibold text-gray-900 text-right">{value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {selectedSubscription.PBLANC_URL && (
+                  <a
+                    href={selectedSubscription.PBLANC_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-colors"
+                  >
+                    청약홈에서 자세히 보기
+                  </a>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 가게 정보 */}
           {selectedStore && (

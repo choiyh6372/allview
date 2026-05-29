@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { complexData, VRComplex } from "@/lib/vrData";
 import ComplexCard from "@/components/vr-tour/ComplexCard";
 import VRModal from "@/components/vr-tour/VRModal";
@@ -11,6 +11,14 @@ const regions = ["명지오션시티", "명지국제신도시", "에코델타시
 export default function VRTourPage() {
   const [region, setRegion] = useState("명지오션시티");
   const [selected, setSelected] = useState<VRComplex | null>(null);
+  const [vrCounts, setVRCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    fetch("/api/vr-counts")
+      .then((r) => r.json())
+      .then(setVRCounts)
+      .catch(() => {});
+  }, []);
 
   const filtered = complexData.filter((c) => c.regionName === region);
 
@@ -40,7 +48,7 @@ export default function VRTourPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map((c) => (
-            <ComplexCard key={c.id} complex={c} onSelect={() => setSelected(c)} />
+            <ComplexCard key={c.id} complex={c} vrCount={vrCounts[c.id]} onSelect={() => setSelected(c)} />
           ))}
         </div>
       </div>

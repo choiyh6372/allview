@@ -6,10 +6,11 @@ import { VRComplex, R2_BASE } from "@/lib/vrData";
 
 interface Props {
   complex: VRComplex;
+  vrCount?: number;
   onSelect: () => void;
 }
 
-export default function ComplexCard({ complex, onSelect }: Props) {
+export default function ComplexCard({ complex, vrCount, onSelect }: Props) {
   const [imgError, setImgError] = useState(false);
   const thumbUrl = `${R2_BASE}/${complex.regionId}/${complex.slug}/thumb.jpg`;
 
@@ -46,7 +47,9 @@ export default function ComplexCard({ complex, onSelect }: Props) {
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-white">{complex.name}</h3>
-          <span className="text-xs text-gray-500">{complex.types.length}개 평형</span>
+          <span className="text-xs text-green-400">
+            {vrCount !== undefined ? `${vrCount} / ${complex.types.length}개 평형` : `${complex.types.length}개 평형`}
+          </span>
         </div>
         <button
           onClick={onSelect}

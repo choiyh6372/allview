@@ -61,7 +61,7 @@ export const complexData: VRComplex[] = [
   { id: "kukje_thehill", slug: "thehill", name: "더힐", regionId: "kukje", regionName: "명지국제신도시",
     types: ["33","49a","49b","49c"] },
   { id: "kukje_thewestern", slug: "thewestern", name: "더웨스턴", regionId: "kukje", regionName: "명지국제신도시",
-    types: ["31a1","31a2","31b","36a1","36a2","36b"] },
+    types: ["31a1","31a2","31b","35a1","35a2","35b"] },
   { id: "kukje_samjung", slug: "samjung", name: "삼정", regionId: "kukje", regionName: "명지국제신도시",
     types: ["34a","34b","40a","40b","45a","45b"] },
   { id: "kukje_posco2", slug: "posco2", name: "포스코 2단지", regionId: "kukje", regionName: "명지국제신도시",

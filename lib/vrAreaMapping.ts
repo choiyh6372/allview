@@ -87,7 +87,7 @@ export const VR_AREA_MAP: Record<string, Record<string, number>> = {
   kukje_posco3:     { "32a": 81, "32b": 81, "34a": 85, "34b": 85, "40": 100, "46": 114 },
   kukje_samjung:    { "34a": 85, "34b": 85, "40a": 101, "40b": 102, "45a": 113, "45b": 114 },
   kukje_thehill:    { "33": 92, "49a": 136, "49b": 136, "49c": 135 },
-  kukje_thewestern: { "31a1": 75, "31a2": 75, "31b": 75, "36a1": 85, "36a2": 85, "36b": 85 },
+  kukje_thewestern: { "31a1": 75, "31a2": 75, "31b": 75, "35a1": 85, "35a2": 85, "35b": 85 },
   // 에코델타시티
   ecodelta_hoban:          { "33a": 85, "33b": 85, "33c": 85 },
   ecodelta_sujain:         { "38": 102, "40": 108, "49a": 133, "49b": 132, "49c": 132 },

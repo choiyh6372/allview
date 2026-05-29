@@ -3,10 +3,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, BarChart2, TrendingUp, Eye, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, BarChart2, TrendingUp, Eye, Users, Video } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StoreFormModal from "@/components/admin/StoreFormModal";
 import AptMapEditor from "@/components/admin/AptMapEditor";
+import VRCountEditor from "@/components/admin/VRCountEditor";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { Inquiry } from "@/lib/inquiryStore";
 
@@ -73,7 +74,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
 
 export default function AdminPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<"stores" | "inquiries" | "apts" | "stats">("stores");
+  const [tab, setTab] = useState<"stores" | "inquiries" | "apts" | "stats" | "vr">("stores");
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalStore, setModalStore] = useState<PromotionStore | null | undefined>(undefined);
@@ -245,6 +246,15 @@ export default function AdminPage() {
           아파트 핀 위치
         </button>
         <button
+          onClick={() => setTab("vr")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "vr" ? "bg-accent text-white" : "text-muted hover:text-white"
+          }`}
+        >
+          <Video size={15} />
+          VR 평형수
+        </button>
+        <button
           onClick={() => setTab("stats")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             tab === "stats" ? "bg-accent text-white" : "text-muted hover:text-white"
@@ -394,6 +404,13 @@ export default function AdminPage() {
         />
       )}
       </div>
+      )}
+
+      {/* VR Count Tab */}
+      {tab === "vr" && (
+        <div>
+          <VRCountEditor />
+        </div>
       )}
 
       {/* Apt Pin Tab */}

@@ -354,11 +354,13 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                     rentItems={propertyRentItems.filter((i) => i.aptNm?.trim() === propertyComplex.name)}
                     selectedArea={selectedArea}
                     onAreaChange={setSelectedArea}
+                    light
                   />
                   <TransactionTable
                     complex={propertyComplex}
                     rentTransactions={buildRentTransactions(propertyRentItems, propertyComplex.name)}
                     selectedArea={selectedArea}
+                    light
                   />
                 </>
               ) : (

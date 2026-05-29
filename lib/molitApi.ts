@@ -3,6 +3,8 @@ export const CACHE_TTL = 86400;
 
 export interface RawItem {
   aptNm?: string;
+  offiNm?: string;
+  mhouseNm?: string;
   aptDong?: string;
   buildYear?: string;
   buyerGbn?: string;
@@ -28,6 +30,8 @@ export interface RawItem {
 
 export interface RentRawItem {
   aptNm?: string;
+  offiNm?: string;
+  mhouseNm?: string;
   excluUseAr?: string;
   floor?: string;
   dealYear?: string;
@@ -102,6 +106,38 @@ export function fetchAptTradeData(lawdCd = "26440", months = 60): Promise<RawIte
 export function fetchSilvTradeData(lawdCd = "26440", months = 60): Promise<RawItem[]> {
   return fetchMonths<RawItem>(
     "https://apis.data.go.kr/1613000/RTMSDataSvcSilvTrade/getRTMSDataSvcSilvTrade",
+    lawdCd,
+    months
+  );
+}
+
+export function fetchOffiTradeData(lawdCd = "26440", months = 60): Promise<RawItem[]> {
+  return fetchMonths<RawItem>(
+    "https://apis.data.go.kr/1613000/RTMSDataSvcOffiTrade/getRTMSDataSvcOffiTrade",
+    lawdCd,
+    months
+  );
+}
+
+export function fetchOffiRentData(lawdCd = "26440", months = 60): Promise<RentRawItem[]> {
+  return fetchMonths<RentRawItem>(
+    "https://apis.data.go.kr/1613000/RTMSDataSvcOffiRent/getRTMSDataSvcOffiRent",
+    lawdCd,
+    months
+  );
+}
+
+export function fetchRHTradeData(lawdCd = "26440", months = 60): Promise<RawItem[]> {
+  return fetchMonths<RawItem>(
+    "https://apis.data.go.kr/1613000/RTMSDataSvcRHTrade/getRTMSDataSvcRHTrade",
+    lawdCd,
+    months
+  );
+}
+
+export function fetchRHRentData(lawdCd = "26440", months = 60): Promise<RentRawItem[]> {
+  return fetchMonths<RentRawItem>(
+    "https://apis.data.go.kr/1613000/RTMSDataSvcRHRent/getRTMSDataSvcRHRent",
     lawdCd,
     months
   );

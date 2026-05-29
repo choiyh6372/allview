@@ -6,28 +6,37 @@ import { MapPin, Phone, Navigation } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
-import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
-import { type AptComplex } from "@/lib/mapData";
+import { type AptComplex, PROPERTY_NAVER_URLS } from "@/lib/mapData";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { complexData as vrComplexData } from "@/lib/vrData";
+import type { SelectedProperty } from "@/components/map/KakaoMap";
 
 interface MapEstateData {
   aptComplexes: Complex[];
   silvComplexes: Complex[];
+  offiComplexes: Complex[];
+  rhComplexes: Complex[];
   rentItems: RentRawItem[];
+  offiRentItems: RentRawItem[];
+  rhRentItems: RentRawItem[];
 }
 
 async function fetchData(): Promise<MapEstateData> {
-  const [aptRes, silvRes, rentRes] = await Promise.all([
+  const [aptRes, silvRes, offiRes, rhRes, rentRes, offiRentRes, rhRentRes] = await Promise.all([
     fetch("/api/apt-trade?lawdCd=26440&months=60"),
     fetch("/api/silv-trade?lawdCd=26440&months=60"),
+    fetch("/api/offi-trade?lawdCd=26440&months=60"),
+    fetch("/api/rh-trade?lawdCd=26440&months=60"),
     fetch("/api/apt-rent?lawdCd=26440&months=60"),
+    fetch("/api/offi-rent?lawdCd=26440&months=60"),
+    fetch("/api/rh-rent?lawdCd=26440&months=60"),
   ]);
-  const [aptData, silvData, rentData] = await Promise.all([
-    aptRes.json(), silvRes.json(), rentRes.json(),
+  const [aptData, silvData, offiData, rhData, rentData, offiRentData, rhRentData] = await Promise.all([
+    aptRes.json(), silvRes.json(), offiRes.json(), rhRes.json(), rentRes.json(), offiRentRes.json(), rhRentRes.json(),
   ]);
   const base = buildComplexList(aptData.items ?? []);
   const rentOnly = buildRentOnlyComplexes(rentData.items ?? [], new Set(base.map((c) => c.name)));
@@ -35,7 +44,13 @@ async function fetchData(): Promise<MapEstateData> {
   const silvComplexes = buildComplexList(
     (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
   );
-  return { aptComplexes, silvComplexes, rentItems: rentData.items ?? [] };
+  const offiComplexes = (() => {
+    const base = buildComplexList(offiData.items ?? []);
+    const rentOnly = buildRentOnlyDynamic(offiRentData.items ?? [], new Set(base.map((c) => c.name)), 8000);
+    return [...base, ...rentOnly];
+  })();
+  const rhComplexes = buildComplexList(rhData.items ?? []);
+  return { aptComplexes, silvComplexes, offiComplexes, rhComplexes, rentItems: rentData.items ?? [], offiRentItems: offiRentData.items ?? [], rhRentItems: rhRentData.items ?? [] };
 }
 
 function mergePriceArrays(apt: MonthlyPrice[], silv: MonthlyPrice[]): MonthlyPrice[] {
@@ -149,11 +164,12 @@ interface Props {
   selectedApt: AptComplex | null;
   selectedStore: PromotionStore | null;
   selectedSubscription: SubscriptionItem | null;
+  selectedProperty: SelectedProperty | null;
   onClose: () => void;
 }
 
-export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, onClose }: Props) {
-  const { data, isLoading } = useSWR<MapEstateData>("real-estate-data", fetchData, {
+export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, onClose }: Props) {
+  const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     dedupingInterval: 5 * 60 * 1000,
@@ -196,6 +212,15 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
 
   const rentItems = data?.rentItems ?? [];
   const photos = selectedStore?.photos ?? [];
+
+  const propertyComplex = selectedProperty
+    ? (selectedProperty.propertyType === "offi"
+        ? (data?.offiComplexes ?? []).find((c) => c.name === selectedProperty.name) ?? null
+        : (data?.rhComplexes ?? []).find((c) => c.name === selectedProperty.name) ?? null)
+    : null;
+  const propertyRentItems = selectedProperty?.propertyType === "offi"
+    ? (data?.offiRentItems ?? [])
+    : (data?.rhRentItems ?? []);
 
   return (
     <div className="hidden md:flex w-[480px] shrink-0 flex-col bg-white overflow-hidden">
@@ -249,8 +274,58 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
           );
         })()}
 
+        {/* 오피스텔 / 연립다세대 */}
+        {selectedProperty && !selectedApt && !selectedStore && !selectedSubscription && (
+          <div className="p-4 space-y-4">
+            <div>
+              <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-semibold border mb-1.5 ${
+                selectedProperty.propertyType === "offi"
+                  ? "bg-sky-50 text-sky-700 border-sky-200"
+                  : "bg-teal-50 text-teal-700 border-teal-200"
+              }`}>
+                {selectedProperty.propertyType === "offi" ? "오피스텔" : "연립다세대"}
+              </span>
+              <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedProperty.name}</h2>
+              {selectedProperty.address && (
+                <p className="text-xs text-gray-500 mt-0.5">{selectedProperty.address}</p>
+              )}
+            </div>
+            {isLoading ? (
+              <div className="text-sm text-gray-400 text-center py-8">데이터 로딩 중...</div>
+            ) : propertyComplex ? (
+              <>
+                <PriceChart
+                  complex={propertyComplex}
+                  rentItems={propertyRentItems.filter((i) => i.aptNm?.trim() === propertyComplex.name)}
+                  selectedArea={selectedArea}
+                  onAreaChange={setSelectedArea}
+                  light
+                />
+                <TransactionTable
+                  complex={propertyComplex}
+                  rentTransactions={buildRentTransactions(propertyRentItems, propertyComplex.name)}
+                  selectedArea={selectedArea}
+                  light
+                />
+              </>
+            ) : (
+              <p className="text-xs text-gray-400 text-center py-8">실거래가 데이터가 없습니다</p>
+            )}
+            {PROPERTY_NAVER_URLS[selectedProperty.name] && (
+              <a
+                href={PROPERTY_NAVER_URLS[selectedProperty.name]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+              >
+                네이버 부동산 보기
+              </a>
+            )}
+          </div>
+        )}
+
         {/* 빈 상태 */}
-        {!selectedApt && !selectedStore && !selectedSubscription && (
+        {!selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && (
           <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-8">
             <MapPin size={40} className="text-border" />
             <p className="text-sm text-gray-400 leading-relaxed">

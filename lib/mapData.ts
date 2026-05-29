@@ -92,6 +92,7 @@ export const REGION_COLORS: Record<AptComplex["region"], string> = {
 };
 
 export const REGION_NAME_COLORS: Record<string, string> = {
+  "명지동": "#22c55e",
   "신호동": "#8b5cf6",
   "화전동": "#06b6d4",
   "지사동": "#10b981",
@@ -105,3 +106,39 @@ export const REGION_CENTER: Partial<Record<AptComplex["region"], { lat: number; 
 };
 
 export const MAP_DEFAULT = { lat: 35.1060, lng: 128.9100, level: 8 };
+
+// 오피스텔·연립다세대 네이버 부동산 링크 (API 단지명 기준)
+export const PROPERTY_NAVER_URLS: Record<string, string> = {
+  "더샵 명지퍼스트월드 2단지":          "https://new.land.naver.com/complexes/118420?ms=2z6r9n,3AAz0g,18&a=OPST&e=RETAIL&ad=true",
+  "명지 삼정그린코아 웨스트":            "https://new.land.naver.com/complexes/106827?ms=2z65KG,3AApXB,17&a=OPST&e=RETAIL&ad=true",
+  "명지국제신도시 삼정그린코아 더베스트": "https://new.land.naver.com/complexes/112547?ms=2z6vcG,3AAKoi,18&a=OPST&e=RETAIL&ad=true",
+  "명지 청산오션타워":                   "https://new.land.naver.com/complexes/108958?ms=2z5MxN,3AAlNL,17&a=OPST&e=RETAIL&ad=true",
+  "부산 명지 제나우스 블루오션 오피스텔": "https://new.land.naver.com/complexes/120778?ms=2z6dRv,3AAD9e,18&a=OPST&e=RETAIL&ad=true",
+  "부산명지 대방디엠시티 센텀오션1차":   "https://new.land.naver.com/complexes/119739?ms=2z6eWL,3AAD9e,18&a=OPST&e=RETAIL&ad=true",
+  "부산명지 대방디엠시티 센텀오션2차":   "https://new.land.naver.com/complexes/119740?ms=2z6fGT,3AAD9e,18&a=OPST&e=RETAIL&ad=true",
+  "빌리브 명지 듀클래스 1단지":          "https://new.land.naver.com/complexes/146821?ms=2z6bhC,3AAyI5,18&a=OPST&e=RETAIL&ad=true",
+  "빌리브 명지 듀클래스 2단지":          "https://new.land.naver.com/complexes/146822?ms=2z6bhC,3AAyI5,18&a=OPST&e=RETAIL&ad=true",
+  "빌리브 명지 듀클래스 3단지":          "https://new.land.naver.com/complexes/146823?ms=2z6bhC,3AAyI5,18&a=OPST&e=RETAIL&ad=true",
+  "빌리브 명지 듀클래스 4단지":          "https://new.land.naver.com/complexes/146824?ms=2z6bhC,3AAyI5,18&a=OPST&e=RETAIL&ad=true",
+  "명지롯데프라자":                      "https://new.land.naver.com/complexes/110145?ms=2z5Qgc,3AAggg,17&a=OPST&e=RETAIL&ad=true",
+  "오션퍼스트":                         "https://new.land.naver.com/complexes/147367?ms=2z6d3m,3AAwE2,17&a=OPST&e=RETAIL&ad=true",
+  "송정 삼정그린코아 더시티":            "https://new.land.naver.com/complexes/118804?ms=2z62Jl,3AyG7Y,15&a=OPST&e=RETAIL&ad=true",
+};
+
+export const OFFI_SHORT_NAMES: Record<string, string> = {
+  "더샵 명지퍼스트월드 2단지":          "더샵2 OP",
+  "명지국제신도시 삼정그린코아 더베스트": "국제 삼정 OP",
+  "명지 삼정그린코아 웨스트":            "삼정 웨스트OP",
+  "명지 청산오션타워":                   "청산OP",
+  "부산 명지 제나우스 블루오션 오피스텔": "제나우스OP",
+  "부산명지 대방디엠시티 센텀오션1차":   "대방디엠시티OP1차",
+  "부산명지 대방디엠시티 센텀오션2차":   "대방디엠시티OP2차",
+  "빌리브 명지 듀클래스 1단지":          "빌리브1단지",
+  "빌리브 명지 듀클래스 2단지":          "빌리브2단지",
+  "빌리브 명지 듀클래스 3단지":          "빌리브3단지",
+  "빌리브 명지 듀클래스 4단지":          "빌리브4단지",
+};
+
+export const RH_SHORT_NAMES: Record<string, string> = {
+  "부산명지중흥S-클래스더테라스": "중흥테라스",
+};

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { APT_COMPLEXES, REGION_COLORS, REGION_NAME_COLORS, REGION_CENTER, type AptComplex } from "@/lib/mapData";
+import { APT_COMPLEXES, REGION_COLORS, REGION_NAME_COLORS, REGION_CENTER, OFFI_SHORT_NAMES, RH_SHORT_NAMES, type AptComplex } from "@/lib/mapData";
 import { SCHOOL_POS_OVERRIDES } from "@/lib/schoolPositions";
 import MapSidePanel from "@/components/map/MapSidePanel";
 import MapBottomSheet from "@/components/map/MapBottomSheet";
@@ -71,9 +71,24 @@ declare global {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface SelectedProperty {
+  name: string;
+  umdNm: string;
+  address: string;
+  propertyType: "offi" | "rh";
+}
+
 // 가게 마커 SVG (쇼핑백 아이콘)
 const STORE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`;
 
+
+const OFFI_POS_OVERRIDES: Record<string, { lat: number; lng: number }> = {
+  "더샵 명지퍼스트월드 2단지":          { lat: 35.097341, lng: 128.907251 },
+  "명지국제신도시 삼정그린코아 더베스트": { lat: 35.098551, lng: 128.911221 },
+};
+
+
+const ZOOM_THRESHOLD = 6;
 
 export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,9 +105,15 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const [selectedApt, setSelectedApt] = useState<AptComplex | null>(null);
   const [selectedStore, setSelectedStore] = useState<PromotionStore | null>(null);
   const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionItem | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<SelectedProperty | null>(null);
   const setSelectedSubscriptionRef = useRef<((s: SubscriptionItem | null) => void) | null>(null);
+  const setSelectedPropertyRef = useRef<((p: SelectedProperty | null) => void) | null>(null);
   const subscriptionMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const offiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const rhMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const subscriptionLoadedRef = useRef(false);
+  const offiLoadedRef = useRef(false);
+  const rhLoadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
   const [showSchoolZones, setShowSchoolZones] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
@@ -109,6 +130,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   useEffect(() => { setSelectedAptRef.current = setSelectedApt; }, []);
   useEffect(() => { setSelectedStoreRef.current = setSelectedStore; }, []);
   useEffect(() => { setSelectedSubscriptionRef.current = setSelectedSubscription; }, []);
+  useEffect(() => { setSelectedPropertyRef.current = setSelectedProperty; }, []);
 
   useEffect(() => {
     const storeId = searchParams.get("storeId");
@@ -349,6 +371,85 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSubscription]);
 
+  async function loadPropertyMarkers(
+    apiPath: string,
+    color: string,
+    propertyType: "offi" | "rh",
+    markersRef: React.MutableRefObject<KakaoCustomOverlay[]>,
+    map: KakaoMapInstance
+  ) {
+    const { kakao } = window;
+    try {
+      const res = await fetch(apiPath);
+      const list: { aptNm: string; umdNm: string }[] = await res.json();
+      const ps = new kakao.maps.services.Places();
+      const BATCH = 5;
+      for (let i = 0; i < list.length; i += BATCH) {
+        await Promise.all(
+          list.slice(i, i + BATCH).map(
+            (item) =>
+              new Promise<void>((resolve) => {
+                const posOverride = propertyType === "offi" ? OFFI_POS_OVERRIDES[item.aptNm] : undefined;
+                const query = `부산 강서구 ${item.umdNm ? item.umdNm + " " : ""}${item.aptNm}`;
+                const place = (lat: number, lng: number, address: string) => {
+                  const displayName = propertyType === "offi"
+                    ? (OFFI_SHORT_NAMES[item.aptNm] ?? item.aptNm)
+                    : (RH_SHORT_NAMES[item.aptNm] ?? item.aptNm);
+                  const pin = document.createElement("div");
+                  pin.style.cssText = "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+                  pin.innerHTML = `
+                    <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
+                      padding:4px 8px;border-radius:6px;white-space:nowrap;
+                      box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
+                      ${displayName}
+                    </div>
+                    <div style="width:0;height:0;border-left:6px solid transparent;
+                      border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
+                  pin.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    hidePopupOverlay();
+                    setSelectedAptRef.current?.(null);
+                    setSelectedStoreRef.current?.(null);
+                    setSelectedSubscriptionRef.current?.(null);
+                    setSelectedPropertyRef.current?.({ name: item.aptNm, umdNm: item.umdNm, address, propertyType });
+                    map.setCenter(new kakao.maps.LatLng(lat, lng));
+                  });
+                  const overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(lat, lng), content: pin, yAnchor: 1, zIndex: 2 });
+                  overlay.setMap(map.getLevel() >= ZOOM_THRESHOLD ? null : map);
+                  markersRef.current.push(overlay);
+                  resolve();
+                };
+                if (posOverride) {
+                  place(posOverride.lat, posOverride.lng, `부산 강서구 ${item.umdNm}`);
+                } else {
+                  ps.keywordSearch(query, (result, status) => {
+                    if (status === kakao.maps.services.Status.OK && result[0]) {
+                      const lat = parseFloat(result[0].y);
+                      const lng = parseFloat(result[0].x);
+                      const address = result[0].road_address_name || result[0].address_name || `부산 강서구 ${item.umdNm}`;
+                      place(lat, lng, address);
+                    } else {
+                      resolve();
+                    }
+                  }, { size: 1 });
+                }
+              })
+          )
+        );
+      }
+    } catch (e) {
+      console.error(`[${propertyType}] 마커 로딩 실패`, e);
+    }
+  }
+
+  function loadOffiMarkers(map: KakaoMapInstance) {
+    return loadPropertyMarkers("/api/offi-complexes", "#3b82f6", "offi", offiMarkersRef, map);
+  }
+
+  function loadRhMarkers(map: KakaoMapInstance) {
+    return loadPropertyMarkers("/api/rh-complexes", "#14b8a6", "rh", rhMarkersRef, map);
+  }
+
   function hidePopupOverlay() {
     popupOverlayRef.current?.setMap(null);
     popupOverlayRef.current = null;
@@ -461,6 +562,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     setSelectedAptRef.current?.(null);
     setSelectedStoreRef.current?.(null);
     setSelectedSubscriptionRef.current?.(null);
+    setSelectedPropertyRef.current?.(null);
   }
 
   function openPopup(apt: AptComplex, map: KakaoMapInstance) {
@@ -698,7 +800,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     kakao.maps.event.addListener(map, "click", hidePopupOverlay);
 
     // ── 줌 레벨별 마커 가시성 ────────────────────────────────────────────────
-    const ZOOM_THRESHOLD = 6; // 이 레벨 이상(더 축소)이면 지역명만 표시
+    // ZOOM_THRESHOLD 이상(더 축소)이면 지역명만 표시
     const aptOverlays: KakaoCustomOverlay[] = [];
     const regionOverlays: KakaoCustomOverlay[] = [];
 
@@ -707,6 +809,8 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const zoomed = level >= ZOOM_THRESHOLD;
       aptOverlays.forEach((o) => o.setMap(zoomed ? null : map));
       regionOverlays.forEach((o) => o.setMap(zoomed ? map : null));
+      offiMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
+      rhMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
     }
     kakao.maps.event.addListener(map, "zoom_changed", updateVisibility);
 
@@ -816,6 +920,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
     setLoaded(true);
 
+    // 오피스텔·연립다세대 마커 자동 로딩
+    loadOffiMarkers(map);
+    loadRhMarkers(map);
+
     // 강서구 전체 거래 단지 동적 마커 (Places keywordSearch)
     fetch("/api/apt-complexes")
       .then((r) => r.json())
@@ -893,6 +1001,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         selectedApt={selectedApt}
         selectedStore={selectedStore}
         selectedSubscription={selectedSubscription}
+        selectedProperty={selectedProperty}
         onClose={closePopup}
       />
 
@@ -900,6 +1009,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         selectedApt={selectedApt}
         selectedStore={selectedStore}
         selectedSubscription={selectedSubscription}
+        selectedProperty={selectedProperty}
         onClose={closePopup}
       />
 

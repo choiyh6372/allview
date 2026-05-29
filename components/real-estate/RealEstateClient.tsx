@@ -7,34 +7,48 @@ import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
 import { type Complex } from "@/lib/realEstateData";
-import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 import { APT_COMPLEXES } from "@/lib/mapData";
 
-type TradeType = "apt" | "silv";
+type TradeType = "apt" | "silv" | "offi" | "rh";
 
 const TAB_LABELS: Record<TradeType, string> = {
   apt: "아파트",
   silv: "분양권",
+  offi: "오피스텔",
+  rh: "연립다세대",
 };
 
 interface RealEstateData {
   aptComplexes: Complex[];
   silvComplexes: Complex[];
+  offiComplexes: Complex[];
+  rhComplexes: Complex[];
   rentItems: RentRawItem[];
+  offiRentItems: RentRawItem[];
+  rhRentItems: RentRawItem[];
 }
 
 async function fetchRealEstateData(): Promise<RealEstateData> {
-  const [aptRes, silvRes, rentRes] = await Promise.all([
+  const [aptRes, silvRes, offiRes, rhRes, rentRes, offiRentRes, rhRentRes] = await Promise.all([
     fetch("/api/apt-trade?lawdCd=26440&months=60"),
     fetch("/api/silv-trade?lawdCd=26440&months=60"),
+    fetch("/api/offi-trade?lawdCd=26440&months=60"),
+    fetch("/api/rh-trade?lawdCd=26440&months=60"),
     fetch("/api/apt-rent?lawdCd=26440&months=60"),
+    fetch("/api/offi-rent?lawdCd=26440&months=60"),
+    fetch("/api/rh-rent?lawdCd=26440&months=60"),
   ]);
 
-  const [aptData, silvData, rentData] = await Promise.all([
+  const [aptData, silvData, offiData, rhData, rentData, offiRentData, rhRentData] = await Promise.all([
     aptRes.json(),
     silvRes.json(),
+    offiRes.json(),
+    rhRes.json(),
     rentRes.json(),
+    offiRentRes.json(),
+    rhRentRes.json(),
   ]);
 
   const aptComplexes = (() => {
@@ -45,8 +59,16 @@ async function fetchRealEstateData(): Promise<RealEstateData> {
   const silvComplexes = buildComplexList(
     (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
   );
+  const offiComplexes = (() => {
+    const base = buildComplexList(offiData.items ?? []);
+    const rentOnly = buildRentOnlyDynamic(offiRentData.items ?? [], new Set(base.map((c) => c.name)), 8000);
+    return [...base, ...rentOnly].sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  })();
+  const rhComplexes = buildComplexList(rhData.items ?? []).filter((c) =>
+    c.name === "부산명지중흥S-클래스더테라스"
+  );
 
-  return { aptComplexes, silvComplexes, rentItems: rentData.items ?? [] };
+  return { aptComplexes, silvComplexes, offiComplexes, rhComplexes, rentItems: rentData.items ?? [], offiRentItems: offiRentData.items ?? [], rhRentItems: rhRentData.items ?? [] };
 }
 
 export default function RealEstateClient() {
@@ -62,11 +84,16 @@ export default function RealEstateClient() {
 
   const aptComplexes = data?.aptComplexes ?? [];
   const silvComplexes = data?.silvComplexes ?? [];
+  const offiComplexes = data?.offiComplexes ?? [];
+  const rhComplexes = data?.rhComplexes ?? [];
   const rentItems = data?.rentItems ?? [];
+  const offiRentItems = data?.offiRentItems ?? [];
 
   const [activeTab, setActiveTab] = useState<TradeType>("apt");
   const [selectedAptId, setSelectedAptId] = useState<number | null>(null);
   const [selectedSilvId, setSelectedSilvId] = useState<number | null>(null);
+  const [selectedOffiId, setSelectedOffiId] = useState<number | null>(null);
+  const [selectedRhId, setSelectedRhId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState("");
 
   useEffect(() => {
@@ -77,14 +104,27 @@ export default function RealEstateClient() {
   }, [aptComplexes]);
 
   useEffect(() => {
-    if (silvComplexes.length > 0 && selectedSilvId === null) {
-      setSelectedSilvId(silvComplexes[0].id);
-    }
+    if (silvComplexes.length > 0 && selectedSilvId === null) setSelectedSilvId(silvComplexes[0].id);
   }, [silvComplexes]);
 
-  const complexes = activeTab === "apt" ? aptComplexes : silvComplexes;
-  const selectedId = activeTab === "apt" ? selectedAptId : selectedSilvId;
-  const setSelectedId = activeTab === "apt" ? setSelectedAptId : setSelectedSilvId;
+  useEffect(() => {
+    if (offiComplexes.length > 0 && selectedOffiId === null) setSelectedOffiId(offiComplexes[0].id);
+  }, [offiComplexes]);
+
+  useEffect(() => {
+    if (rhComplexes.length > 0 && selectedRhId === null) setSelectedRhId(rhComplexes[0].id);
+  }, [rhComplexes]);
+
+  const complexesMap: Record<TradeType, Complex[]> = { apt: aptComplexes, silv: silvComplexes, offi: offiComplexes, rh: rhComplexes };
+  const selectedIdMap: Record<TradeType, number | null> = { apt: selectedAptId, silv: selectedSilvId, offi: selectedOffiId, rh: selectedRhId };
+  const setSelectedIdMap: Record<TradeType, (id: number) => void> = { apt: setSelectedAptId, silv: setSelectedSilvId, offi: setSelectedOffiId, rh: setSelectedRhId };
+  const rhRentItems = data?.rhRentItems ?? [];
+  const rentItemsMap: Record<TradeType, RentRawItem[]> = { apt: rentItems, silv: [], offi: offiRentItems, rh: rhRentItems };
+
+  const complexes = complexesMap[activeTab];
+  const selectedId = selectedIdMap[activeTab];
+  const setSelectedId = setSelectedIdMap[activeTab];
+  const activeRentItems = rentItemsMap[activeTab];
   const complex = complexes.find((c) => c.id === selectedId) ?? null;
   const naverUrl = complex
     ? (APT_COMPLEXES.find((a) => (a.apiName ?? a.name) === complex.name)?.naverUrl ?? null)
@@ -109,7 +149,7 @@ export default function RealEstateClient() {
         </div>
 
         <div className="flex gap-1 p-1 mb-6 bg-bg-card border border-border rounded-xl w-fit">
-          {(["apt", "silv"] as TradeType[]).map((tab) => (
+          {(["apt", "silv", "offi", "rh"] as TradeType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -143,7 +183,7 @@ export default function RealEstateClient() {
               <>
                 <PriceChart
                   complex={complex}
-                  rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
+                  rentItems={activeRentItems.filter((i) => i.aptNm?.trim() === complex.name)}
                   selectedArea={selectedArea}
                   onAreaChange={setSelectedArea}
                   naverUrl={naverUrl ?? undefined}
@@ -161,7 +201,7 @@ export default function RealEstateClient() {
                 )}
                 <TransactionTable
                   complex={complex}
-                  rentTransactions={buildRentTransactions(rentItems, complex.name)}
+                  rentTransactions={buildRentTransactions(activeRentItems, complex.name)}
                   selectedArea={selectedArea}
                 />
               </>

@@ -201,7 +201,31 @@ export function buildComplexList(items: RawItem[]): Complex[] {
     .sort((a, b) => a.name.localeCompare(b.name, "ko"));
 }
 
-const RENT_ONLY_APTS = ["부산명지행복주택", "부산신호사랑으로부영3차", "부산신호사랑으로부영5차"];
+export function buildRentOnlyDynamic(rentItems: RentRawItem[], existingNames: Set<string>, idOffset = 8000): Complex[] {
+  const seen = new Set<string>();
+  const rentNames: string[] = [];
+  for (const i of rentItems) {
+    const n = i.aptNm?.trim();
+    if (n && !seen.has(n)) { seen.add(n); rentNames.push(n); }
+  }
+  return rentNames
+    .filter((name) => !existingNames.has(name))
+    .map((name, idx) => {
+      const items = rentItems.filter((i) => i.aptNm?.trim() === name);
+      const region = items[0]?.umdNm?.trim() ?? "";
+      const areaSet = new Set<string>();
+      const areas: string[] = [];
+      for (const i of items) {
+        const a = String(parseFloat(i.excluUseAr ?? "0"));
+        if (a !== "0" && !areaSet.has(a)) { areaSet.add(a); areas.push(a); }
+      }
+      areas.sort((a, b) => parseFloat(a) - parseFloat(b));
+      return { id: idOffset + idx + 1, name, region, areas, monthlyPrices: [], monthlyPricesByArea: {}, transactions: [] } as Complex;
+    })
+    .filter((c) => c.areas.length > 0);
+}
+
+const RENT_ONLY_APTS = ["부산명지행복주택", "부산신호사랑으로부영3차", "부산신호사랑으로부영5차", "스위트팰리스"];
 
 export function buildRentOnlyComplexes(rentItems: RentRawItem[], existingNames: Set<string>): Complex[] {
   return RENT_ONLY_APTS

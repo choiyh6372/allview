@@ -735,6 +735,9 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const geocoder = new kakao.maps.services.Geocoder();
 
       const COLOR = { active: "#10b981", upcoming: "#3b82f6", closed: "#6b7280" };
+      const ADDR_OVERRIDE: Record<string, string> = {
+        "에코델타시티 엘가 로제비앙": "부산광역시 강서구 강동동 4588-3",
+      };
       const MUNORWI_COLOR = "#9333ea";
 
       await Promise.all(
@@ -742,10 +745,13 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           (item) =>
             new Promise<void>((resolve) => {
               if (!item.HSSPLY_ADRES) { resolve(); return; }
-              geocoder.addressSearch(item.HSSPLY_ADRES, (result, status) => {
-                if (status !== kakao.maps.services.Status.OK || !result[0]) { resolve(); return; }
-                const lat = parseFloat(result[0].y);
-                const lng = parseFloat(result[0].x);
+
+              // 1차: 오버라이드 주소, 2차: "일원/일대/외" 제거, 3차: 동 단위까지만 축약
+              const addr1 = ADDR_OVERRIDE[item.HOUSE_NM] ?? item.HSSPLY_ADRES.replace(/\s*(일원|일대|외)\s*$/, "").trim();
+              const dongMatch = addr1.match(/^(부산광역시\s+\S+[구군]\s+\S+[동읍면리])/);
+              const addr2 = dongMatch ? dongMatch[1] : null;
+
+              const placeMarker = (lat: number, lng: number) => {
                 const isMunorwi = item.kind === "munorwi";
                 const st = getSubStatus(item);
                 const color = isMunorwi && st !== "closed" ? MUNORWI_COLOR : COLOR[st];
@@ -778,7 +784,22 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                 });
                 overlay.setMap(map);
                 subscriptionMarkersRef.current.push(overlay);
-                resolve();
+              };
+
+              geocoder.addressSearch(addr1, (result, status) => {
+                if (status === kakao.maps.services.Status.OK && result[0]) {
+                  placeMarker(parseFloat(result[0].y), parseFloat(result[0].x));
+                  resolve();
+                } else if (addr2) {
+                  geocoder.addressSearch(addr2, (result2, status2) => {
+                    if (status2 === kakao.maps.services.Status.OK && result2[0]) {
+                      placeMarker(parseFloat(result2[0].y), parseFloat(result2[0].x));
+                    }
+                    resolve();
+                  });
+                } else {
+                  resolve();
+                }
               });
             })
         )

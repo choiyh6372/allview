@@ -241,9 +241,16 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             <div className="p-4 space-y-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-semibold border mb-1.5 ${SUB_STATUS_STYLE[st]}`}>
-                    {SUB_STATUS_LABEL[st]}
-                  </span>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-semibold border ${SUB_STATUS_STYLE[st]}`}>
+                      {SUB_STATUS_LABEL[st]}
+                    </span>
+                    {selectedSubscription.kind === "munorwi" && (
+                      <span className="inline-block text-xs px-2 py-0.5 rounded-full font-semibold border bg-purple-50 text-purple-700 border-purple-200">
+                        무순위
+                      </span>
+                    )}
+                  </div>
                   <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedSubscription.HOUSE_NM}</h2>
                   {selectedSubscription.HSSPLY_ADRES && (
                     <p className="text-xs text-gray-500 mt-0.5">{selectedSubscription.HSSPLY_ADRES}</p>

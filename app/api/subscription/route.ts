@@ -22,7 +22,10 @@ export type SubscriptionItem = {
   MVNIN_PREARNGE_YM: string;
   PBLANC_URL: string;
   SPECLT_RDN_EARTH_AT: string;
+  kind: "apt" | "munorwi";
 };
+
+type ApiResponse = { data?: Omit<SubscriptionItem, "kind">[]; totalCount?: number; resultCode?: string; resultMsg?: string };
 
 export async function GET() {
   const apiKey = process.env.APPLYHOME_API_KEY;
@@ -32,15 +35,13 @@ export async function GET() {
 
   const compact = (s: string) => (s ?? "").replace(/-/g, "").slice(0, 8);
 
-  const buildQs = (page: number, perPage: number) =>
+  const buildQs = (page: number, perPage: number, regionFilter = true) =>
     `serviceKey=${encodeURIComponent(apiKey)}` +
     `&page=${page}&perPage=${perPage}&returnType=JSON` +
-    `&cond[SUBSCRPT_AREA_CODE_NM::EQ]=${encodeURIComponent("부산")}`;
+    (regionFilter ? `&cond[SUBSCRPT_AREA_CODE_NM::EQ]=${encodeURIComponent("부산")}` : "");
 
-  type ApiResponse = { data?: SubscriptionItem[]; totalCount?: number; resultCode?: string; resultMsg?: string };
-
-  async function fetchPage(page: number, perPage: number): Promise<ApiResponse> {
-    const res = await fetch(`${API_BASE}/getAPTLttotPblancDetail?${buildQs(page, perPage)}`, {
+  async function fetchPage(endpoint: string, page: number, perPage: number, regionFilter = true): Promise<ApiResponse> {
+    const res = await fetch(`${API_BASE}/${endpoint}?${buildQs(page, perPage, regionFilter)}`, {
       next: { revalidate: CACHE_TTL },
     });
     const text = await res.text();
@@ -52,33 +53,49 @@ export async function GET() {
     }
   }
 
-  try {
-    // 1차: totalCount 파악
-    const first = await fetchPage(1, 100);
-    if (first.resultCode && first.resultCode !== "00") {
-      throw new Error(`API error: ${first.resultMsg}`);
-    }
+  async function fetchAll(endpoint: string, kind: SubscriptionItem["kind"], regionFilter = true): Promise<SubscriptionItem[]> {
+    const first = await fetchPage(endpoint, 1, 100, regionFilter);
+    if (first.resultCode && first.resultCode !== "00") return [];
 
     const totalCount = first.totalCount ?? 0;
-    let allData: SubscriptionItem[] = first.data ?? [];
+    let raw = first.data ?? [];
 
-    // totalCount 가 100 초과면 나머지 페이지 병렬 패치
     if (totalCount > 100) {
       const pageCount = Math.ceil(totalCount / 100);
       const rest = await Promise.all(
-        Array.from({ length: pageCount - 1 }, (_, i) => fetchPage(i + 2, 100))
+        Array.from({ length: pageCount - 1 }, (_, i) => fetchPage(endpoint, i + 2, 100, regionFilter))
       );
-      for (const r of rest) allData = allData.concat(r.data ?? []);
+      for (const r of rest) raw = raw.concat(r.data ?? []);
     }
+
+    // 지역 필터 없이 전체 조회한 경우 주소로 부산 필터링
+    const filtered = regionFilter ? raw : raw.filter((item) => (item.HSSPLY_ADRES ?? "").includes("부산"));
+
+    return filtered.map((item) => {
+      // 무순위 API는 필드명이 다르므로 정규화
+      if (!regionFilter) {
+        const r = item as Record<string, string>;
+        r.RCEPT_BGNDE = r.SUBSCRPT_RCEPT_BGNDE ?? r.GNRL_RCEPT_BGNDE ?? "";
+        r.RCEPT_ENDDE = r.SUBSCRPT_RCEPT_ENDDE ?? r.GNRL_RCEPT_ENDDE ?? "";
+        r.MVNIN_PREARNGE_YM = r.MVN_PREARNGE_YM ?? "";
+      }
+      return { ...item, kind };
+    });
+  }
+
+  try {
+    const [aptItems, munorwiItems] = await Promise.all([
+      fetchAll("getAPTLttotPblancDetail", "apt"),
+      fetchAll("getRemndrLttotPblancDetail", "munorwi", false).catch(() => [] as SubscriptionItem[]),
+    ]);
 
     const cutoff = new Date();
     cutoff.setMonth(cutoff.getMonth() - 3);
     const cutoffStr = cutoff.toISOString().slice(0, 10).replace(/-/g, "");
 
-    const items: SubscriptionItem[] = allData
+    const items: SubscriptionItem[] = [...aptItems, ...munorwiItems]
       .filter((item) => {
         const endde = compact(item.RCEPT_ENDDE);
-        // 종료일이 없거나(청약예정), 3개월 이내인 것만 포함
         return !endde || endde >= cutoffStr;
       })
       .sort((a, b) => compact(b.RCEPT_BGNDE).localeCompare(compact(a.RCEPT_BGNDE)));

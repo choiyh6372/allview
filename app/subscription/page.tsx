@@ -53,6 +53,8 @@ const STATUS_LABEL = {
   closed: "완료",
 };
 
+const KIND_STYLE = "bg-purple-600 text-white border-purple-700";
+
 export default function SubscriptionPage() {
   const [items, setItems] = useState<SubscriptionItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -180,11 +182,18 @@ function SubscriptionCard({
       {/* Top row */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex-1 min-w-0">
-          <span
-            className={`inline-flex items-center text-sm font-bold px-2.5 py-0.5 rounded-full border mb-2 ${STATUS_STYLE[status]}`}
-          >
-            {STATUS_LABEL[status]}
-          </span>
+          <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+            <span
+              className={`inline-flex items-center text-sm font-bold px-2.5 py-0.5 rounded-full border ${STATUS_STYLE[status]}`}
+            >
+              {STATUS_LABEL[status]}
+            </span>
+            {item.kind === "munorwi" && (
+              <span className={`inline-flex items-center text-xs font-bold px-2 py-0.5 rounded-full border ${KIND_STYLE}`}>
+                무순위
+              </span>
+            )}
+          </div>
           <h2 className="text-base font-bold text-white leading-snug line-clamp-2">
             {item.HOUSE_NM || "-"}
           </h2>

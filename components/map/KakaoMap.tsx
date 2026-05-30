@@ -735,6 +735,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const geocoder = new kakao.maps.services.Geocoder();
 
       const COLOR = { active: "#10b981", upcoming: "#3b82f6", closed: "#6b7280" };
+      const MUNORWI_COLOR = "#9333ea";
 
       await Promise.all(
         items.map(
@@ -745,8 +746,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                 if (status !== kakao.maps.services.Status.OK || !result[0]) { resolve(); return; }
                 const lat = parseFloat(result[0].y);
                 const lng = parseFloat(result[0].x);
+                const isMunorwi = item.kind === "munorwi";
                 const st = getSubStatus(item);
-                const color = COLOR[st];
+                const color = isMunorwi ? MUNORWI_COLOR : COLOR[st];
+                const label = isMunorwi ? `🔄 ${item.HOUSE_NM}` : `🏗️ ${item.HOUSE_NM}`;
 
                 const pin = document.createElement("div");
                 pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
@@ -754,7 +757,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                   <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
                     padding:4px 8px;border-radius:6px;white-space:nowrap;
                     box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
-                    🏗️ ${item.HOUSE_NM}
+                    ${label}
                   </div>
                   <div style="width:0;height:0;border-left:6px solid transparent;
                     border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;

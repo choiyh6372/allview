@@ -407,11 +407,12 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                       border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
                   pin.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    hidePopupOverlay();
                     setSelectedAptRef.current?.(null);
                     setSelectedStoreRef.current?.(null);
                     setSelectedSubscriptionRef.current?.(null);
-                    setSelectedPropertyRef.current?.({ name: item.aptNm, umdNm: item.umdNm, address, propertyType });
+                    const property = { name: item.aptNm, umdNm: item.umdNm, address, propertyType };
+                    setSelectedPropertyRef.current?.(property);
+                    openPropertyPopup(property, lat, lng, color, map);
                     map.setCenter(new kakao.maps.LatLng(lat, lng));
                   });
                   const overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(lat, lng), content: pin, yAnchor: 1, zIndex: 2 });
@@ -615,6 +616,65 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     const { kakao } = window;
     const overlay = new kakao.maps.CustomOverlay({
       position: new kakao.maps.LatLng(apt.lat, apt.lng),
+      content: wrap,
+      yAnchor: 1,
+      zIndex: 10,
+    });
+    overlay.setMap(map);
+    popupOverlayRef.current = overlay;
+  }
+
+  function openPropertyPopup(
+    property: SelectedProperty,
+    lat: number,
+    lng: number,
+    color: string,
+    map: KakaoMapInstance
+  ) {
+    hidePopupOverlay();
+
+    const card = document.createElement("div");
+    card.style.cssText = `
+      background:rgba(15,17,23,0.96);border:1px solid rgba(42,45,62,1);
+      border-radius:12px;padding:12px 14px 10px;min-width:170px;max-width:220px;
+      box-shadow:0 6px 24px rgba(0,0,0,0.7);position:relative;
+    `;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "×";
+    closeBtn.style.cssText =
+      "position:absolute;top:7px;right:9px;background:none;border:none;color:#6b7280;font-size:17px;cursor:pointer;line-height:1;padding:0;";
+    closeBtn.addEventListener("click", (e) => { e.stopPropagation(); hidePopupOverlay(); });
+
+    const badge = document.createElement("span");
+    badge.textContent = property.umdNm || "강서구";
+    badge.style.cssText = `display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;margin-bottom:6px;background:${color}33;color:${color};`;
+
+    const name = document.createElement("div");
+    name.textContent = property.name;
+    name.style.cssText = "color:#fff;font-size:13px;font-weight:700;margin-bottom:3px;padding-right:20px;";
+
+    const addr = document.createElement("div");
+    addr.textContent = property.address;
+    addr.style.cssText = "color:#9ca3af;font-size:11px;line-height:1.5;";
+
+    card.append(closeBtn, badge, name, addr);
+
+    const arrow = document.createElement("div");
+    arrow.style.cssText = "width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:9px solid rgba(42,45,62,1);margin:0 auto;";
+
+    const spacer = document.createElement("div");
+    spacer.style.height = "30px";
+
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;";
+    wrap.addEventListener("click", (e) => e.stopPropagation());
+    wrap.addEventListener("mousedown", (e) => e.stopPropagation());
+    wrap.append(card, arrow, spacer);
+
+    const { kakao } = window;
+    const overlay = new kakao.maps.CustomOverlay({
+      position: new kakao.maps.LatLng(lat, lng),
       content: wrap,
       yAnchor: 1,
       zIndex: 10,

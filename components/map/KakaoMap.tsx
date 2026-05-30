@@ -444,7 +444,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   }
 
   function loadOffiMarkers(map: KakaoMapInstance) {
-    return loadPropertyMarkers("/api/offi-complexes", "#3b82f6", "offi", offiMarkersRef, map);
+    return loadPropertyMarkers("/api/offi-complexes", "#fb923c", "offi", offiMarkersRef, map);
   }
 
   function loadRhMarkers(map: KakaoMapInstance) {

@@ -4,7 +4,7 @@ import { Eye, TrendingUp, Map, Home } from "lucide-react";
 const services = [
   {
     icon: Eye,
-    title: "VR 가상투어",
+    title: "VR투어 시작하기",
     desc: "집을 직접 방문하지 않고도 360° VR로 모든 공간을 생생하게 탐색하세요. 오션시티, 국제신도시, 에코델타 단지를 실감나게 둘러볼 수 있습니다.",
     href: "/vr-tour",
     badge: "LIVE",
@@ -23,16 +23,6 @@ const services = [
     iconColor: "text-green-400",
   },
   {
-    icon: Map,
-    title: "지도 보기",
-    desc: "카카오맵 기반으로 아파트 단지 위치와 초등학교 학구도를 한눈에 확인하세요. 마커를 클릭하면 실거래가와 단지정보를 바로 조회할 수 있습니다.",
-    href: "/map",
-    badge: "MAP",
-    gradient: "from-purple-500/10 to-pink-500/10",
-    border: "border-purple-500/20",
-    iconColor: "text-purple-400",
-  },
-  {
     icon: Home,
     title: "분양정보",
     desc: "청약홈 공식 분양 공고를 한곳에서 확인하세요. 청약중·예정·완료 상태별로 부산 아파트 분양 일정과 세대수, 입주 예정 정보를 한눈에 볼 수 있습니다.",
@@ -41,6 +31,16 @@ const services = [
     gradient: "from-orange-500/10 to-amber-500/10",
     border: "border-orange-500/20",
     iconColor: "text-orange-400",
+  },
+  {
+    icon: Map,
+    title: "지도보기",
+    desc: "카카오맵 기반으로 아파트 단지 위치와 초등학교 학구도를 한눈에 확인하세요. 마커를 클릭하면 실거래가와 단지정보를 바로 조회할 수 있습니다.",
+    href: "/map",
+    badge: "MAP",
+    gradient: "from-purple-500/10 to-pink-500/10",
+    border: "border-purple-500/20",
+    iconColor: "text-purple-400",
   },
 ];
 

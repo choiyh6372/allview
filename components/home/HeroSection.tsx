@@ -42,6 +42,12 @@ export default function HeroSection() {
               실거래가 조회
             </Link>
             <Link
+              href="/subscription"
+              className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
+            >
+              분양정보
+            </Link>
+            <Link
               href="/map"
               className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
             >

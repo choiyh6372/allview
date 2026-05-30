@@ -5,13 +5,14 @@ import { Home, Loader2, ExternalLink, Calendar, Users, MapPin, Building2 } from 
 import StoreBanner from "@/components/home/StoreBanner";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 
-type Status = "all" | "active" | "upcoming" | "closed";
+type Status = "all" | "active" | "upcoming" | "closed" | "munorwi";
 
 const STATUS_TABS: { key: Status; label: string }[] = [
   { key: "all", label: "전체" },
   { key: "active", label: "청약중" },
   { key: "upcoming", label: "청약예정" },
   { key: "closed", label: "완료" },
+  { key: "munorwi", label: "무순위" },
 ];
 
 // API가 YYYY-MM-DD 또는 YYYYMMDD 두 형식 모두 반환할 수 있으므로 정규화
@@ -74,6 +75,7 @@ export default function SubscriptionPage() {
 
   const filtered = items.filter((item) => {
     if (tab === "all") return true;
+    if (tab === "munorwi") return item.kind === "munorwi";
     return getStatus(item.RCEPT_BGNDE, item.RCEPT_ENDDE) === tab;
   });
 
@@ -82,6 +84,7 @@ export default function SubscriptionPage() {
     active: items.filter((i) => getStatus(i.RCEPT_BGNDE, i.RCEPT_ENDDE) === "active").length,
     upcoming: items.filter((i) => getStatus(i.RCEPT_BGNDE, i.RCEPT_ENDDE) === "upcoming").length,
     closed: items.filter((i) => getStatus(i.RCEPT_BGNDE, i.RCEPT_ENDDE) === "closed").length,
+    munorwi: items.filter((i) => i.kind === "munorwi").length,
   };
 
   return (
@@ -111,7 +114,7 @@ export default function SubscriptionPage() {
               onClick={() => setTab(t.key)}
               className={`flex-1 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
                 tab === t.key
-                  ? "bg-accent text-white"
+                  ? t.key === "munorwi" ? "bg-purple-600 text-white" : "bg-accent text-white"
                   : "bg-bg-card border border-border text-gray-400 hover:text-white hover:border-accent/40"
               }`}
             >

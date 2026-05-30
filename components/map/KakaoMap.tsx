@@ -748,7 +748,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                 const lng = parseFloat(result[0].x);
                 const isMunorwi = item.kind === "munorwi";
                 const st = getSubStatus(item);
-                const color = isMunorwi ? MUNORWI_COLOR : COLOR[st];
+                const color = isMunorwi && st !== "closed" ? MUNORWI_COLOR : COLOR[st];
                 const label = isMunorwi ? `🔄 ${item.HOUSE_NM}` : `🏗️ ${item.HOUSE_NM}`;
 
                 const pin = document.createElement("div");

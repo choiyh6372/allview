@@ -127,7 +127,7 @@ export default function RealEstateClient() {
   const activeRentItems = rentItemsMap[activeTab];
   const complex = complexes.find((c) => c.id === selectedId) ?? null;
   const naverUrl = complex
-    ? (APT_COMPLEXES.find((a) => (a.apiName ?? a.name) === complex.name)?.naverUrl ?? PROPERTY_NAVER_URLS[complex.name] ?? null)
+    ? (APT_COMPLEXES.find((a) => (a.apiName ?? a.name) === complex.name || a.silvApiNames?.includes(complex.name))?.naverUrl ?? PROPERTY_NAVER_URLS[complex.name] ?? null)
     : null;
 
   useEffect(() => {

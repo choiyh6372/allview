@@ -100,6 +100,17 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
     : complex.transactions;
   const recentTx = recentTransactions[0];
 
+  const recentRentTx = !recentTx
+    ? [...(selectedArea
+        ? rentItems.filter((i) => String(parseFloat(i.excluUseAr ?? "0")) === selectedArea)
+        : rentItems
+      )].sort((a, b) => {
+        const da = `${a.dealYear}.${(a.dealMonth ?? "1").padStart(2, "0")}.${(a.dealDay ?? "1").padStart(2, "0")}`;
+        const db = `${b.dealYear}.${(b.dealMonth ?? "1").padStart(2, "0")}.${(b.dealDay ?? "1").padStart(2, "0")}`;
+        return db.localeCompare(da);
+      })[0] ?? null
+    : null;
+
   const gridColor = light ? "#e5e7eb" : "#2a2d3e";
   const areaFill  = light ? "#ffffff" : "#0f1117";
   const tickColor = light ? "#6b7280" : "#6b7280";
@@ -133,10 +144,20 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>{recentTx ? fmtDetail(recentTx.price) : "-"}</span>
+          <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>
+            {recentTx
+              ? fmtDetail(recentTx.price)
+              : recentRentTx
+              ? fmtDetail(Math.round(parseInt((recentRentTx.deposit ?? "0").replace(/,/g, "").trim() || "0") / 100) * 100)
+              : "-"}
+          </span>
         </div>
         <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>
-          최근 실거래가{recentTx ? ` · ${recentTx.date}` : ""}
+          {recentTx
+            ? `최근 실거래가 · ${recentTx.date}`
+            : recentRentTx
+            ? `최근 ${parseInt((recentRentTx.monthlyRent ?? "0").replace(/,/g, "").trim() || "0") > 0 ? "월세 보증금" : "전세가"} · ${recentRentTx.dealYear}.${(recentRentTx.dealMonth ?? "1").padStart(2, "0")}.${(recentRentTx.dealDay ?? "1").padStart(2, "0")}`
+            : "최근 실거래가"}
         </p>
       </div>
 

@@ -218,6 +218,10 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
   }, [selectedApt?.id]);
 
   useEffect(() => {
+    if (selectedProperty) scrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedProperty?.name]);
+
+  useEffect(() => {
     setPhotoIndex(0);
   }, [selectedStore?.id]);
 
@@ -332,19 +336,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
           {/* 오피스텔 / 연립다세대 */}
           {selectedProperty && !selectedApt && !selectedStore && !selectedSubscription && (
             <div className="p-4 space-y-4">
-              <div>
-                <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-semibold border mb-1.5 ${
-                  selectedProperty.propertyType === "offi"
-                    ? "bg-sky-50 text-sky-700 border-sky-200"
-                    : "bg-teal-50 text-teal-700 border-teal-200"
-                }`}>
-                  {selectedProperty.propertyType === "offi" ? "오피스텔" : "연립다세대"}
-                </span>
-                <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedProperty.name}</h2>
-                {selectedProperty.address && (
-                  <p className="text-xs text-gray-500 mt-0.5">{selectedProperty.address}</p>
-                )}
-              </div>
               {isLoading ? (
                 <div className="text-sm text-gray-400 text-center py-8">데이터 로딩 중...</div>
               ) : propertyComplex ? (
@@ -356,6 +347,16 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                     onAreaChange={setSelectedArea}
                     light
                   />
+                  {PROPERTY_NAVER_URLS[selectedProperty.name] && (
+                    <a
+                      href={PROPERTY_NAVER_URLS[selectedProperty.name]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                    >
+                      네이버 부동산 보기
+                    </a>
+                  )}
                   <TransactionTable
                     complex={propertyComplex}
                     rentTransactions={buildRentTransactions(propertyRentItems, propertyComplex.name)}
@@ -365,16 +366,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 </>
               ) : (
                 <p className="text-xs text-gray-400 text-center py-8">실거래가 데이터가 없습니다</p>
-              )}
-              {PROPERTY_NAVER_URLS[selectedProperty.name] && (
-                <a
-                  href={PROPERTY_NAVER_URLS[selectedProperty.name]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
-                >
-                  네이버 부동산 보기
-                </a>
               )}
             </div>
           )}
@@ -531,7 +522,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 onAreaChange={setSelectedArea}
                 light
               />
-              <AptInfoCard apt={selectedApt} />
               {aptNaverUrl && (
                 <a
                   href={aptNaverUrl}
@@ -542,6 +532,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   네이버 부동산 보기
                 </a>
               )}
+              <AptInfoCard apt={selectedApt} />
               <TransactionTable
                 complex={complex}
                 rentTransactions={buildRentTransactions(rentItems, complex.name)}

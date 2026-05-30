@@ -400,7 +400,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                   pin.innerHTML = `
                     <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
                       padding:4px 8px;border-radius:6px;white-space:nowrap;
-                      box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
+                      box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
+                      transition:transform 0.15s,box-shadow 0.15s;"
+                      onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
+                      onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
                       ${displayName}
                     </div>
                     <div style="width:0;height:0;border-left:6px solid transparent;
@@ -822,7 +825,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                 pin.innerHTML = `
                   <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
                     padding:4px 8px;border-radius:6px;white-space:nowrap;
-                    box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
+                    box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
+                    transition:transform 0.15s,box-shadow 0.15s;"
+                    onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
+                    onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
                     ${label}
                   </div>
                   <div style="width:0;height:0;border-left:6px solid transparent;
@@ -911,7 +917,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       content.innerHTML = `
         <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
           padding:4px 8px;border-radius:6px;white-space:nowrap;
-          box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
+          box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
+          transition:transform 0.15s,box-shadow 0.15s;"
+          onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
+          onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
           ${apt.name}
         </div>
         <div style="width:0;height:0;border-left:6px solid transparent;
@@ -951,7 +960,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
           padding:6px 14px;border-radius:8px;white-space:nowrap;letter-spacing:-0.3px;
           box-shadow:0 3px 12px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.25);
           transition:transform 0.15s,box-shadow 0.15s;"
-          onmouseover="this.style.transform='scale(1.07)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
+          onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
           onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(0,0,0,0.5)';">
           ${name}
         </div>
@@ -1047,7 +1056,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                         content.innerHTML = `
                           <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
                             padding:4px 8px;border-radius:6px;white-space:nowrap;
-                            box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);">
+                            box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
+                            transition:transform 0.15s,box-shadow 0.15s;"
+                            onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
+                            onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
                             ${apt.aptNm}
                           </div>
                           <div style="width:0;height:0;border-left:6px solid transparent;

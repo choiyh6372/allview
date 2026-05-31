@@ -8,6 +8,7 @@ import MapSidePanel from "@/components/map/MapSidePanel";
 import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
+import { type JeongbiProject, JEONGBI_TYPE_COLOR, JEONGBI_TYPE_ICON } from "@/lib/jeongbiData";
 // ── Kakao SDK type declarations ───────────────────────────────────────────────
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
 interface KakaoMapInstance {
@@ -106,18 +107,31 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const [selectedStore, setSelectedStore] = useState<PromotionStore | null>(null);
   const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionItem | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<SelectedProperty | null>(null);
+  const [selectedJeongbi, setSelectedJeongbi] = useState<JeongbiProject | null>(null);
   const setSelectedSubscriptionRef = useRef<((s: SubscriptionItem | null) => void) | null>(null);
   const setSelectedPropertyRef = useRef<((p: SelectedProperty | null) => void) | null>(null);
+  const setSelectedJeongbiRef = useRef<((j: JeongbiProject | null) => void) | null>(null);
   const subscriptionMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const jeongbiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const jeongbiGuMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const jeongbiVisibilityRef = useRef<(() => void) | null>(null);
   const offiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const rhMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const aptOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
+  const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
+  const storeMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const updateVisibilityRef = useRef<(() => void) | null>(null);
+  const showJeongbiRef = useRef(false);
   const subscriptionLoadedRef = useRef(false);
+  const jeongbiLoadedRef = useRef(false);
   const offiLoadedRef = useRef(false);
   const rhLoadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
   const [showSchoolZones, setShowSchoolZones] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [showJeongbi, setShowJeongbi] = useState(false);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+  const [jeongbiLoading, setJeongbiLoading] = useState(false);
   const [schoolZoneLoading, setSchoolZoneLoading] = useState(false);
   const schoolPolygonsRef = useRef<KakaoPolygon[]>([]);
   const schoolLabelsRef = useRef<KakaoCustomOverlay[]>([]);
@@ -131,6 +145,8 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   useEffect(() => { setSelectedStoreRef.current = setSelectedStore; }, []);
   useEffect(() => { setSelectedSubscriptionRef.current = setSelectedSubscription; }, []);
   useEffect(() => { setSelectedPropertyRef.current = setSelectedProperty; }, []);
+  useEffect(() => { setSelectedJeongbiRef.current = setSelectedJeongbi; }, []);
+  useEffect(() => { showJeongbiRef.current = showJeongbi; }, [showJeongbi]);
 
   useEffect(() => {
     const storeId = searchParams.get("storeId");
@@ -371,6 +387,34 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSubscription]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (showJeongbi) {
+      // 기본 마커 전부 숨김
+      aptOverlaysRef.current.forEach((o) => o.setMap(null));
+      regionOverlaysRef.current.forEach((o) => o.setMap(null));
+      storeMarkersRef.current.forEach((o) => o.setMap(null));
+      offiMarkersRef.current.forEach((o) => o.setMap(null));
+      rhMarkersRef.current.forEach((o) => o.setMap(null));
+      // 정비사업 마커 표시 (줌 레벨 기반)
+      if (!jeongbiLoadedRef.current) {
+        jeongbiLoadedRef.current = true;
+        loadJeongbiMarkers(map); // 내부에서 zoom listener + 초기 visibility 처리
+      } else {
+        jeongbiVisibilityRef.current?.();
+      }
+    } else {
+      // 정비사업 마커 전부 숨김
+      jeongbiMarkersRef.current.forEach((m) => m.setMap(null));
+      jeongbiGuMarkersRef.current.forEach((m) => m.setMap(null));
+      // 기본 마커 복원 (줌 레벨 기반)
+      updateVisibilityRef.current?.();
+      storeMarkersRef.current.forEach((o) => o.setMap(map));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showJeongbi]);
+
   async function loadPropertyMarkers(
     apiPath: string,
     color: string,
@@ -567,6 +611,156 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     setSelectedStoreRef.current?.(null);
     setSelectedSubscriptionRef.current?.(null);
     setSelectedPropertyRef.current?.(null);
+    setSelectedJeongbiRef.current?.(null);
+  }
+
+  async function loadJeongbiMarkers(map: KakaoMapInstance) {
+    const { kakao } = window;
+    setJeongbiLoading(true);
+    try {
+      const res = await fetch("/api/jeongbi");
+      const data = await res.json();
+      const items: JeongbiProject[] = data.items ?? [];
+      const geocoder = new kakao.maps.services.Geocoder();
+
+      const placeMarker = (item: JeongbiProject, lat: number, lng: number) => {
+        const color = JEONGBI_TYPE_COLOR[item.type];
+        const icon = JEONGBI_TYPE_ICON[item.type];
+
+        const pin = document.createElement("div");
+        pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+        pin.innerHTML = `
+          <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
+            padding:4px 8px;border-radius:6px;white-space:nowrap;
+            box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
+            transition:transform 0.15s,box-shadow 0.15s;"
+            onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
+            onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
+            ${icon} ${item.name} ${item.type}
+          </div>
+          <div style="width:0;height:0;border-left:6px solid transparent;
+            border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
+
+        pin.addEventListener("click", (e) => {
+          e.stopPropagation();
+          hidePopupOverlay();
+          setSelectedAptRef.current?.(null);
+          setSelectedStoreRef.current?.(null);
+          setSelectedSubscriptionRef.current?.(null);
+          setSelectedPropertyRef.current?.(null);
+          setSelectedJeongbiRef.current?.(item);
+        });
+
+        const overlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(lat, lng),
+          content: pin,
+          yAnchor: 1,
+          zIndex: 3,
+        });
+        overlay.setMap(map);
+        jeongbiMarkersRef.current.push(overlay);
+      };
+
+      const ps = new kakao.maps.services.Places();
+      const guPositions = new Map<string, { lats: number[]; lngs: number[] }>();
+
+      const placeMarkerWithTracking = (item: JeongbiProject, lat: number, lng: number) => {
+        placeMarker(item, lat, lng);
+        if (item.gu) {
+          const entry = guPositions.get(item.gu) ?? { lats: [], lngs: [] };
+          entry.lats.push(lat);
+          entry.lngs.push(lng);
+          guPositions.set(item.gu, entry);
+        }
+      };
+
+      const searchByKeyword = (item: JeongbiProject, resolve: () => void) => {
+        const query = `부산 ${item.gu ? item.gu + " " : ""}${item.name}`;
+        ps.keywordSearch(query, (results, st) => {
+          if (st === kakao.maps.services.Status.OK && results[0]) {
+            placeMarkerWithTracking(item, parseFloat(results[0].y), parseFloat(results[0].x));
+          }
+          resolve();
+        }, { size: 1 });
+      };
+
+      const BATCH = 10;
+      for (let i = 0; i < items.length; i += BATCH) {
+        await Promise.all(
+          items.slice(i, i + BATCH).map((item) => {
+            if (item.lat && item.lng) {
+              placeMarkerWithTracking(item, item.lat, item.lng);
+              return Promise.resolve();
+            }
+            return new Promise<void>((resolve) => {
+              if (!item.address) {
+                searchByKeyword(item, resolve);
+                return;
+              }
+              geocoder.addressSearch(item.address, (result, status) => {
+                if (status === kakao.maps.services.Status.OK && result[0]) {
+                  placeMarkerWithTracking(item, parseFloat(result[0].y), parseFloat(result[0].x));
+                  resolve();
+                } else {
+                  searchByKeyword(item, resolve);
+                }
+              });
+            });
+          })
+        );
+      }
+
+      // 구별 집계 마커 생성
+      guPositions.forEach(({ lats, lngs }, gu) => {
+        const centLat = lats.reduce((a, b) => a + b, 0) / lats.length;
+        const centLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
+        const count = lats.length;
+
+        const pin = document.createElement("div");
+        pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+        pin.innerHTML = `
+          <div style="background:#7f1d1d;color:#fff;font-size:13px;font-weight:800;
+            padding:6px 14px;border-radius:8px;white-space:nowrap;
+            box-shadow:0 3px 12px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.25);
+            transition:transform 0.15s,box-shadow 0.15s;"
+            onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.6)';"
+            onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(0,0,0,0.5)';">
+            🏚️ ${gu} <span style="opacity:0.8;font-size:11px;">(${count}건)</span>
+          </div>
+          <div style="width:0;height:0;border-left:8px solid transparent;
+            border-right:8px solid transparent;border-top:10px solid #7f1d1d;"></div>`;
+
+        pin.addEventListener("click", () => {
+          map.setCenter(new kakao.maps.LatLng(centLat, centLng));
+          map.setLevel(ZOOM_THRESHOLD - 1);
+        });
+
+        const overlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(centLat, centLng),
+          content: pin,
+          yAnchor: 1,
+          zIndex: 4,
+        });
+        overlay.setMap(null);
+        jeongbiGuMarkersRef.current.push(overlay);
+      });
+
+      // 줌 레벨 기반 가시성 함수
+      const updateJeongbiVis = () => {
+        if (!showJeongbiRef.current) return;
+        const level = map.getLevel();
+        const zoomed = level >= ZOOM_THRESHOLD;
+        jeongbiMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
+        jeongbiGuMarkersRef.current.forEach((o) => o.setMap(zoomed ? map : null));
+      };
+      jeongbiVisibilityRef.current = updateJeongbiVis;
+      kakao.maps.event.addListener(map, "zoom_changed", updateJeongbiVis);
+      updateJeongbiVis();
+    } catch (e) {
+      console.error("[정비사업] 마커 로딩 실패", e);
+    } finally {
+      setJeongbiLoading(false);
+    }
   }
 
   function openPopup(apt: AptComplex, map: KakaoMapInstance) {
@@ -776,6 +970,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       zIndex: 2,
     });
     overlay.setMap(map);
+    storeMarkersRef.current.push(overlay);
   }
 
   function getSubStatus(item: SubscriptionItem): "active" | "upcoming" | "closed" {
@@ -839,6 +1034,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                   hidePopupOverlay();
                   setSelectedAptRef.current?.(null);
                   setSelectedStoreRef.current?.(null);
+                  setSelectedJeongbiRef.current?.(null);
                   setSelectedSubscriptionRef.current?.(item);
                 });
 
@@ -890,18 +1086,19 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     kakao.maps.event.addListener(map, "click", hidePopupOverlay);
 
     // ── 줌 레벨별 마커 가시성 ────────────────────────────────────────────────
-    // ZOOM_THRESHOLD 이상(더 축소)이면 지역명만 표시
-    const aptOverlays: KakaoCustomOverlay[] = [];
-    const regionOverlays: KakaoCustomOverlay[] = [];
+    aptOverlaysRef.current = [];
+    regionOverlaysRef.current = [];
 
     function updateVisibility() {
+      if (showJeongbiRef.current) return; // 정비사업 모드일 때는 줌 변경 무시
       const level = map.getLevel();
       const zoomed = level >= ZOOM_THRESHOLD;
-      aptOverlays.forEach((o) => o.setMap(zoomed ? null : map));
-      regionOverlays.forEach((o) => o.setMap(zoomed ? map : null));
+      aptOverlaysRef.current.forEach((o) => o.setMap(zoomed ? null : map));
+      regionOverlaysRef.current.forEach((o) => o.setMap(zoomed ? map : null));
       offiMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
       rhMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
     }
+    updateVisibilityRef.current = updateVisibility;
     kakao.maps.event.addListener(map, "zoom_changed", updateVisibility);
 
     // 아파트 핀 (저장된 좌표 오버라이드 반영)
@@ -938,7 +1135,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         zIndex: 3,
       });
       overlay.setMap(map);
-      aptOverlays.push(overlay);
+      aptOverlaysRef.current.push(overlay);
     });
 
     // 지역명 마커 (축소 시 표시)
@@ -976,7 +1173,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         yAnchor: 1,
         zIndex: 4,
       });
-      regionOverlays.push(overlay);
+      regionOverlaysRef.current.push(overlay);
     });
 
     // 초기 줌 레벨 적용
@@ -1077,7 +1274,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                           zIndex: 2,
                         });
                         overlay.setMap(map.getLevel() >= ZOOM_THRESHOLD ? null : map);
-                        aptOverlays.push(overlay);
+                        aptOverlaysRef.current.push(overlay);
                       }
                       resolve();
                     },
@@ -1098,6 +1295,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         selectedStore={selectedStore}
         selectedSubscription={selectedSubscription}
         selectedProperty={selectedProperty}
+        selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
       />
 
@@ -1106,6 +1304,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         selectedStore={selectedStore}
         selectedSubscription={selectedSubscription}
         selectedProperty={selectedProperty}
+        selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
       />
 
@@ -1139,6 +1338,17 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
               } disabled:opacity-60`}
             >
               {subscriptionLoading ? "로딩 중..." : "🏗️ 분양정보"}
+            </button>
+            <button
+              onClick={() => setShowJeongbi((v) => !v)}
+              disabled={jeongbiLoading}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
+                showJeongbi
+                  ? "bg-rose-500 text-white border-rose-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              } disabled:opacity-60`}
+            >
+              {jeongbiLoading ? "로딩 중..." : "🏚️ 정비사업"}
             </button>
           </div>
         )}

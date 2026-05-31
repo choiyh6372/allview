@@ -13,6 +13,7 @@ import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { complexData as vrComplexData } from "@/lib/vrData";
 import type { SelectedProperty } from "@/components/map/KakaoMap";
+import { type JeongbiProject, JEONGBI_TYPE_COLOR } from "@/lib/jeongbiData";
 
 interface MapEstateData {
   aptComplexes: Complex[];
@@ -157,16 +158,27 @@ function fmtMonth(raw: string) {
   return `${d.slice(0, 4)}년 ${d.slice(4, 6)}월`;
 }
 
+const JEONGBI_STATUS_STYLE: Record<JeongbiProject["status"], string> = {
+  "추진위":   "bg-yellow-50 text-yellow-700 border-yellow-200",
+  "조합설립": "bg-yellow-50 text-yellow-700 border-yellow-200",
+  "사업시행": "bg-orange-50 text-orange-700 border-orange-200",
+  "관리처분": "bg-orange-50 text-orange-700 border-orange-200",
+  "착공":     "bg-blue-50 text-blue-700 border-blue-200",
+  "준공":     "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "해제":     "bg-gray-100 text-gray-500 border-gray-200",
+};
+
 interface Props {
   selectedApt: AptComplex | null;
   selectedStore: PromotionStore | null;
   selectedSubscription: SubscriptionItem | null;
   selectedProperty: SelectedProperty | null;
+  selectedJeongbi: JeongbiProject | null;
   onClose: () => void;
 }
 
-export default function MapBottomSheet({ selectedApt, selectedStore, selectedSubscription, selectedProperty, onClose }: Props) {
-  const isVisible = !!(selectedApt || selectedStore || selectedSubscription || selectedProperty);
+export default function MapBottomSheet({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose }: Props) {
+  const isVisible = !!(selectedApt || selectedStore || selectedSubscription || selectedProperty || selectedJeongbi);
 
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
@@ -332,6 +344,43 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
 
         {/* 스크롤 콘텐츠 */}
         <div ref={scrollRef} className="overflow-y-auto scrollbar-light pb-6" style={{ maxHeight: "calc(78vh - 48px)" }}>
+
+          {/* 정비사업 */}
+          {selectedJeongbi && !selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && (() => {
+            const color = JEONGBI_TYPE_COLOR[selectedJeongbi.type];
+            return (
+              <div className="p-4 space-y-4">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span
+                      className="inline-block text-xs px-2 py-0.5 rounded-full font-semibold border"
+                      style={{ background: `${color}18`, color, borderColor: `${color}40` }}
+                    >
+                      {selectedJeongbi.type}
+                    </span>
+                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-semibold border ${JEONGBI_STATUS_STYLE[selectedJeongbi.status]}`}>
+                      {selectedJeongbi.status}
+                    </span>
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedJeongbi.name}</h2>
+                  <p className="text-xs text-gray-500 mt-0.5">{selectedJeongbi.gu} · {selectedJeongbi.address}</p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
+                  {[
+                    { label: "사업구분", value: selectedJeongbi.type },
+                    { label: "추진현황", value: selectedJeongbi.status },
+                    { label: "소재지(구)", value: selectedJeongbi.gu },
+                    { label: "예정세대수", value: selectedJeongbi.totalHo ? `${selectedJeongbi.totalHo.toLocaleString()}세대` : null },
+                  ].filter((r) => r.value).map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-between gap-4 px-5 py-3 border-b border-gray-100 last:border-b-0">
+                      <span className="text-gray-500 shrink-0">{label}</span>
+                      <span className="font-semibold text-gray-900 text-right">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 오피스텔 / 연립다세대 */}
           {selectedProperty && !selectedApt && !selectedStore && !selectedSubscription && (

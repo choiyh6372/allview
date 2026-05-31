@@ -174,21 +174,28 @@ function SubscriptionCard({
 }) {
   return (
     <div
-      className={`p-5 rounded-2xl bg-bg-card border transition-all ${
+      className={`rounded-2xl transition-all duration-200 hover:-translate-y-0.5 ${
         status === "active"
-          ? "border-emerald-500/30 hover:border-emerald-500/50"
+          ? "border-[3px] bg-emerald-800/20 border-emerald-400/70 shadow-[0_0_24px_rgba(16,185,129,0.25)] hover:border-emerald-400/90 hover:shadow-[0_0_32px_rgba(16,185,129,0.35)]"
           : status === "upcoming"
-          ? "border-blue-500/30 hover:border-blue-500/50"
-          : "border-border hover:border-border/60"
-      } hover:-translate-y-0.5 duration-200`}
+          ? "border-[3px] bg-blue-800/20 border-blue-400/60 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:border-blue-400/80 hover:shadow-[0_0_28px_rgba(59,130,246,0.3)]"
+          : "border bg-bg-card border-border hover:border-border/60"
+      }`}
     >
+      <div className="p-5">
       {/* Top row */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-2 flex-wrap">
             <span
-              className={`inline-flex items-center text-sm font-bold px-2.5 py-0.5 rounded-full border ${STATUS_STYLE[status]}`}
+              className={`inline-flex items-center gap-1.5 text-sm font-bold px-2.5 py-0.5 rounded-full border ${STATUS_STYLE[status]}`}
             >
+              {status === "active" && (
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-70" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+                </span>
+              )}
               {STATUS_LABEL[status]}
             </span>
             {item.kind === "munorwi" && (
@@ -264,6 +271,7 @@ function SubscriptionCard({
             <p className="text-gray-300 font-medium">{formatMonth(item.MVNIN_PREARNGE_YM)}</p>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

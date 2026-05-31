@@ -39,9 +39,15 @@ export default function Footer() {
             <InquiryModal />
           </div>
         </div>
-        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-muted">© 2026 AllView360(올뷰360). All rights reserved.</p>
-          <p className="text-xs text-muted">부산광역시 강서구</p>
+        <div className="mt-10 pt-6 border-t border-border flex flex-col gap-2">
+          <p className="text-xs text-muted">
+            본 사이트에서 제공되는 VR 투어 영상 및 이미지 콘텐츠의 저작권은 AllView360에 있으며,
+            무단 복제·배포·전송을 금합니다.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-xs text-muted">© 2026 AllView360(올뷰360). All rights reserved.</p>
+            <p className="text-xs text-muted">부산광역시 강서구</p>
+          </div>
         </div>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { JEONGBI_PROJECTS, type JeongbiProject } from "@/lib/jeongbiData";
-import { JEONGBI_ADDRESS_OVERRIDES } from "@/lib/jeongbiAddressOverrides";
+import { getJeongbiOverrides } from "@/lib/jeongbiOverridesStore";
 
 export const revalidate = 86400;
 
@@ -89,7 +89,7 @@ function parseLocation(location: string): { gu: string; address: string } {
   return { gu, address };
 }
 
-async function fetchFromApi(apiKey: string): Promise<JeongbiProject[]> {
+async function fetchFromApi(apiKey: string, overrides: Record<string, string>): Promise<JeongbiProject[]> {
   const url = new URL(API_URL);
   url.searchParams.set("serviceKey", apiKey);
   url.searchParams.set("pageNo", "1");
@@ -118,8 +118,7 @@ async function fetchFromApi(apiKey: string): Promise<JeongbiProject[]> {
       const type = extractType(areaName);
       const status = mapStatus(item.step ?? "");
       const aCode = item.aCode ?? "";
-      const overrideAddr = JEONGBI_ADDRESS_OVERRIDES[aCode];
-      // 오버라이드가 빈 문자열("")이면 이 항목은 표시하지 않음
+      const overrideAddr = overrides[aCode];
       if (overrideAddr === "") return null;
       const rawLocation = overrideAddr !== undefined ? overrideAddr : (item.location ?? "");
       const { gu, address } = parseLocation(rawLocation);
@@ -141,15 +140,17 @@ async function fetchFromApi(apiKey: string): Promise<JeongbiProject[]> {
         ...(telNo ? { telNo } : {}),
       };
     })
-    .filter((item): item is JeongbiProject => item !== null);
+    .filter((item): item is JeongbiProject => item !== null)
+    .filter((item) => item.status !== "준공" && item.status !== "해제");
 }
 
 export async function GET() {
   const apiKey = process.env.MOLIT_API_KEY;
+  const overrides = await getJeongbiOverrides();
 
   if (apiKey) {
     try {
-      const items = await fetchFromApi(apiKey);
+      const items = await fetchFromApi(apiKey, overrides);
       return NextResponse.json(
         { items, source: "api" },
         { headers: { "Cache-Control": `public, s-maxage=${CACHE_TTL}, stale-while-revalidate` } }

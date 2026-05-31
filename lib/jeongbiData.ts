@@ -52,8 +52,6 @@ export const JEONGBI_PROJECTS: JeongbiProject[] = [
   { id: "j23", name: "청학지구", type: "재개발", status: "추진위", gu: "영도구", address: "부산광역시 영도구 청학동", lat: 35.0887, lng: 129.0628 },
   // 중구
   { id: "j24", name: "광복 도시환경정비", type: "도시환경정비", status: "착공", gu: "중구", address: "부산광역시 중구 광복동", lat: 35.1012, lng: 129.0302 },
-  // 강서구
-  { id: "j25", name: "명지3구역", type: "주거환경개선", status: "준공", gu: "강서구", address: "부산광역시 강서구 명지동", lat: 35.0985, lng: 128.9192 },
 ];
 
 export const JEONGBI_TYPE_COLOR: Record<JeongbiProject["type"], string> = {

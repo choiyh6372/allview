@@ -26,6 +26,7 @@ interface KakaoMarker {
 }
 interface KakaoGeocoder {
   addressSearch: (addr: string, cb: (result: Array<{ x: string; y: string }>, status: string) => void) => void;
+  coord2Address: (lng: number, lat: number, cb: (result: Array<{ address: { address_name: string }; road_address: { address_name: string } | null }>, status: string) => void) => void;
 }
 interface KakaoPlacesResult {
   x: string;
@@ -91,6 +92,16 @@ const OFFI_POS_OVERRIDES: Record<string, { lat: number; lng: number }> = {
 
 const ZOOM_THRESHOLD = 6;
 
+const JEONGBI_POLY_COLOR: Record<string, string> = {
+  "재개발":       "#ef4444",
+  "재건축":       "#f97316",
+  "도시환경정비": "#8b5cf6",
+  "주거환경개선": "#06b6d4",
+  "주거환경관리": "#10b981",
+  "기반시설":     "#6b7280",
+  "기타":         "#94a3b8",
+};
+
 export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
@@ -114,6 +125,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const subscriptionMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const jeongbiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const jeongbiGuMarkersRef = useRef<KakaoCustomOverlay[]>([]);
+  const ignoreNextMapClickRef = useRef(false);
   const jeongbiVisibilityRef = useRef<(() => void) | null>(null);
   const offiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const rhMarkersRef = useRef<KakaoCustomOverlay[]>([]);
@@ -124,6 +136,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const showJeongbiRef = useRef(false);
   const subscriptionLoadedRef = useRef(false);
   const jeongbiLoadedRef = useRef(false);
+  const jeongbiPolygonsRef = useRef<KakaoPolygon[]>([]);
   const offiLoadedRef = useRef(false);
   const rhLoadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
@@ -391,24 +404,20 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     const map = mapRef.current;
     if (!map) return;
     if (showJeongbi) {
-      // 기본 마커 전부 숨김
       aptOverlaysRef.current.forEach((o) => o.setMap(null));
       regionOverlaysRef.current.forEach((o) => o.setMap(null));
       storeMarkersRef.current.forEach((o) => o.setMap(null));
       offiMarkersRef.current.forEach((o) => o.setMap(null));
       rhMarkersRef.current.forEach((o) => o.setMap(null));
-      // 정비사업 마커 표시 (줌 레벨 기반)
       if (!jeongbiLoadedRef.current) {
         jeongbiLoadedRef.current = true;
-        loadJeongbiMarkers(map); // 내부에서 zoom listener + 초기 visibility 처리
+        loadJeongbiMarkers(map);
       } else {
         jeongbiVisibilityRef.current?.();
       }
     } else {
-      // 정비사업 마커 전부 숨김
       jeongbiMarkersRef.current.forEach((m) => m.setMap(null));
       jeongbiGuMarkersRef.current.forEach((m) => m.setMap(null));
-      // 기본 마커 복원 (줌 레벨 기반)
       updateVisibilityRef.current?.();
       storeMarkersRef.current.forEach((o) => o.setMap(map));
     }
@@ -693,28 +702,21 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
               return Promise.resolve();
             }
             return new Promise<void>((resolve) => {
-              if (!item.address) {
-                searchByKeyword(item, resolve);
-                return;
-              }
+              if (!item.address) { resolve(); return; }
               geocoder.addressSearch(item.address, (result, status) => {
                 if (status === kakao.maps.services.Status.OK && result[0]) {
                   placeMarkerWithTracking(item, parseFloat(result[0].y), parseFloat(result[0].x));
-                  resolve();
-                } else {
-                  searchByKeyword(item, resolve);
                 }
+                resolve();
               });
             });
           })
         );
       }
 
-      // 구별 집계 마커 생성
       guPositions.forEach(({ lats, lngs }, gu) => {
         const centLat = lats.reduce((a, b) => a + b, 0) / lats.length;
         const centLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
-        const count = lats.length;
 
         const pin = document.createElement("div");
         pin.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:pointer;";
@@ -725,7 +727,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
             transition:transform 0.15s,box-shadow 0.15s;"
             onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.6)';"
             onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(0,0,0,0.5)';">
-            🏚️ ${gu} <span style="opacity:0.8;font-size:11px;">(${count}건)</span>
+            🏚️ ${gu}
           </div>
           <div style="width:0;height:0;border-left:8px solid transparent;
             border-right:8px solid transparent;border-top:10px solid #7f1d1d;"></div>`;
@@ -745,7 +747,6 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         jeongbiGuMarkersRef.current.push(overlay);
       });
 
-      // 줌 레벨 기반 가시성 함수
       const updateJeongbiVis = () => {
         if (!showJeongbiRef.current) return;
         const level = map.getLevel();
@@ -1083,14 +1084,20 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     });
     mapRef.current = map;
 
-    kakao.maps.event.addListener(map, "click", hidePopupOverlay);
+    kakao.maps.event.addListener(map, "click", () => {
+      if (ignoreNextMapClickRef.current) {
+        ignoreNextMapClickRef.current = false;
+        return;
+      }
+      hidePopupOverlay();
+    });
 
     // ── 줌 레벨별 마커 가시성 ────────────────────────────────────────────────
     aptOverlaysRef.current = [];
     regionOverlaysRef.current = [];
 
     function updateVisibility() {
-      if (showJeongbiRef.current) return; // 정비사업 모드일 때는 줌 변경 무시
+      if (showJeongbiRef.current) return;
       const level = map.getLevel();
       const zoomed = level >= ZOOM_THRESHOLD;
       aptOverlaysRef.current.forEach((o) => o.setMap(zoomed ? null : map));

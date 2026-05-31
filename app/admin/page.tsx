@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, BarChart2, TrendingUp, Eye, Users, Video } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, BarChart2, TrendingUp, Eye, Users, Video, Building2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StoreFormModal from "@/components/admin/StoreFormModal";
 import AptMapEditor from "@/components/admin/AptMapEditor";
@@ -262,6 +262,13 @@ export default function AdminPage() {
         >
           <BarChart2 size={15} />
           방문자 통계
+        </button>
+        <button
+          onClick={() => router.push("/admin/jeongbi")}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-white transition-colors"
+        >
+          <Building2 size={15} />
+          정비사업 데이터
         </button>
       </div>
 

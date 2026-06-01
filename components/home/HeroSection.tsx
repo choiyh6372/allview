@@ -28,7 +28,7 @@ export default function HeroSection() {
             주변 상권 정보까지 AllView360 하나로.
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="hidden sm:flex flex-wrap gap-4">
             <Link
               href="/vr-tour"
               className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"

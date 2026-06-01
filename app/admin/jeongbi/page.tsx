@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// 인증은 middleware.ts에서 쿠키로 처리됨
 import type { JeongbiProject } from "@/lib/jeongbiData";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 
@@ -13,9 +12,14 @@ export default function JeongbiAdminPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
   const [sortAsc, setSortAsc] = useState(false);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
+
+  const [editingGuId, setEditingGuId] = useState<string | null>(null);
+  const [editGuValue, setEditGuValue] = useState("");
+  const [savingGuId, setSavingGuId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/jeongbi")
@@ -36,6 +40,7 @@ export default function JeongbiAdminPage() {
   ).sort((a, b) => sortAsc ? a.name.localeCompare(b.name, "ko") : b.name.localeCompare(a.name, "ko"));
 
   function startEdit(item: JeongbiProject) {
+    setEditingGuId(null);
     setEditingId(item.id);
     setEditValue(item.address);
   }
@@ -62,6 +67,37 @@ export default function JeongbiAdminPage() {
       alert("저장에 실패했습니다.");
     } finally {
       setSavingId(null);
+    }
+  }
+
+  function startEditGu(item: JeongbiProject) {
+    setEditingId(null);
+    setEditingGuId(item.id);
+    setEditGuValue(item.gu);
+  }
+
+  function cancelEditGu() {
+    setEditingGuId(null);
+    setEditGuValue("");
+  }
+
+  async function saveEditGu(item: JeongbiProject) {
+    setSavingGuId(item.id);
+    try {
+      const res = await fetch("/api/admin/jeongbi-overrides", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, gu: editGuValue }),
+      });
+      if (!res.ok) throw new Error();
+      setItems((prev) =>
+        prev.map((it) => it.id === item.id ? { ...it, gu: editGuValue } : it)
+      );
+      setEditingGuId(null);
+    } catch {
+      alert("저장에 실패했습니다.");
+    } finally {
+      setSavingGuId(null);
     }
   }
 
@@ -114,7 +150,7 @@ export default function JeongbiAdminPage() {
               </th>
               <th className="px-4 py-3 text-left font-semibold">유형</th>
               <th className="px-4 py-3 text-left font-semibold">추진현황</th>
-              <th className="px-4 py-3 text-left font-semibold">구</th>
+              <th className="px-4 py-3 text-left font-semibold min-w-[130px]">구</th>
               <th className="px-4 py-3 text-left font-semibold min-w-[300px]">주소</th>
             </tr>
           </thead>
@@ -132,7 +168,52 @@ export default function JeongbiAdminPage() {
                 <td className="px-4 py-2.5">
                   <StatusBadge status={item.status} />
                 </td>
-                <td className="px-4 py-2.5 text-gray-300">{item.gu}</td>
+
+                {/* 구 셀 */}
+                <td className="px-4 py-2.5">
+                  {editingGuId === item.id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editGuValue}
+                        onChange={(e) => setEditGuValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEditGu(item);
+                          if (e.key === "Escape") cancelEditGu();
+                        }}
+                        autoFocus
+                        placeholder="예: 금정구"
+                        className="w-24 px-2 py-1 bg-bg border border-accent/50 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-accent/50"
+                      />
+                      <button
+                        onClick={() => saveEditGu(item)}
+                        disabled={savingGuId === item.id}
+                        className="p-1 text-green-400 hover:text-green-300 disabled:opacity-50"
+                      >
+                        {savingGuId === item.id
+                          ? <Loader2 size={14} className="animate-spin" />
+                          : <Check size={14} />}
+                      </button>
+                      <button onClick={cancelEditGu} className="p-1 text-muted hover:text-white">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 group">
+                      <span className={item.gu ? "text-gray-300" : "text-red-400 font-semibold"}>
+                        {item.gu || "구 없음"}
+                      </span>
+                      <button
+                        onClick={() => startEditGu(item)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-muted hover:text-white transition-opacity"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+
+                {/* 주소 셀 */}
                 <td className="px-4 py-2.5">
                   {editingId === item.id ? (
                     <div className="flex items-center gap-2">

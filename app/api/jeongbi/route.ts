@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { JEONGBI_PROJECTS, type JeongbiProject } from "@/lib/jeongbiData";
-import { getJeongbiOverrides } from "@/lib/jeongbiOverridesStore";
+import { getJeongbiOverrides, type JeongbiOverride } from "@/lib/jeongbiOverridesStore";
 
 export const revalidate = 86400;
 
@@ -89,7 +89,7 @@ function parseLocation(location: string): { gu: string; address: string } {
   return { gu, address };
 }
 
-async function fetchFromApi(apiKey: string, overrides: Record<string, string>): Promise<JeongbiProject[]> {
+async function fetchFromApi(apiKey: string, overrides: Record<string, JeongbiOverride>): Promise<JeongbiProject[]> {
   const url = new URL(API_URL);
   url.searchParams.set("serviceKey", apiKey);
   url.searchParams.set("pageNo", "1");
@@ -118,10 +118,12 @@ async function fetchFromApi(apiKey: string, overrides: Record<string, string>): 
       const type = extractType(areaName);
       const status = mapStatus(item.step ?? "");
       const aCode = item.aCode ?? "";
-      const overrideAddr = overrides[aCode];
-      if (overrideAddr === "") return null;
-      const rawLocation = overrideAddr !== undefined ? overrideAddr : (item.location ?? "");
-      const { gu, address } = parseLocation(rawLocation);
+      const override = overrides[aCode];
+      if (override?.address === "") return null;
+      const rawLocation = override?.address !== undefined ? override.address : (item.location ?? "");
+      const parsed = parseLocation(rawLocation);
+      const gu = override?.gu !== undefined ? override.gu : parsed.gu;
+      const { address } = parsed;
       const totalHo = item.generationJoo
         ? parseInt(item.generationJoo.replace(/,/g, ""), 10) || undefined
         : undefined;

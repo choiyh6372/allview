@@ -5,6 +5,7 @@ import { complexData, VRComplex, getVRUrl } from "@/lib/vrData";
 import StoreBanner from "@/components/home/StoreBanner";
 import { VR_AREA_MAP } from "@/lib/vrAreaMapping";
 import { Building2, ChevronLeft } from "lucide-react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 // ── 타입별 색상 ──
 const TYPE_COLOR: Record<string, { bg: string; border: string; text: string }> = {
@@ -156,33 +157,44 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
       </div>
 
       <div className="flex justify-center">
-        <div ref={imgRef} className="relative w-full max-w-3xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={plan.image}
-            alt={`${complex.name} 단지 배치도`}
-            className="block w-full rounded-xl"
-            draggable={false}
-          />
-          {plan.hotspots.map((hs) => (
-            <button
-              key={hs.id}
-              onClick={() => window.open(getVRUrl(complex.regionId, complex.slug, hs.type), "_blank")}
-              title={`${hs.type.toUpperCase()} VR 보기`}
-              className="absolute rounded-full hover:opacity-70 transition-opacity"
-              style={{
-                left: `${hs.x}%`,
-                top: `${hs.y}%`,
-                transform: "translate(-50%, -50%)",
-                width: 28,
-                height: 28,
-                background: "transparent",
-                border: "none",
-                zIndex: 10,
-                cursor: "pointer",
-              }}
-            />
-          ))}
+        <div className="w-full max-w-3xl overflow-hidden rounded-xl">
+          <TransformWrapper
+            minScale={1}
+            maxScale={5}
+            centerOnInit
+            panning={{ velocityDisabled: false }}
+          >
+            <TransformComponent wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
+              <div ref={imgRef} className="relative w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={plan.image}
+                  alt={`${complex.name} 단지 배치도`}
+                  className="block w-full"
+                  draggable={false}
+                />
+                {plan.hotspots.map((hs) => (
+                  <button
+                    key={hs.id}
+                    onClick={() => window.open(getVRUrl(complex.regionId, complex.slug, hs.type), "_blank")}
+                    title={`${hs.type.toUpperCase()} VR 보기`}
+                    className="absolute rounded-full hover:opacity-70 transition-opacity"
+                    style={{
+                      left: `${hs.x}%`,
+                      top: `${hs.y}%`,
+                      transform: "translate(-50%, -50%)",
+                      width: 28,
+                      height: 28,
+                      background: "transparent",
+                      border: "none",
+                      zIndex: 10,
+                      cursor: "pointer",
+                    }}
+                  />
+                ))}
+              </div>
+            </TransformComponent>
+          </TransformWrapper>
         </div>
       </div>
     </div>

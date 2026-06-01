@@ -154,6 +154,7 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
       <div className="text-center mb-6">
         <h2 className="text-white text-3xl font-bold mb-1">{complex.name}</h2>
         <p className="text-gray-400 text-sm">배치도에서 해당 면적을 누르면 VR로 연결됩니다.</p>
+        <p className="text-gray-300 text-sm mt-1">확대하시면 더 편하게 이용하실 수 있습니다.</p>
       </div>
 
       <div className="flex justify-center">

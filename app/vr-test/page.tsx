@@ -251,13 +251,33 @@ export default function VRTestPage() {
   const [region, setRegion] = useState("명지오션시티");
   const [selected, setSelected] = useState<VRComplex | null>(null);
 
+  useEffect(() => {
+    const onPop = () => {
+      if (selected) setSelected(null);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [selected]);
+
+  function selectComplex(c: VRComplex) {
+    setSelected(c);
+    window.scrollTo(0, 0);
+    window.history.pushState({ vrTest: true }, "");
+  }
+
+  function goBack() {
+    setSelected(null);
+    window.scrollTo(0, 0);
+    window.history.back();
+  }
+
   const filtered = complexData.filter((c) => c.regionName === region);
 
   if (selected) {
     return (
       <>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <FloorPlanView complex={selected} onBack={() => { setSelected(null); window.scrollTo(0, 0); }} />
+          <FloorPlanView complex={selected} onBack={goBack} />
         </div>
         <StoreBanner />
       </>
@@ -285,7 +305,7 @@ export default function VRTestPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map((c) => (
-          <ComplexCard key={c.id} complex={c} onSelect={() => { setSelected(c); window.scrollTo(0, 0); }} />
+          <ComplexCard key={c.id} complex={c} onSelect={() => selectComplex(c)} />
         ))}
       </div>
     </div>

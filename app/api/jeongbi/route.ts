@@ -89,7 +89,7 @@ function parseLocation(location: string): { gu: string; address: string } {
   return { gu, address };
 }
 
-async function fetchFromApi(apiKey: string, overrides: Record<string, JeongbiOverride>): Promise<JeongbiProject[]> {
+async function fetchFromApi(apiKey: string, overrides: Record<string, JeongbiOverride>): Promise<{ items: JeongbiProject[]; completedNames: string[] }> {
   const url = new URL(API_URL);
   url.searchParams.set("serviceKey", apiKey);
   url.searchParams.set("pageNo", "1");
@@ -110,7 +110,7 @@ async function fetchFromApi(apiKey: string, overrides: Record<string, JeongbiOve
   const raw = parseXmlItems(xml);
   if (raw.length === 0) throw new Error("No items");
 
-  return raw
+  const all = raw
     .filter((item) => item.areaName)
     .map((item, i): JeongbiProject | null => {
       const areaName = item.areaName ?? "";
@@ -142,8 +142,14 @@ async function fetchFromApi(apiKey: string, overrides: Record<string, JeongbiOve
         ...(telNo ? { telNo } : {}),
       };
     })
-    .filter((item): item is JeongbiProject => item !== null)
-    .filter((item) => item.status !== "준공" && item.status !== "해제");
+    .filter((item): item is JeongbiProject => item !== null);
+
+  const items = all.filter((item) => item.status !== "준공" && item.status !== "해제");
+  const completedNames = all
+    .filter((item) => item.status === "준공" || item.status === "해제")
+    .map((item) => item.name);
+
+  return { items, completedNames };
 }
 
 export async function GET() {
@@ -152,9 +158,9 @@ export async function GET() {
 
   if (apiKey) {
     try {
-      const items = await fetchFromApi(apiKey, overrides);
+      const { items, completedNames } = await fetchFromApi(apiKey, overrides);
       return NextResponse.json(
-        { items, source: "api" },
+        { items, completedNames, source: "api" },
         { headers: { "Cache-Control": `public, s-maxage=${CACHE_TTL}, stale-while-revalidate` } }
       );
     } catch (err) {

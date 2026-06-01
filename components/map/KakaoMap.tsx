@@ -428,6 +428,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     } else {
       jeongbiMarkersRef.current.forEach((m) => m.setMap(null));
       jeongbiGuMarkersRef.current.forEach((m) => m.setMap(null));
+      jeongbiPolygonsRef.current.forEach((p) => p.setMap(null));
       updateVisibilityRef.current?.();
       storeMarkersRef.current.forEach((o) => o.setMap(map));
     }
@@ -640,6 +641,16 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const res = await fetch("/api/jeongbi");
       const data = await res.json();
       const items: JeongbiProject[] = data.items ?? [];
+      const completedNames: string[] = data.completedNames ?? [];
+
+      const normalizeJeongbiName = (n: string) =>
+        n.replace(/[\s]/g, "").replace(/정비구역|재개발|재건축|도시환경정비|주거환경개선|주거환경관리|가로주택정비|소규모재건축|사업|주택|구역|지구/g, "");
+      const normalizedCompleted = completedNames.map(normalizeJeongbiName).filter(Boolean);
+      const isCompletedPoly = (polyName: string) => {
+        if (!polyName || polyName.length < 2) return false;
+        const norm = normalizeJeongbiName(polyName);
+        return normalizedCompleted.some((c) => norm.includes(c) || c.includes(norm));
+      };
       const geocoder = new kakao.maps.services.Geocoder();
 
       const placeMarker = (item: JeongbiProject, lat: number, lng: number) => {
@@ -760,12 +771,39 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         jeongbiGuMarkersRef.current.push(overlay);
       });
 
+      // 정비구역 GeoJSON 폴리곤
+      try {
+        const polyRes = await fetch("/jeongbi-busan-wgs84.geojson");
+        const geojson = await polyRes.json();
+        for (const feature of geojson.features) {
+          const props = feature.properties as { name: string; type: string };
+          if (isCompletedPoly(props.name ?? "")) continue;
+          const color = JEONGBI_POLY_COLOR[props.type] ?? JEONGBI_POLY_COLOR["기타"];
+          const coords = feature.geometry.coordinates as [number, number][][];
+          const path = coords.map((ring) => ring.map(([lng, lat]) => new kakao.maps.LatLng(lat, lng)));
+          const polygon = new kakao.maps.Polygon({
+            path,
+            strokeWeight: 1.5,
+            strokeColor: color,
+            strokeOpacity: 0.9,
+            fillColor: color,
+            fillOpacity: 0.25,
+            zIndex: 1,
+          });
+          polygon.setMap(map);
+          jeongbiPolygonsRef.current.push(polygon);
+        }
+      } catch (e) {
+        console.error("[정비구역] 폴리곤 로딩 실패", e);
+      }
+
       const updateJeongbiVis = () => {
         if (!showJeongbiRef.current) return;
         const level = map.getLevel();
         const zoomed = level >= ZOOM_THRESHOLD;
         jeongbiMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
         jeongbiGuMarkersRef.current.forEach((o) => o.setMap(zoomed ? map : null));
+        jeongbiPolygonsRef.current.forEach((p) => p.setMap(map));
       };
       jeongbiVisibilityRef.current = updateJeongbiVis;
       kakao.maps.event.addListener(map, "zoom_changed", updateJeongbiVis);

@@ -25,3 +25,6 @@ npm-debug.log*
 # Claude Code
 .claude/
 prompt.txt
+
+# 쉐이프파일 원시 데이터
+LSMD_CONT_UD602_부산/

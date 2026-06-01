@@ -362,8 +362,8 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                       {selectedJeongbi.status}
                     </span>
                   </div>
-                  <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedJeongbi.name}</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">{selectedJeongbi.gu} · {selectedJeongbi.address}</p>
+                  <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedJeongbi.name}구역</h2>
+                  <p className="text-xs text-gray-500 mt-0.5">{selectedJeongbi.gu}</p>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
                   {[

@@ -126,6 +126,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const jeongbiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const jeongbiGuMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const ignoreNextMapClickRef = useRef(false);
+  const isHandlingMarkerClickRef = useRef(false);
   const jeongbiVisibilityRef = useRef<(() => void) | null>(null);
   const offiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const rhMarkersRef = useRef<KakaoCustomOverlay[]>([]);
@@ -134,6 +135,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const storeMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const updateVisibilityRef = useRef<(() => void) | null>(null);
   const showJeongbiRef = useRef(false);
+  const showSubscriptionRef = useRef(false);
   const subscriptionLoadedRef = useRef(false);
   const jeongbiLoadedRef = useRef(false);
   const jeongbiPolygonsRef = useRef<KakaoPolygon[]>([]);
@@ -160,6 +162,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   useEffect(() => { setSelectedPropertyRef.current = setSelectedProperty; }, []);
   useEffect(() => { setSelectedJeongbiRef.current = setSelectedJeongbi; }, []);
   useEffect(() => { showJeongbiRef.current = showJeongbi; }, [showJeongbi]);
+  useEffect(() => { showSubscriptionRef.current = showSubscription; }, [showSubscription]);
 
   useEffect(() => {
     const storeId = searchParams.get("storeId");
@@ -388,6 +391,11 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     const map = mapRef.current;
     if (!map) return;
     if (showSubscription) {
+      aptOverlaysRef.current.forEach((o) => o.setMap(null));
+      regionOverlaysRef.current.forEach((o) => o.setMap(null));
+      storeMarkersRef.current.forEach((o) => o.setMap(null));
+      offiMarkersRef.current.forEach((o) => o.setMap(null));
+      rhMarkersRef.current.forEach((o) => o.setMap(null));
       if (!subscriptionLoadedRef.current) {
         subscriptionLoadedRef.current = true;
         loadSubscriptionMarkers(map);
@@ -396,6 +404,8 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       }
     } else {
       subscriptionMarkersRef.current.forEach((m) => m.setMap(null));
+      updateVisibilityRef.current?.();
+      storeMarkersRef.current.forEach((o) => o.setMap(map));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSubscription]);
@@ -651,6 +661,9 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
             border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
 
         pin.addEventListener("click", (e) => {
+          if (isHandlingMarkerClickRef.current) return;
+          isHandlingMarkerClickRef.current = true;
+          setTimeout(() => { isHandlingMarkerClickRef.current = false; }, 50);
           e.stopPropagation();
           hidePopupOverlay();
           setSelectedAptRef.current?.(null);
@@ -1031,6 +1044,9 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
                     border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
 
                 pin.addEventListener("click", (e) => {
+                  if (isHandlingMarkerClickRef.current) return;
+                  isHandlingMarkerClickRef.current = true;
+                  setTimeout(() => { isHandlingMarkerClickRef.current = false; }, 50);
                   e.stopPropagation();
                   hidePopupOverlay();
                   setSelectedAptRef.current?.(null);
@@ -1101,7 +1117,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
       const level = map.getLevel();
       const zoomed = level >= ZOOM_THRESHOLD;
       aptOverlaysRef.current.forEach((o) => o.setMap(zoomed ? null : map));
-      regionOverlaysRef.current.forEach((o) => o.setMap(zoomed ? map : null));
+      regionOverlaysRef.current.forEach((o) => o.setMap(showSubscriptionRef.current ? null : zoomed ? map : null));
       offiMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
       rhMarkersRef.current.forEach((o) => o.setMap(zoomed ? null : map));
     }
@@ -1325,7 +1341,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         {loaded && (
           <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
             <button
-              onClick={() => setShowSchoolZones((v) => !v)}
+              onClick={() => { setShowSchoolZones((v) => !v); setShowSubscription(false); setShowJeongbi(false); }}
               disabled={schoolZoneLoading}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
                 showSchoolZones
@@ -1336,7 +1352,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
               {schoolZoneLoading ? "로딩 중..." : "🏫 학구도"}
             </button>
             <button
-              onClick={() => setShowSubscription((v) => !v)}
+              onClick={() => { setShowSubscription((v) => !v); setShowJeongbi(false); setShowSchoolZones(false); }}
               disabled={subscriptionLoading}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
                 showSubscription
@@ -1347,7 +1363,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
               {subscriptionLoading ? "로딩 중..." : "🏗️ 분양정보"}
             </button>
             <button
-              onClick={() => setShowJeongbi((v) => !v)}
+              onClick={() => { setShowJeongbi((v) => !v); setShowSubscription(false); setShowSchoolZones(false); }}
               disabled={jeongbiLoading}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
                 showJeongbi

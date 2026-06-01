@@ -356,8 +356,8 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                       {selectedJeongbi.status}
                     </span>
                   </div>
-                  <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedJeongbi.name}</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">{selectedJeongbi.gu} · {selectedJeongbi.address}</p>
+                  <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedJeongbi.name}구역</h2>
+                  <p className="text-xs text-gray-500 mt-0.5">{selectedJeongbi.gu}</p>
                 </div>
               </div>
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
@@ -365,10 +365,8 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                   { label: "사업구분", value: selectedJeongbi.type },
                   { label: "추진현황", value: selectedJeongbi.status },
                   { label: "소재지(구)", value: selectedJeongbi.gu },
-                  { label: "주소", value: selectedJeongbi.address },
                   { label: "예정세대수", value: selectedJeongbi.totalHo ? `${selectedJeongbi.totalHo.toLocaleString()}세대` : null },
                   { label: "시공사", value: selectedJeongbi.contractor ?? null },
-                  { label: "연락처", value: selectedJeongbi.telNo ?? null },
                 ].filter((r) => r.value).map(({ label, value }) => (
                   <div key={label} className="flex items-center justify-between gap-4 px-5 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
                     <span className="text-gray-500 shrink-0">{label}</span>

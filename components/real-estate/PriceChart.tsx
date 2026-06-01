@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -37,13 +37,13 @@ function CustomTooltip({ active, payload, label, light }: any) {
   const rentMedian = val("rentMedian");
   if (median === undefined && rentMedian === undefined) return null;
   return (
-    <div className={`${light ? "bg-white border-gray-200 shadow-md" : "bg-bg-card border-border shadow-xl"} border rounded-xl p-3 text-xs`}>
-      <p className={`${light ? "text-gray-500" : "text-muted"} mb-1`}>{label}</p>
+    <div className="bg-white border border-gray-200 shadow-md rounded-xl p-3 text-xs">
+      <p className="text-gray-600 mb-1">{label}</p>
       {median !== undefined && (
         <>
-          <p className={`${light ? "text-gray-900" : "text-white"} font-bold`}>매매 {fmt(median)}</p>
-          {low !== undefined && <p className="text-gray-400">최저 {fmt(low)}</p>}
-          {high !== undefined && <p className="text-gray-400">최고 {fmt(high)}</p>}
+          <p className="text-gray-900 font-bold">매매 {fmt(median)}</p>
+          {low !== undefined && <p className="text-gray-600">최저 {fmt(low)}</p>}
+          {high !== undefined && <p className="text-gray-600">최고 {fmt(high)}</p>}
         </>
       )}
       {rentMedian !== undefined && (
@@ -111,16 +111,16 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
       })[0] ?? null
     : null;
 
-  const gridColor = light ? "#e5e7eb" : "#2a2d3e";
-  const areaFill  = light ? "#ffffff" : "#0f1117";
-  const tickColor = light ? "#6b7280" : "#6b7280";
+  const gridColor = "#e5e7eb";
+  const areaFill  = "#ffffff";
+  const tickColor = "#6b7280";
 
   return (
     <>
     <div className={`${light ? "bg-white border-gray-200" : "bg-bg-card border-border"} border rounded-2xl p-6`}>
       <div className="mb-4">
         <div className="flex items-center justify-between gap-2 mb-1">
-          <h2 className={`text-lg font-bold ${light ? "text-gray-900" : "text-white"}`}>{complex.name}</h2>
+          <h2 className="text-lg font-bold text-gray-900">{complex.name}</h2>
           <div className="flex items-center gap-2">
             {naverUrl && (
               <a
@@ -144,7 +144,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-2xl font-black ${light ? "text-gray-900" : "text-white"}`}>
+          <span className="text-2xl font-black text-gray-900">
             {recentTx
               ? fmtDetail(recentTx.price)
               : recentRentTx
@@ -152,7 +152,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
               : "-"}
           </span>
         </div>
-        <p className={`text-xs mt-0.5 ${light ? "text-gray-500" : "text-muted"}`}>
+        <p className={`text-xs mt-0.5 ${light ? "text-gray-600" : "text-muted"}`}>
           {recentTx
             ? `최근 실거래가 · ${recentTx.date}`
             : recentRentTx
@@ -170,8 +170,8 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
               selectedArea === a
                 ? "bg-accent text-white"
                 : light
-                ? "bg-gray-100 border border-gray-200 text-gray-600 hover:text-gray-900"
-                : "bg-bg-hover border border-border text-gray-400 hover:text-white"
+                ? "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900"
+                : "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900"
             }`}
           >
             {a}㎡
@@ -263,17 +263,17 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
       <div className="flex items-center gap-5 mt-3">
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-0.5 bg-accent" />
-          <span className={`text-xs ${light ? "text-gray-500" : "text-muted"}`}>매매 중위</span>
+          <span className={`text-xs ${light ? "text-gray-600" : "text-muted"}`}>매매 중위</span>
         </div>
         {rentData.length > 0 && (
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-0.5 bg-emerald-500" />
-            <span className={`text-xs ${light ? "text-gray-500" : "text-muted"}`}>전세 중위</span>
+            <span className={`text-xs ${light ? "text-gray-600" : "text-muted"}`}>전세 중위</span>
           </div>
         )}
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-3 rounded-sm opacity-30" style={{ background: "linear-gradient(to bottom, #5b6ef5, transparent)" }} />
-          <span className={`text-xs ${light ? "text-gray-500" : "text-muted"}`}>범위</span>
+          <span className={`text-xs ${light ? "text-gray-600" : "text-muted"}`}>범위</span>
         </div>
       </div>
 

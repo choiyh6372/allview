@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -35,7 +35,7 @@ export default function NewsSection() {
               <Newspaper size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white">부동산 뉴스</h2>
+              <h2 className="text-xl font-black text-gray-900">부동산 뉴스</h2>
               <p className="text-xs text-muted mt-0.5">부산 강서구 최신 소식</p>
             </div>
           </div>
@@ -61,7 +61,7 @@ export default function NewsSection() {
                     className="flex items-center gap-3 px-4 py-3 rounded-xl bg-bg-card border border-border hover:border-accent/40 hover:bg-bg-hover transition-all group"
                   >
                     <span className="shrink-0 text-xs font-bold text-accent w-4">{i + 1}</span>
-                    <span className="flex-1 text-sm text-gray-200 truncate group-hover:text-white transition-colors">
+                    <span className="flex-1 text-sm text-gray-800 truncate group-hover:text-gray-900 transition-colors">
                       {stripHtml(item.title)}
                     </span>
                     <span className="shrink-0 text-xs text-muted">{formatDate(item.pubDate)}</span>

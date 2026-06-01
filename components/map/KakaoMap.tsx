@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -1384,7 +1384,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
                 showSchoolZones
                   ? "bg-blue-500 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
               } disabled:opacity-60`}
             >
               {schoolZoneLoading ? "로딩 중..." : "🏫 학구도"}
@@ -1395,7 +1395,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
                 showSubscription
                   ? "bg-emerald-500 text-white border-emerald-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
               } disabled:opacity-60`}
             >
               {subscriptionLoading ? "로딩 중..." : "🏗️ 분양정보"}
@@ -1406,7 +1406,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg border shadow transition-colors ${
                 showJeongbi
                   ? "bg-rose-500 text-white border-rose-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
               } disabled:opacity-60`}
             >
               {jeongbiLoading ? "로딩 중..." : "🏚️ 정비사업"}

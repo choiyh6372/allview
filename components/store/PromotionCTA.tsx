@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { CheckCircle, Store } from "lucide-react";
@@ -19,19 +19,19 @@ export default function PromotionCTA() {
           <Store size={28} className="text-accent" />
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-black text-white mb-3">
+        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3">
           내 가게를 AllView360에 홍보하세요
         </h2>
-        <p className="text-gray-400 mb-8">
+        <p className="text-gray-600 mb-8">
           입주 예정 주민 수천 명에게 가게를 알릴 수 있습니다.<br />
           등록 신청 후 24시간 내 담당자가 연락드립니다.
         </p>
 
         {submitted ? (
           <div className="flex flex-col items-center gap-3 py-6">
-            <CheckCircle size={48} className="text-green-400" />
-            <p className="text-lg font-bold text-white">신청이 접수되었습니다!</p>
-            <p className="text-sm text-gray-400">24시간 내 담당자가 연락드리겠습니다.</p>
+            <CheckCircle size={48} className="text-green-600" />
+            <p className="text-lg font-bold text-gray-900">신청이 접수되었습니다!</p>
+            <p className="text-sm text-gray-600">24시간 내 담당자가 연락드리겠습니다.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
@@ -43,7 +43,7 @@ export default function PromotionCTA() {
                 placeholder="가게 이름"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
               />
             </div>
             <div>
@@ -54,7 +54,7 @@ export default function PromotionCTA() {
                 placeholder="010-0000-0000"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
               />
             </div>
             <div>
@@ -62,7 +62,7 @@ export default function PromotionCTA() {
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-white focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 focus:outline-none focus:border-accent/50 transition-colors"
               >
                 <option value="">업종 선택</option>
                 {["카페", "음식점", "마트", "헬스", "약국", "미용", "키즈", "베이커리", "병원", "학원", "기타"].map((c) => (
@@ -75,7 +75,7 @@ export default function PromotionCTA() {
               <select
                 value={form.region}
                 onChange={(e) => setForm({ ...form, region: e.target.value })}
-                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-white focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-4 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 focus:outline-none focus:border-accent/50 transition-colors"
               >
                 <option value="">지역 선택</option>
                 {["오션시티", "국제신도시", "에코델타"].map((r) => (

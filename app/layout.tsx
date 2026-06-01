@@ -34,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="bg-bg text-gray-100 min-h-screen flex flex-col">
+      <body className="bg-bg text-gray-900 min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 pt-16">{children}</main>
         <ConditionalFooter />

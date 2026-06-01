@@ -26,10 +26,10 @@ export default function VRProgressCards() {
       {stats.map((r) => {
         const pct = r.total > 0 ? Math.round((r.available / r.total) * 100) : 0;
         return (
-          <div key={r.id} className="w-56 p-4 rounded-xl bg-bg-card border border-border backdrop-blur">
+          <div key={r.id} className="w-72 p-4 rounded-xl bg-bg-card border border-border backdrop-blur">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-white">{r.label}</span>
-              <span className="text-xs font-bold text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded">VR</span>
+              <span className="text-sm font-semibold text-gray-900">{r.label}</span>
+              <span className="text-xs font-bold text-blue-600 bg-blue-600/10 px-1.5 py-0.5 rounded">VR</span>
             </div>
             <div className="h-1.5 rounded-full bg-bg-hover mb-2">
               <div
@@ -38,10 +38,10 @@ export default function VRProgressCards() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted">
+              <span className="text-sm text-muted">
                 {r.total > 0 ? `${r.available} / ${r.total} 평형` : "준비중"}
               </span>
-              <span className="text-xs font-semibold text-accent">
+              <span className="text-sm font-semibold text-accent">
                 {r.total > 0 ? `${pct}%` : "—"}
               </span>
             </div>

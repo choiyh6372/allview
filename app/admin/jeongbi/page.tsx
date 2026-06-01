@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -111,7 +111,7 @@ export default function JeongbiAdminPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white">정비사업 전체 데이터</h1>
+          <h1 className="text-xl font-bold text-gray-900">정비사업 전체 데이터</h1>
           <p className="text-xs text-muted mt-0.5">
             소스: <span className="font-semibold text-gray-300">{source === "api" ? "공공 API" : "정적 데이터"}</span>
             &nbsp;·&nbsp;총 <span className="font-semibold text-gray-300">{items.length}건</span>
@@ -120,7 +120,7 @@ export default function JeongbiAdminPage() {
         </div>
         <button
           onClick={() => router.push("/admin")}
-          className="text-xs text-muted hover:text-white transition-colors underline"
+          className="text-xs text-muted hover:text-gray-900 transition-colors underline"
         >
           ← 관리자 홈
         </button>
@@ -131,7 +131,7 @@ export default function JeongbiAdminPage() {
         placeholder="이름·구·주소·현황·유형으로 검색..."
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
-        className="w-full mb-4 px-3 py-2 bg-bg-card border border-border rounded-lg text-sm text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-rose-500/50"
+        className="w-full mb-4 px-3 py-2 bg-bg-card border border-border rounded-lg text-sm text-gray-900 placeholder-muted focus:outline-none focus:ring-2 focus:ring-rose-500/50"
       />
 
       <div className="overflow-x-auto rounded-xl border border-border">
@@ -143,7 +143,7 @@ export default function JeongbiAdminPage() {
               <th className="px-4 py-3 text-left font-semibold">
                 <button
                   onClick={() => setSortAsc((v) => !v)}
-                  className="flex items-center gap-1 hover:text-white transition-colors"
+                  className="flex items-center gap-1 hover:text-gray-900 transition-colors"
                 >
                   구역명 <span>{sortAsc ? "↑" : "↓"}</span>
                 </button>
@@ -159,7 +159,7 @@ export default function JeongbiAdminPage() {
               <tr key={item.id} className="hover:bg-bg-card/50 transition-colors">
                 <td className="px-4 py-2.5 text-muted text-xs">{i + 1}</td>
                 <td className="px-4 py-2.5 text-muted font-mono text-xs">{item.id}</td>
-                <td className="px-4 py-2.5 font-semibold text-white">{item.name}</td>
+                <td className="px-4 py-2.5 font-semibold text-gray-900">{item.name}</td>
                 <td className="px-4 py-2.5">
                   <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-bg-card border border-border text-muted">
                     {item.type}
@@ -183,7 +183,7 @@ export default function JeongbiAdminPage() {
                         }}
                         autoFocus
                         placeholder="예: 금정구"
-                        className="w-24 px-2 py-1 bg-bg border border-accent/50 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-accent/50"
+                        className="w-24 px-2 py-1 bg-bg border border-accent/50 rounded-lg text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-accent/50"
                       />
                       <button
                         onClick={() => saveEditGu(item)}
@@ -194,7 +194,7 @@ export default function JeongbiAdminPage() {
                           ? <Loader2 size={14} className="animate-spin" />
                           : <Check size={14} />}
                       </button>
-                      <button onClick={cancelEditGu} className="p-1 text-muted hover:text-white">
+                      <button onClick={cancelEditGu} className="p-1 text-muted hover:text-gray-900">
                         <X size={14} />
                       </button>
                     </div>
@@ -205,7 +205,7 @@ export default function JeongbiAdminPage() {
                       </span>
                       <button
                         onClick={() => startEditGu(item)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-muted hover:text-white transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-1 text-muted hover:text-gray-900 transition-opacity"
                       >
                         <Pencil size={12} />
                       </button>
@@ -226,7 +226,7 @@ export default function JeongbiAdminPage() {
                           if (e.key === "Escape") cancelEdit();
                         }}
                         autoFocus
-                        className="flex-1 px-2 py-1 bg-bg border border-accent/50 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-accent/50 min-w-[200px]"
+                        className="flex-1 px-2 py-1 bg-bg border border-accent/50 rounded-lg text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-accent/50 min-w-[200px]"
                       />
                       <button
                         onClick={() => saveEdit(item)}
@@ -237,7 +237,7 @@ export default function JeongbiAdminPage() {
                           ? <Loader2 size={14} className="animate-spin" />
                           : <Check size={14} />}
                       </button>
-                      <button onClick={cancelEdit} className="p-1 text-muted hover:text-white">
+                      <button onClick={cancelEdit} className="p-1 text-muted hover:text-gray-900">
                         <X size={14} />
                       </button>
                     </div>
@@ -248,7 +248,7 @@ export default function JeongbiAdminPage() {
                       </span>
                       <button
                         onClick={() => startEdit(item)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-muted hover:text-white transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-1 text-muted hover:text-gray-900 transition-opacity"
                       >
                         <Pencil size={12} />
                       </button>
@@ -279,10 +279,10 @@ function StatusBadge({ status }: { status: JeongbiProject["status"] }) {
     "관리처분": "bg-orange-500/10 text-orange-400",
     "착공":     "bg-blue-500/10 text-blue-400",
     "준공":     "bg-emerald-500/10 text-emerald-400",
-    "해제":     "bg-gray-500/10 text-gray-500",
+    "해제":     "bg-gray-500/10 text-gray-600",
   };
   return (
-    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${styles[status] ?? "bg-gray-500/10 text-gray-500"}`}>
+    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${styles[status] ?? "bg-gray-500/10 text-gray-600"}`}>
       {status}
     </span>
   );

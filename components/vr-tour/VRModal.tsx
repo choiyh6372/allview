@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -103,7 +103,7 @@ export default function VRModal({ complex, onClose }: Props) {
         {/* 상단: 단지명 / 평형 / 지역 */}
         <div className="flex items-center justify-between px-4 py-2 md:px-6 md:py-3.5 border-b border-border shrink-0">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base font-bold text-white truncate">{complex.name}</span>
+            <span className="text-base font-bold text-gray-900 truncate">{complex.name}</span>
             {activeType ? (
               <span className="text-sm font-semibold text-accent shrink-0">{activeType.toUpperCase()}</span>
             ) : (
@@ -117,7 +117,7 @@ export default function VRModal({ complex, onClose }: Props) {
                 href={activeVRUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-hover rounded-lg text-xs text-gray-400 hover:text-white transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-hover rounded-lg text-xs text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <ExternalLink size={12} />
                 새 탭으로
@@ -125,7 +125,7 @@ export default function VRModal({ complex, onClose }: Props) {
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg bg-bg-hover text-gray-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg bg-bg-hover text-gray-700 hover:text-gray-900 transition-colors"
             >
               <X size={18} />
             </button>
@@ -149,9 +149,9 @@ export default function VRModal({ complex, onClose }: Props) {
                 onClick={isChecking || isUnavailable ? undefined : () => handleTypeClick(type)}
                 className={`flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all ${
                   isChecking
-                    ? "bg-bg-hover border border-border text-gray-500 cursor-wait"
+                    ? "bg-bg-hover border border-border text-gray-600 cursor-wait"
                     : isUnavailable
-                    ? "bg-bg border border-border text-gray-600 cursor-not-allowed line-through"
+                    ? "bg-bg border border-border text-gray-700 cursor-not-allowed line-through"
                     : activeType === type
                     ? "bg-accent text-white border border-accent"
                     : "bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-white"

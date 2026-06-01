@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,7 +29,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-1">
             <span className="text-2xl font-black text-accent tracking-tight">All</span>
-            <span className="text-2xl font-black text-white tracking-tight">View</span>
+            <span className="text-2xl font-black text-gray-900 tracking-tight">View</span>
             <span className="text-2xl font-black text-accent tracking-tight">360</span>
           </Link>
 
@@ -41,7 +41,7 @@ export default function Navbar() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   pathname === l.href
                     ? "bg-accent text-white"
-                    : "text-gray-400 hover:text-white hover:bg-bg-hover"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-bg-hover"
                 }`}
               >
                 {l.label}
@@ -50,7 +50,7 @@ export default function Navbar() {
           </div>
 
           <button
-            className="md:hidden text-gray-400 hover:text-white"
+            className="md:hidden text-gray-700 hover:text-gray-900"
             onClick={() => setOpen(!open)}
           >
             {open ? <X size={22} /> : <Menu size={22} />}
@@ -68,7 +68,7 @@ export default function Navbar() {
               className={`block px-6 py-3 text-sm font-medium transition-colors ${
                 pathname === l.href
                   ? "text-accent bg-bg-hover"
-                  : "text-gray-400 hover:text-white hover:bg-bg-hover"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-bg-hover"
               }`}
             >
               {l.label}

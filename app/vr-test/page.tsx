@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { complexData, VRComplex, getVRUrl } from "@/lib/vrData";
@@ -123,11 +123,11 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
     // 배치도 없는 단지 → 기존 타입 버튼 방식
     return (
       <div className="p-6">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-gray-400 hover:text-white text-sm mb-6">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-gray-700 hover:text-gray-900 text-sm mb-6">
           <ChevronLeft size={16} /> 목록으로
         </button>
-        <h2 className="text-white text-xl font-bold mb-2">{complex.name}</h2>
-        <p className="text-gray-500 text-sm mb-6">배치도 준비 중입니다. 평형을 직접 선택하세요.</p>
+        <h2 className="text-gray-900 text-xl font-bold mb-2">{complex.name}</h2>
+        <p className="text-gray-600 text-sm mb-6">배치도 준비 중입니다. 평형을 직접 선택하세요.</p>
         <div className="flex flex-wrap gap-2">
           {complex.types.map((type) => {
             const sqm = areaMap[type];
@@ -147,14 +147,14 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
 
   return (
     <div className="p-4 md:p-6">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-gray-400 hover:text-white text-sm mb-4">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-gray-700 hover:text-gray-900 text-sm mb-4">
         <ChevronLeft size={16} /> 목록으로
       </button>
 
       <div className="text-center mb-6">
-        <h2 className="text-white text-3xl font-bold mb-1">{complex.name}</h2>
-        <p className="text-gray-400 text-sm">배치도에서 해당 면적을 누르면 VR로 연결됩니다.</p>
-        <p className="text-gray-300 text-sm mt-1">확대하시면 더 편하게 이용하실 수 있습니다.</p>
+        <h2 className="text-gray-900 text-3xl font-bold mb-1">{complex.name}</h2>
+        <p className="text-gray-600 text-sm">배치도에서 해당 면적을 누르면 VR로 연결됩니다.</p>
+        <p className="text-gray-600 text-sm mt-1">확대하시면 더 편하게 이용하실 수 있습니다.</p>
       </div>
 
       <div className="flex justify-center">
@@ -234,8 +234,8 @@ function ComplexCard({ complex, onSelect }: { complex: VRComplex; onSelect: () =
       </div>
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white">{complex.name}</h3>
-          <span className="text-xs text-green-400">{complex.types.length}개 평형</span>
+          <h3 className="text-sm font-bold text-gray-900">{complex.name}</h3>
+          <span className="text-xs text-green-600">{complex.types.length}개 평형</span>
         </div>
         <button onClick={onSelect}
           className="w-full py-2 bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/20 hover:border-accent rounded-xl text-xs font-semibold transition-all">
@@ -288,15 +288,15 @@ export default function VRTestPage() {
     <>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-10">
-        <h1 className="text-3xl font-black text-white mb-2">VR 가상투어</h1>
-        <p className="text-gray-400">단지 배치도에서 원하는 면적을 클릭하면 VR 투어가 시작됩니다.</p>
+        <h1 className="text-3xl font-black text-gray-900 mb-2">VR 가상투어</h1>
+        <p className="text-gray-600">단지 배치도에서 원하는 면적을 클릭하면 VR 투어가 시작됩니다.</p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">
         {regions.map((r) => (
           <button key={r} onClick={() => setRegion(r)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              region === r ? "bg-accent text-white" : "bg-bg-card border border-border text-gray-400 hover:text-white hover:border-accent/40"
+              region === r ? "bg-accent text-white" : "bg-bg-card border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
             }`}>
             {r}
           </button>

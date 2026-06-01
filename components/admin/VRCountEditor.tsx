@@ -74,7 +74,7 @@ export default function VRCountEditor() {
                     key={complex.id}
                     className="bg-bg-card border border-border rounded-xl px-3 py-2 flex items-center justify-between gap-2"
                   >
-                    <span className="text-xs text-white truncate">{complex.name}</span>
+                    <span className="text-xs text-gray-900 truncate">{complex.name}</span>
                     <div className="flex items-center gap-1 shrink-0">
                       <input
                         type="number"
@@ -84,7 +84,7 @@ export default function VRCountEditor() {
                         onChange={(e) =>
                           setCounts((prev) => ({ ...prev, [complex.id]: Number(e.target.value) }))
                         }
-                        className="w-10 text-center bg-bg border border-border rounded-lg px-1 py-0.5 text-xs text-white focus:outline-none focus:border-accent"
+                        className="w-10 text-center bg-bg border border-border rounded-lg px-1 py-0.5 text-xs text-gray-900 focus:outline-none focus:border-accent"
                       />
                       <span className="text-xs text-muted">/ {complex.types.length}</span>
                     </div>

@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -51,8 +51,8 @@ export default function StorePage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-white mb-2">가게 홍보</h1>
-        <p className="text-gray-400">입주 단지 주변 홍보 가게를 업종별·지역별로 탐색하세요</p>
+        <h1 className="text-3xl font-black text-gray-900 mb-2">가게 홍보</h1>
+        <p className="text-gray-600">입주 단지 주변 홍보 가게를 업종별·지역별로 탐색하세요</p>
       </div>
 
       {/* Filters */}
@@ -64,7 +64,7 @@ export default function StorePage() {
             placeholder="가게 이름, 주소 검색..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-bg-card border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 bg-bg-card border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
           />
         </div>
 
@@ -78,7 +78,7 @@ export default function StorePage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   region === r
                     ? "bg-accent text-white"
-                    : "bg-bg-card border border-border text-gray-400 hover:text-white hover:border-accent/40"
+                    : "bg-bg-card border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
                 }`}
               >
                 {r}
@@ -97,7 +97,7 @@ export default function StorePage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   category === c
                     ? "bg-accent text-white"
-                    : "bg-bg-card border border-border text-gray-400 hover:text-white hover:border-accent/40"
+                    : "bg-bg-card border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
                 }`}
               >
                 {c}
@@ -186,7 +186,7 @@ function StorePhotoCard({
 
       {/* Info */}
       <div className="p-3">
-        <h3 className="text-sm font-bold text-white truncate">{store.name}</h3>
+        <h3 className="text-sm font-bold text-gray-900 truncate">{store.name}</h3>
       </div>
     </div>
   );

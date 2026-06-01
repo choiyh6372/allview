@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -66,7 +66,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
       </div>
       <div>
         <p className="text-xs text-muted mb-0.5">{label}</p>
-        <p className="text-2xl font-black text-white">{value.toLocaleString()}<span className="text-sm font-normal text-muted ml-1">명</span></p>
+        <p className="text-2xl font-black text-gray-900">{value.toLocaleString()}<span className="text-sm font-normal text-muted ml-1">명</span></p>
       </div>
     </div>
   );
@@ -202,10 +202,10 @@ export default function AdminPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black text-white">관리자</h1>
+        <h1 className="text-2xl font-black text-gray-900">관리자</h1>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 px-3 py-2.5 border border-border text-gray-400 hover:text-white hover:border-gray-500 rounded-xl text-sm transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2.5 border border-border text-gray-700 hover:text-gray-900 hover:border-gray-400 rounded-xl text-sm transition-colors"
           title="로그아웃"
         >
           <LogOut size={15} />
@@ -217,7 +217,7 @@ export default function AdminPage() {
         <button
           onClick={() => setTab("stores")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "stores" ? "bg-accent text-white" : "text-muted hover:text-white"
+            tab === "stores" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
           }`}
         >
           <Store size={15} />
@@ -227,7 +227,7 @@ export default function AdminPage() {
         <button
           onClick={() => setTab("inquiries")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "inquiries" ? "bg-accent text-white" : "text-muted hover:text-white"
+            tab === "inquiries" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
           }`}
         >
           <MessageSquare size={15} />
@@ -239,7 +239,7 @@ export default function AdminPage() {
         <button
           onClick={() => setTab("apts")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "apts" ? "bg-accent text-white" : "text-muted hover:text-white"
+            tab === "apts" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
           }`}
         >
           <MapPin size={15} />
@@ -248,7 +248,7 @@ export default function AdminPage() {
         <button
           onClick={() => setTab("vr")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "vr" ? "bg-accent text-white" : "text-muted hover:text-white"
+            tab === "vr" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
           }`}
         >
           <Video size={15} />
@@ -257,7 +257,7 @@ export default function AdminPage() {
         <button
           onClick={() => setTab("stats")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "stats" ? "bg-accent text-white" : "text-muted hover:text-white"
+            tab === "stats" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
           }`}
         >
           <BarChart2 size={15} />
@@ -265,7 +265,7 @@ export default function AdminPage() {
         </button>
         <button
           onClick={() => router.push("/admin/jeongbi")}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-white transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-gray-900 transition-colors"
         >
           <Building2 size={15} />
           정비사업 데이터
@@ -323,7 +323,7 @@ export default function AdminPage() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <h3 className="text-sm font-bold text-white truncate">{store.name}</h3>
+                  <h3 className="text-sm font-bold text-gray-900 truncate">{store.name}</h3>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                       categoryColors[store.category] ?? "bg-accent/10 text-accent"
@@ -348,7 +348,7 @@ export default function AdminPage() {
               <div className="flex gap-2 flex-shrink-0">
                 <button
                   onClick={() => setModalStore(store)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-gray-400 hover:text-white hover:border-accent/40 rounded-lg text-xs font-medium transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40 rounded-lg text-xs font-medium transition-colors"
                 >
                   <Pencil size={12} />
                   수정
@@ -379,7 +379,7 @@ export default function AdminPage() {
                     className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                       reactivateDays[store.id] === days
                         ? "bg-accent text-white"
-                        : "border border-border text-gray-400 hover:text-white hover:border-accent/40"
+                        : "border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
                     }`}
                   >
                     {days}일
@@ -449,7 +449,7 @@ export default function AdminPage() {
 
               {/* Chart */}
               <div className="bg-bg-card border border-border rounded-2xl p-6">
-                <p className="text-sm font-semibold text-white mb-4">최근 30일 일별 방문자</p>
+                <p className="text-sm font-semibold text-gray-900 mb-4">최근 30일 일별 방문자</p>
                 <ResponsiveContainer width="100%" height={180}>
                   <BarChart data={analytics.daily} barSize={10}>
                     <XAxis
@@ -478,7 +478,7 @@ export default function AdminPage() {
               </div>
 
               <div className="flex justify-end">
-                <button onClick={loadAnalytics} className="text-xs text-muted hover:text-white transition-colors">
+                <button onClick={loadAnalytics} className="text-xs text-muted hover:text-gray-900 transition-colors">
                   새로고침
                 </button>
               </div>
@@ -498,7 +498,7 @@ export default function AdminPage() {
             <p className="text-sm text-muted">총 {inquiries.length}건</p>
             <button
               onClick={loadInquiries}
-              className="text-xs text-muted hover:text-white transition-colors"
+              className="text-xs text-muted hover:text-gray-900 transition-colors"
             >
               새로고침
             </button>
@@ -523,11 +523,11 @@ export default function AdminPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="flex items-center gap-1.5 text-sm font-bold text-white">
+                        <span className="flex items-center gap-1.5 text-sm font-bold text-gray-900">
                           <User size={13} className="text-accent" />
                           {inq.name}
                         </span>
-                        <span className="flex items-center gap-1.5 text-sm text-gray-400">
+                        <span className="flex items-center gap-1.5 text-sm text-gray-600">
                           <Phone size={12} />
                           {inq.phone}
                         </span>
@@ -536,7 +536,7 @@ export default function AdminPage() {
                           {new Date(inq.createdAt).toLocaleDateString("ko-KR")}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{inq.content}</p>
+                      <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{inq.content}</p>
                     </div>
                     <button
                       onClick={() => handleDeleteInquiry(inq.id)}

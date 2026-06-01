@@ -9,15 +9,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#0f1117",
-        "bg-card": "#1a1d27",
-        "bg-hover": "#21263a",
+        bg: "#f8fafc",
+        "bg-card": "#ffffff",
+        "bg-hover": "#f1f5f9",
         accent: "#5b6ef5",
         "accent-hover": "#4a5ce0",
         "accent-light": "#7b8bf7",
-        border: "#2a2d3e",
-        muted: "#6b7280",
-        subtle: "#9ca3af",
+        border: "#e2e8f0",
+        muted: "#475569",
+        subtle: "#64748b",
       },
       fontFamily: {
         sans: ["Pretendard", "-apple-system", "BlinkMacSystemFont", "sans-serif"],

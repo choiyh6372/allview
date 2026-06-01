@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import type { Complex, RentTransaction } from "@/lib/realEstateData";
@@ -62,14 +62,14 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
   const visibleTrade = tradeRows.slice(0, tradeLimit);
   const visibleRent  = rentRows.slice(0, rentLimit);
 
-  const card    = light ? "bg-white border-gray-200"   : "bg-bg-card border-border";
-  const divRow  = light ? "divide-gray-100"             : "divide-border";
-  const hdr     = light ? "border-b border-gray-200"    : "border-b border-border";
-  const stickyBg = light ? "bg-white"                  : "bg-bg-card";
-  const hover   = light ? "hover:bg-gray-50"            : "hover:bg-bg-hover";
-  const txt     = light ? "text-gray-900"               : "text-white";
-  const sub     = light ? "text-gray-500"               : "text-muted";
-  const cell    = light ? "text-gray-700"               : "text-gray-300";
+  const card    = "bg-white border-gray-200";
+  const divRow  = "divide-gray-100";
+  const hdr     = "border-b border-gray-200";
+  const stickyBg = "bg-white";
+  const hover   = "hover:bg-gray-50";
+  const txt     = "text-gray-900";
+  const sub     = "text-gray-600";
+  const cell    = "text-gray-800";
 
   return (
     <div className={`grid gap-4 ${light ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}`}>
@@ -111,7 +111,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             {tradeLimit < tradeRows.length && (
               <button
                 onClick={() => setTradeLimit((v) => v + PREVIEW)}
-                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-700 transition-colors`}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-800 transition-colors`}
               >
                 더보기 ({Math.min(PREVIEW, tradeRows.length - tradeLimit)}건 더)
               </button>
@@ -144,7 +144,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             {tradeLimit < tradeRows.length && (
               <button
                 onClick={() => setTradeLimit((v) => v + PREVIEW)}
-                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-300 transition-colors`}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-800 transition-colors`}
               >
                 더보기 ({Math.min(PREVIEW, tradeRows.length - tradeLimit)}건 더)
               </button>
@@ -195,7 +195,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             {rentLimit < rentRows.length && (
               <button
                 onClick={() => setRentLimit((v) => v + PREVIEW)}
-                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-700 transition-colors`}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-800 transition-colors`}
               >
                 더보기 ({Math.min(PREVIEW, rentRows.length - rentLimit)}건 더)
               </button>
@@ -232,7 +232,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             {rentLimit < rentRows.length && (
               <button
                 onClick={() => setRentLimit((v) => v + PREVIEW)}
-                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-300 transition-colors`}
+                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-800 transition-colors`}
               >
                 더보기 ({Math.min(PREVIEW, rentRows.length - rentLimit)}건 더)
               </button>

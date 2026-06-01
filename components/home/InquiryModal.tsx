@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { X, MessageSquare, Loader2, CheckCircle } from "lucide-react";
@@ -58,7 +58,7 @@ export default function InquiryModal() {
     <>
       <button
         onClick={handleOpen}
-        className="px-6 py-3 bg-bg-card hover:bg-bg-hover border border-border text-white font-semibold rounded-xl transition-colors text-sm"
+        className="px-6 py-3 bg-bg-card hover:bg-bg-hover border border-border text-gray-900 font-semibold rounded-xl transition-colors text-sm"
       >
         문의하기
       </button>
@@ -76,11 +76,11 @@ export default function InquiryModal() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <MessageSquare size={18} className="text-accent" />
-                <h2 className="text-base font-bold text-white">문의하기</h2>
+                <h2 className="text-base font-bold text-gray-900">문의하기</h2>
               </div>
               <button
                 onClick={handleClose}
-                className="text-muted hover:text-white transition-colors"
+                className="text-muted hover:text-gray-900 transition-colors"
               >
                 <X size={18} />
               </button>
@@ -88,8 +88,8 @@ export default function InquiryModal() {
 
             {done ? (
               <div className="flex flex-col items-center py-8 gap-3 text-center">
-                <CheckCircle size={40} className="text-green-400" />
-                <p className="text-white font-semibold">문의가 접수되었습니다.</p>
+                <CheckCircle size={40} className="text-green-600" />
+                <p className="text-gray-900 font-semibold">문의가 접수되었습니다.</p>
                 <p className="text-sm text-muted">빠른 시일 내에 연락드리겠습니다.</p>
                 <button
                   onClick={handleClose}
@@ -101,34 +101,34 @@ export default function InquiryModal() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">이름</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">이름</label>
                   <input
                     name="name"
                     value={form.name}
                     onChange={handleChange}
                     placeholder="홍길동"
-                    className="w-full px-3.5 py-2.5 bg-bg-hover border border-border rounded-xl text-sm text-white placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-bg-hover border border-border rounded-xl text-sm text-gray-900 placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">연락처</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">연락처</label>
                   <input
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="010-0000-0000"
-                    className="w-full px-3.5 py-2.5 bg-bg-hover border border-border rounded-xl text-sm text-white placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-bg-hover border border-border rounded-xl text-sm text-gray-900 placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">내용</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">내용</label>
                   <textarea
                     name="content"
                     value={form.content}
                     onChange={handleChange}
                     placeholder="문의 내용을 입력해주세요."
                     rows={4}
-                    className="w-full px-3.5 py-2.5 bg-bg-hover border border-border rounded-xl text-sm text-white placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors resize-none"
+                    className="w-full px-3.5 py-2.5 bg-bg-hover border border-border rounded-xl text-sm text-gray-900 placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors resize-none"
                   />
                 </div>
 

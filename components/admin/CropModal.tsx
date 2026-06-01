@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRef, useState } from "react";
@@ -86,7 +86,7 @@ export default function CropModal({ src, onConfirm, onCancel }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div>
-            <h3 className="text-sm font-bold text-white">사진 크롭</h3>
+            <h3 className="text-sm font-bold text-gray-900">사진 크롭</h3>
             <p className="text-xs text-muted mt-0.5">
               4:3 고정 비율 · 핸들을 드래그해 영역을 조정하세요
             </p>
@@ -94,7 +94,7 @@ export default function CropModal({ src, onConfirm, onCancel }: Props) {
           <button
             type="button"
             onClick={onCancel}
-            className="text-muted hover:text-white p-1 rounded-lg hover:bg-bg-hover transition-colors"
+            className="text-muted hover:text-gray-900 p-1 rounded-lg hover:bg-bg-hover transition-colors"
           >
             <X size={18} />
           </button>
@@ -125,7 +125,7 @@ export default function CropModal({ src, onConfirm, onCancel }: Props) {
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-2.5 border border-border text-gray-400 hover:text-white hover:border-gray-500 rounded-xl text-sm font-medium transition-colors"
+            className="flex-1 py-2.5 border border-border text-gray-700 hover:text-gray-900 hover:border-gray-500 rounded-xl text-sm font-medium transition-colors"
           >
             취소
           </button>

@@ -46,8 +46,8 @@ export default function ComplexCard({ complex, vrCount, onSelect }: Props) {
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white">{complex.name}</h3>
-          <span className="text-xs text-green-400">
+          <h3 className="text-sm font-bold text-gray-900">{complex.name}</h3>
+          <span className="text-xs text-green-600">
             {vrCount !== undefined ? `${vrCount} / ${complex.types.length}개 평형` : `${complex.types.length}개 평형`}
           </span>
         </div>

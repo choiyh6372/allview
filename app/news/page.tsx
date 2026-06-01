@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Newspaper, ExternalLink, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import type { NaverNewsItem } from "@/app/api/news/route";
 import StoreBanner from "@/components/home/StoreBanner";
@@ -113,7 +113,7 @@ export default async function NewsPage({
           <Newspaper size={22} />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-white">부동산 뉴스</h1>
+          <h1 className="text-2xl font-black text-gray-900">부동산 뉴스</h1>
           <p className="text-sm text-muted mt-0.5">
             부산 강서구 최신 부동산 소식
             {allItems.length > 0 && (
@@ -137,7 +137,7 @@ export default async function NewsPage({
                   className="group flex flex-col h-full p-4 rounded-xl bg-bg-card border border-border hover:border-accent/40 hover:bg-bg-hover transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <h2 className="text-base font-semibold text-gray-200 group-hover:text-white transition-colors leading-snug line-clamp-2">
+                    <h2 className="text-base font-semibold text-gray-900 group-hover:text-gray-900 transition-colors leading-snug line-clamp-2">
                       {stripHtml(item.title)}
                     </h2>
                     <ExternalLink size={13} className="shrink-0 mt-0.5 text-muted group-hover:text-accent transition-colors" />
@@ -147,7 +147,7 @@ export default async function NewsPage({
                       {stripHtml(item.description)}
                     </p>
                   )}
-                  <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
+                  <div className="flex items-center gap-2 mt-2 text-xs text-gray-600">
                     <span className="flex items-center gap-1">
                       <Clock size={11} />
                       {formatDate(item.pubDate)}
@@ -169,7 +169,7 @@ export default async function NewsPage({
                 className={`p-2 rounded-lg transition-colors ${
                   currentPage === 1
                     ? "text-border pointer-events-none"
-                    : "text-muted hover:text-white hover:bg-bg-hover"
+                    : "text-muted hover:text-gray-900 hover:bg-bg-hover"
                 }`}
               >
                 <ChevronLeft size={18} />
@@ -182,7 +182,7 @@ export default async function NewsPage({
                   className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                     n === currentPage
                       ? "bg-accent text-white"
-                      : "text-muted hover:text-white hover:bg-bg-hover"
+                      : "text-muted hover:text-gray-900 hover:bg-bg-hover"
                   }`}
                 >
                   {n}
@@ -195,7 +195,7 @@ export default async function NewsPage({
                 className={`p-2 rounded-lg transition-colors ${
                   currentPage === totalPages
                     ? "text-border pointer-events-none"
-                    : "text-muted hover:text-white hover:bg-bg-hover"
+                    : "text-muted hover:text-gray-900 hover:bg-bg-hover"
                 }`}
               >
                 <ChevronRight size={18} />

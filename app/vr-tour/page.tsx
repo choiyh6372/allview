@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { complexData, VRComplex } from "@/lib/vrData";
@@ -26,8 +26,8 @@ export default function VRTourPage() {
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-10">
-          <h1 className="text-3xl font-black text-white mb-2">VR 가상투어</h1>
-          <p className="text-gray-400">단지를 선택한 후 평형을 고르면 360° VR 투어를 바로 시작할 수 있습니다.</p>
+          <h1 className="text-3xl font-black text-gray-900 mb-2">VR 가상투어</h1>
+          <p className="text-gray-600">단지를 선택한 후 평형을 고르면 360° VR 투어를 바로 시작할 수 있습니다.</p>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-8">
@@ -38,7 +38,7 @@ export default function VRTourPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 region === r
                   ? "bg-accent text-white"
-                  : "bg-bg-card border border-border text-gray-400 hover:text-white hover:border-accent/40"
+                  : "bg-bg-card border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
               }`}
             >
               {r}

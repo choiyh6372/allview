@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Home, Loader2, ExternalLink, Calendar, Users, MapPin, Building2 } from "lucide-react";
@@ -96,7 +96,7 @@ export default function SubscriptionPage() {
             <Home size={22} />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white">부산 분양정보</h1>
+            <h1 className="text-2xl font-black text-gray-900">부산 분양정보</h1>
             <p className="text-sm text-muted mt-0.5">
               청약홈 아파트 분양 공고 · 최근 3개월
               {!loading && items.length > 0 && (
@@ -115,7 +115,7 @@ export default function SubscriptionPage() {
               className={`flex-1 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
                 tab === t.key
                   ? t.key === "munorwi" ? "bg-purple-600 text-white" : "bg-accent text-white"
-                  : "bg-bg-card border border-border text-gray-400 hover:text-white hover:border-accent/40"
+                  : "bg-bg-card border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
               }`}
             >
               {t.label}
@@ -142,7 +142,7 @@ export default function SubscriptionPage() {
           <div className="text-center py-24 text-muted">
             <Home size={40} className="mx-auto mb-3 opacity-30" />
             <p className="text-sm">분양정보를 불러올 수 없습니다.</p>
-            <p className="text-xs mt-1 text-gray-600">API 키를 확인해주세요 (APPLYHOME_API_KEY)</p>
+            <p className="text-xs mt-1 text-gray-700">API 키를 확인해주세요 (APPLYHOME_API_KEY)</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-24 text-muted">
@@ -204,7 +204,7 @@ function SubscriptionCard({
               </span>
             )}
           </div>
-          <h2 className="text-base font-bold text-white leading-snug line-clamp-2">
+          <h2 className="text-base font-bold text-gray-900 leading-snug line-clamp-2">
             {item.HOUSE_NM || "-"}
           </h2>
         </div>
@@ -224,7 +224,7 @@ function SubscriptionCard({
       {/* Details */}
       <div className="space-y-2 text-sm">
         {item.CNSTRCT_ENTRPS_NM && (
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-gray-600">
             <Building2 size={13} className="shrink-0 text-muted" />
             <span className="truncate">{item.CNSTRCT_ENTRPS_NM}</span>
             {item.HOUSE_SECD_NM && (
@@ -236,14 +236,14 @@ function SubscriptionCard({
         )}
 
         {item.HSSPLY_ADRES && (
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-gray-600">
             <MapPin size={13} className="shrink-0 text-muted" />
             <span className="truncate text-xs">{item.HSSPLY_ADRES}</span>
           </div>
         )}
 
         {item.TOT_SUPLY_HSHLDCO && (
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-gray-600">
             <Users size={13} className="shrink-0 text-muted" />
             <span>{Number(item.TOT_SUPLY_HSHLDCO).toLocaleString()}세대</span>
           </div>
@@ -257,18 +257,18 @@ function SubscriptionCard({
             <Calendar size={11} />
             청약 접수
           </p>
-          <p className="text-gray-300 font-medium">
+          <p className="text-gray-800 font-medium">
             {formatDate(item.RCEPT_BGNDE)} ~ {formatDate(item.RCEPT_ENDDE)}
           </p>
         </div>
         <div>
           <p className="text-muted mb-1">당첨자 발표</p>
-          <p className="text-gray-300 font-medium">{formatDate(item.PRZWNER_PRESNATN_DE)}</p>
+          <p className="text-gray-800 font-medium">{formatDate(item.PRZWNER_PRESNATN_DE)}</p>
         </div>
         {item.MVNIN_PREARNGE_YM && (
           <div>
             <p className="text-muted mb-1">입주 예정</p>
-            <p className="text-gray-300 font-medium">{formatMonth(item.MVNIN_PREARNGE_YM)}</p>
+            <p className="text-gray-800 font-medium">{formatMonth(item.MVNIN_PREARNGE_YM)}</p>
           </div>
         )}
       </div>

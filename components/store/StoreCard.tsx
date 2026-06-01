@@ -2,23 +2,23 @@ import { ExternalLink, MapPin, Phone } from "lucide-react";
 import type { Store } from "@/lib/storeData";
 
 const categoryColors: Record<string, string> = {
-  카페: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  마트: "bg-green-500/10 text-green-400 border-green-500/20",
-  헬스: "bg-red-500/10 text-red-400 border-red-500/20",
-  음식점: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  약국: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  미용: "bg-pink-500/10 text-pink-400 border-pink-500/20",
-  키즈: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  베이커리: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  세탁: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  병원: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-  학원: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+  카페: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  마트: "bg-green-500/10 text-green-600 border-green-500/20",
+  헬스: "bg-red-500/10 text-red-600 border-red-500/20",
+  음식점: "bg-orange-500/10 text-orange-600 border-orange-500/20",
+  약국: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  미용: "bg-pink-500/10 text-pink-600 border-pink-500/20",
+  키즈: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  베이커리: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+  세탁: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20",
+  병원: "bg-sky-500/10 text-sky-600 border-sky-500/20",
+  학원: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
 };
 
 const regionColors: Record<string, string> = {
-  오션시티: "text-blue-400",
-  국제신도시: "text-purple-400",
-  에코델타: "text-green-400",
+  오션시티: "text-blue-600",
+  국제신도시: "text-purple-600",
+  에코델타: "text-green-600",
 };
 
 interface Props {
@@ -40,7 +40,7 @@ export default function StoreCard({ store }: Props) {
         </div>
       </div>
 
-      <h3 className="text-sm font-bold text-white mb-1 truncate">{store.name}</h3>
+      <h3 className="text-sm font-bold text-gray-900 mb-1 truncate">{store.name}</h3>
 
       <div className="flex items-center gap-1 mb-1">
         <MapPin size={10} className={regColor} />

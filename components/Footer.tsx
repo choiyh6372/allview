@@ -9,34 +9,35 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-0.5 mb-3">
               <span className="text-xl font-black text-accent">All</span>
-              <span className="text-xl font-black text-white">View</span>
+              <span className="text-xl font-black text-gray-900">View</span>
               <span className="text-xl font-black text-accent">360</span>
             </div>
             <p className="text-sm text-muted leading-relaxed">
               부산 강서구 부동산 통합 플랫폼<br />
-              VR투어 · 실거래가 · 지도보기
+              VR투어 · 실거래가 · 분양정보 · 지도보기
             </p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white mb-3">서비스</h4>
-            <ul className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-900 mb-3">서비스</h4>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               {[
                 { href: "/vr-tour", label: "VR투어" },
                 { href: "/real-estate", label: "실거래가" },
+                { href: "/subscription", label: "분양정보" },
                 { href: "/map", label: "지도보기" },
               ].map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-muted hover:text-accent transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
+                <Link key={l.href} href={l.href} className="text-sm text-muted hover:text-accent transition-colors">
+                  {l.label}
+                </Link>
               ))}
-            </ul>
+            </div>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white mb-3">문의</h4>
-            <p className="text-sm text-muted mb-3">평일 09:00 – 18:00</p>
-            <InquiryModal />
+            <h4 className="text-sm font-semibold text-gray-900 mb-3">문의</h4>
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-muted">평일 09:00 – 18:00</p>
+              <InquiryModal />
+            </div>
           </div>
         </div>
         <div className="mt-10 pt-6 border-t border-border flex flex-col gap-2">

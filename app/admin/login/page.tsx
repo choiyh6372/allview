@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
           <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-4">
             <Lock size={22} className="text-accent" />
           </div>
-          <h1 className="text-xl font-bold text-white">관리자 로그인</h1>
+          <h1 className="text-xl font-bold text-gray-900">관리자 로그인</h1>
           <p className="text-sm text-muted mt-1">AllView360 가게홍보 관리</p>
         </div>
 
@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호 입력"
               autoFocus
-              className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+              className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
             />
           </div>
 

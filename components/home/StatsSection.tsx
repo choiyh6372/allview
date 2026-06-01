@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
@@ -58,7 +58,7 @@ export default function StatsSection() {
             <div key={s.label} className="text-center">
               <div className="flex items-end justify-center gap-1 mb-1">
                 <span
-                  className={`text-3xl sm:text-4xl font-black text-accent transition-opacity ${
+                  className={`text-4xl sm:text-4xl font-black text-accent transition-opacity ${
                     stats ? "opacity-100" : "opacity-30"
                   }`}
                 >
@@ -66,7 +66,7 @@ export default function StatsSection() {
                 </span>
                 <span className="text-sm text-muted mb-1">{s.unit}</span>
               </div>
-              <p className="text-sm text-gray-400">{s.label}</p>
+              <p className="text-sm text-gray-600">{s.label}</p>
             </div>
           ))}
         </div>

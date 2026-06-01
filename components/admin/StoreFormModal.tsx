@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -346,12 +346,12 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border">
-          <h2 className="text-base font-bold text-white">
+          <h2 className="text-base font-bold text-gray-900">
             {isNew ? "새 가게 등록" : "가게 수정"}
           </h2>
           <button
             onClick={onClose}
-            className="text-muted hover:text-white p-1 rounded-lg hover:bg-bg-hover transition-colors"
+            className="text-muted hover:text-gray-900 p-1 rounded-lg hover:bg-bg-hover transition-colors"
           >
             <X size={18} />
           </button>
@@ -367,7 +367,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 placeholder="가게명을 입력하세요"
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
               />
             </div>
 
@@ -376,7 +376,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
               <select
                 value={form.category}
                 onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 focus:outline-none focus:border-accent/50 transition-colors"
               >
                 {STORE_CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -389,7 +389,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
               <select
                 value={form.region}
                 onChange={(e) => setForm((p) => ({ ...p, region: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 focus:outline-none focus:border-accent/50 transition-colors"
               >
                 {STORE_REGIONS.map((r) => (
                   <option key={r} value={r}>{r}</option>
@@ -404,7 +404,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                 value={form.address}
                 onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
                 placeholder="상세 주소를 입력하세요"
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
               />
             </div>
 
@@ -423,7 +423,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                 <button
                   type="button"
                   onClick={() => setShowMap(true)}
-                  className="w-full py-2.5 border border-dashed border-border rounded-xl text-sm text-muted hover:text-white hover:border-accent/50 transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2.5 border border-dashed border-border rounded-xl text-sm text-muted hover:text-gray-900 hover:border-accent/50 transition-colors flex items-center justify-center gap-2"
                 >
                   <MapPin size={14} />
                   {form.lat && form.lng ? "지도에서 위치 수정" : "지도에서 위치 지정"}
@@ -462,7 +462,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                 value={form.phone}
                 onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
                 placeholder="051-000-0000"
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
               />
             </div>
 
@@ -472,7 +472,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                 value={form.naverUrl}
                 onChange={(e) => setForm((p) => ({ ...p, naverUrl: e.target.value }))}
                 placeholder="https://place.naver.com/..."
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
               />
             </div>
           </div>
@@ -491,7 +491,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                   className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors ${
                     selectedDays === days
                       ? "bg-accent text-white"
-                      : "border border-border text-gray-400 hover:text-white hover:border-accent/40"
+                      : "border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
                   }`}
                 >
                   {days}일
@@ -530,7 +530,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                   className={`relative transition-opacity ${dragOver === i && dragIndexRef.current !== i ? "ring-2 ring-accent rounded-xl" : ""}`}
                 >
                   {url && (
-                    <div className="absolute top-1 left-1 z-10 cursor-grab text-white/70 hover:text-white">
+                    <div className="absolute top-1 left-1 z-10 cursor-grab text-white/70 hover:text-gray-900">
                       <GripVertical size={14} />
                     </div>
                   )}
@@ -554,7 +554,7 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 border border-border text-gray-400 hover:text-white hover:border-gray-500 rounded-xl text-sm font-medium transition-colors"
+              className="flex-1 py-2.5 border border-border text-gray-700 hover:text-gray-900 hover:border-gray-500 rounded-xl text-sm font-medium transition-colors"
             >
               취소
             </button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
@@ -113,14 +113,14 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
           <div key={i} className="flex border-b border-gray-100 last:border-b-0">
             {row.items.map(({ label, value }) => (
               <div key={label} className="flex-1 flex items-center justify-between gap-2 px-6 py-3 hover:bg-gray-50 transition-colors first:border-r first:border-gray-100">
-                <span className="text-gray-500 shrink-0">{label}</span>
+                <span className="text-gray-600 shrink-0">{label}</span>
                 <span className="font-semibold text-gray-900">{value}</span>
               </div>
             ))}
           </div>
         ) : (
           <div key={row.label} className="flex items-center justify-between gap-4 px-6 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
-            <span className="text-gray-500 shrink-0">{row.label}</span>
+            <span className="text-gray-600 shrink-0">{row.label}</span>
             {row.href
               ? <a href={row.href} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors text-right">{row.value}</a>
               : <span className="font-semibold text-gray-900 text-right">{row.value}</span>
@@ -135,7 +135,7 @@ function AptInfoCard({ apt }: { apt: AptComplex }) {
 const SUB_STATUS_STYLE = {
   active:   "bg-emerald-50 text-emerald-700 border-emerald-200",
   upcoming: "bg-blue-50 text-blue-700 border-blue-200",
-  closed:   "bg-gray-100 text-gray-500 border-gray-200",
+  closed:   "bg-gray-100 text-gray-600 border-gray-200",
 };
 const SUB_STATUS_LABEL = { active: "청약중", upcoming: "청약예정", closed: "완료" };
 
@@ -168,7 +168,7 @@ const JEONGBI_STATUS_STYLE: Record<JeongbiProject["status"], string> = {
   "관리처분": "bg-orange-50 text-orange-700 border-orange-200",
   "착공":     "bg-blue-50 text-blue-700 border-blue-200",
   "준공":     "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "해제":     "bg-gray-100 text-gray-500 border-gray-200",
+  "해제":     "bg-gray-100 text-gray-600 border-gray-200",
 };
 
 interface Props {
@@ -265,7 +265,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                   </div>
                   <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedSubscription.HOUSE_NM}</h2>
                   {selectedSubscription.HSSPLY_ADRES && (
-                    <p className="text-xs text-gray-500 mt-0.5">{selectedSubscription.HSSPLY_ADRES}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">{selectedSubscription.HSSPLY_ADRES}</p>
                   )}
                 </div>
               </div>
@@ -281,7 +281,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                   { label: "입주 예정", value: formatMonth(selectedSubscription.MVNIN_PREARNGE_YM) },
                 ].filter((r) => r.value && r.value !== "-").map(({ label, value }) => (
                   <div key={label} className="flex items-center justify-between gap-4 px-5 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
-                    <span className="text-gray-500 shrink-0">{label}</span>
+                    <span className="text-gray-600 shrink-0">{label}</span>
                     <span className="font-semibold text-gray-900 text-right">{value}</span>
                   </div>
                 ))}
@@ -357,7 +357,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                     </span>
                   </div>
                   <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedJeongbi.name}구역</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">{selectedJeongbi.gu}</p>
+                  <p className="text-xs text-gray-600 mt-0.5">{selectedJeongbi.gu}</p>
                 </div>
               </div>
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
@@ -369,7 +369,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                   { label: "시공사", value: selectedJeongbi.contractor ?? null },
                 ].filter((r) => r.value).map(({ label, value }) => (
                   <div key={label} className="flex items-center justify-between gap-4 px-5 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
-                    <span className="text-gray-500 shrink-0">{label}</span>
+                    <span className="text-gray-600 shrink-0">{label}</span>
                     <span className="font-semibold text-gray-900 text-right">{value}</span>
                   </div>
                 ))}
@@ -399,13 +399,13 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             {/* 상세 정보 */}
             <div className="space-y-2 text-sm">
               {selectedStore.address && (
-                <div className="flex items-start gap-2 text-gray-600">
+                <div className="flex items-start gap-2 text-gray-700">
                   <Navigation size={14} className="mt-0.5 shrink-0 text-gray-400" />
                   <span>{selectedStore.address}</span>
                 </div>
               )}
               {selectedStore.phone && (
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-700">
                   <Phone size={14} className="shrink-0 text-gray-400" />
                   <a href={`tel:${selectedStore.phone}`} className="hover:text-orange-500 transition-colors">
                     {selectedStore.phone}

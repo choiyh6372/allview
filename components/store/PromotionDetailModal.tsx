@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -73,7 +73,7 @@ export default function PromotionDetailModal({ store, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="text-muted hover:text-white transition-colors p-1 rounded-lg hover:bg-bg-hover"
+            className="text-muted hover:text-gray-900 transition-colors p-1 rounded-lg hover:bg-bg-hover"
           >
             <X size={18} />
           </button>
@@ -133,9 +133,9 @@ export default function PromotionDetailModal({ store, onClose }: Props) {
 
         {/* Info */}
         <div className="p-5 space-y-3">
-          <h2 className="text-xl font-bold text-white">{store.name}</h2>
+          <h2 className="text-xl font-bold text-gray-900">{store.name}</h2>
 
-          <div className="space-y-2 text-sm text-gray-400">
+          <div className="space-y-2 text-sm text-gray-600">
             <div className="flex items-start gap-2">
               <MapPin size={14} className={`mt-0.5 flex-shrink-0 ${regColor}`} />
               <span className="leading-snug">{store.address}</span>

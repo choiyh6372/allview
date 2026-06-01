@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+﻿import { MapPin } from "lucide-react";
 import type { Complex } from "@/lib/realEstateData";
 
 interface Props {
@@ -20,7 +20,7 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
   return (
     <div className="bg-bg-card border border-border rounded-2xl overflow-hidden">
       <div className="px-4 py-3 border-b border-border">
-        <h2 className="text-sm font-semibold text-white">단지 목록</h2>
+        <h2 className="text-sm font-semibold text-gray-900">단지 목록</h2>
       </div>
 
       {isLoading ? (
@@ -52,7 +52,7 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
                   >
                     <p
                       className={`text-sm font-medium truncate ${
-                        selectedId === c.id ? "text-accent" : "text-gray-200"
+                        selectedId === c.id ? "text-accent" : "text-gray-800"
                       }`}
                     >
                       {c.name}

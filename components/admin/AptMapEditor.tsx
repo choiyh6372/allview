@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Save, RotateCcw } from "lucide-react";
@@ -149,7 +149,7 @@ export default function AptMapEditor() {
             setSelectedId(e.target.value);
             setPendingPos(null);
           }}
-          className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-white focus:outline-none focus:border-accent/50 transition-colors"
+          className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 focus:outline-none focus:border-accent/50 transition-colors"
         >
           <option value="">-- 단지를 선택하세요 --</option>
           {(["ocean", "kukje", "ecodelta"] as const).map((region) => (
@@ -211,7 +211,7 @@ export default function AptMapEditor() {
                   onClick={handleReset}
                   disabled={resetting || !!pendingPos}
                   title="기본 위치로 초기화"
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-gray-400 hover:text-white hover:border-gray-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-xs font-medium transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-gray-700 hover:text-gray-900 hover:border-gray-400 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-xs font-medium transition-colors"
                 >
                   {resetting ? <Loader2 size={12} className="animate-spin" /> : <RotateCcw size={12} />}
                   초기화

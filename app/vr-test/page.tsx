@@ -257,7 +257,7 @@ export default function VRTestPage() {
     return (
       <>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <FloorPlanView complex={selected} onBack={() => setSelected(null)} />
+          <FloorPlanView complex={selected} onBack={() => { setSelected(null); window.scrollTo(0, 0); }} />
         </div>
         <StoreBanner />
       </>
@@ -285,7 +285,7 @@ export default function VRTestPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map((c) => (
-          <ComplexCard key={c.id} complex={c} onSelect={() => setSelected(c)} />
+          <ComplexCard key={c.id} complex={c} onSelect={() => { setSelected(c); window.scrollTo(0, 0); }} />
         ))}
       </div>
     </div>

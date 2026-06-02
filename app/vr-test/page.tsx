@@ -119,6 +119,7 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
   const plan = FLOOR_PLAN_DATA[key];
   const areaMap = VR_AREA_MAP[key] ?? {};
   const imgRef = useRef<HTMLDivElement>(null);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
   if (!plan) {
     // 배치도 없는 단지 → 기존 타입 버튼 방식
     return (
@@ -174,25 +175,35 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
                   className="block w-full"
                   draggable={false}
                 />
-                {plan.hotspots.map((hs) => (
-                  <button
-                    key={hs.id}
-                    onClick={() => window.open(getVRUrl(complex.regionId, complex.slug, hs.type), "_blank")}
-                    title={`${hs.type.toUpperCase()} VR 보기`}
-                    className="absolute rounded-full hover:opacity-70 transition-opacity"
-                    style={{
-                      left: `${hs.x}%`,
-                      top: `${hs.y}%`,
-                      transform: "translate(-50%, -50%)",
-                      width: 28,
-                      height: 28,
-                      background: "transparent",
-                      border: "none",
-                      zIndex: 10,
-                      cursor: "pointer",
-                    }}
-                  />
-                ))}
+                {plan.hotspots.map((hs) => {
+                  const cfg = typeColor(hs.type);
+                  const isHovered = hoveredId === hs.id;
+                  return (
+                    <button
+                      key={hs.id}
+                      onClick={() => window.open(getVRUrl(complex.regionId, complex.slug, hs.type), "_blank")}
+                      onMouseEnter={() => setHoveredId(hs.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      title={`${hs.type.toUpperCase()} VR 보기`}
+                      className="absolute rounded-full transition-all duration-150"
+                      style={{
+                        left: `${hs.x}%`,
+                        top: `${hs.y}%`,
+                        transform: `translate(-50%, -50%) scale(${isHovered ? 1.7 : 1})`,
+                        width: 28,
+                        height: 28,
+                        background: "transparent",
+                        border: isHovered ? `3px solid ${cfg.bg}` : "none",
+                        boxShadow: isHovered
+                          ? `0 0 0 4px ${cfg.bg}66, 0 0 20px 8px ${cfg.bg}cc, 0 0 40px 12px ${cfg.bg}55`
+                          : "none",
+                        zIndex: isHovered ? 20 : 10,
+                        cursor: "pointer",
+                      }}
+                    />
+
+                  );
+                })}
               </div>
             </TransformComponent>
           </TransformWrapper>

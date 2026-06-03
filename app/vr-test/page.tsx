@@ -2184,7 +2184,7 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
             return isMobile ? (
               <div className="border-2 border-gray-300 rounded-xl overflow-hidden">
                 <TransformWrapper minScale={1} maxScale={5} panning={{ velocityDisabled: false }}>
-                  <TransformComponent wrapperClass="min-h-[60svh]" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
+                  <TransformComponent wrapperClass="min-h-[55svh]" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
                     {imageContent}
                   </TransformComponent>
                 </TransformWrapper>

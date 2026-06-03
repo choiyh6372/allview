@@ -1219,7 +1219,7 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
 
       {/* 배치도 */}
       <div className="flex-1 flex flex-col justify-start">
-        <p className="text-accent text-base font-bold mb-3 px-4 md:px-0 text-center">배치도에서 면적을 누르면 VR로 연결됩니다. 확대하시면 더 편리합니다.</p>
+        <p className="text-accent text-base font-bold mb-3 px-4 md:px-0 text-center">배치도에서 면적을 누르면 VR로 연결됩니다.<br />확대하시면 더 편리합니다.</p>
         <div className={`w-full ${COMPLEX_MAX_WIDTH[key] ?? "max-w-4xl"} overflow-hidden rounded-xl`}>
           <TransformWrapper
             minScale={1}

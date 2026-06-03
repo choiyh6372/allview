@@ -938,6 +938,7 @@ const OCEAN_FLOOR_PLAN: Record<string, { image: string; hotspots: Hotspot[] }> =
       { id: 232, type: "33b", x: 45.3, y: 83.9 },
       { id: 709, type: "39a", x: 51.8, y: 76.3 },
       { id: 710, type: "39a", x: 48.2, y: 80.9 },
+      { id: 1412, type: "39c", x: 78.9, y: 52.7 },
     ],
   },
   ocean_samjung: {

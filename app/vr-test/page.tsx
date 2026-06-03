@@ -1193,18 +1193,17 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
   }
 
   return (
-    <div className="flex gap-6 p-4 md:p-6 min-h-screen">
-      {/* 왼쪽 패널 */}
-      <div className="w-72 flex-shrink-0 flex flex-col gap-4">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6 p-0 md:p-6 min-h-screen">
+
+      {/* 상단(모바일) / 왼쪽(데스크톱) 패널 */}
+      <div className="md:w-72 md:flex-shrink-0 flex flex-col gap-3 px-4 pt-4 md:px-0 md:pt-0">
         <button onClick={onBack} className="flex items-center gap-1.5 text-gray-700 hover:text-gray-900 text-sm">
           <ChevronLeft size={16} /> 목록으로
         </button>
         <div>
-          <h2 className="text-gray-900 text-3xl font-bold mb-3">{complex.name}</h2>
-          <p className="text-gray-500 text-sm">배치도에서 면적을 누르면 VR로 연결됩니다.</p>
-          <p className="text-gray-500 text-sm mt-0.5">확대하시면 더 편리합니다.</p>
+          <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-1 md:mb-8">{complex.name}</h2>
         </div>
-        <div className="flex flex-col gap-1.5">
+        <div className="hidden md:flex flex-col gap-1.5 mt-6">
           {complex.types.map((type) => {
             const cfg = typeColor(key, type);
             const sqm = areaMap[type];
@@ -1218,8 +1217,9 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
         </div>
       </div>
 
-      {/* 오른쪽 배치도 */}
-      <div className="flex-1 flex justify-center items-start">
+      {/* 배치도 */}
+      <div className="flex-1 flex flex-col justify-start">
+        <p className="hidden md:block text-gray-900 text-xl font-bold mb-3 text-center">배치도에서 면적을 누르면 VR로 연결됩니다. 확대하시면 더 편리합니다.</p>
         <div className={`w-full ${COMPLEX_MAX_WIDTH[key] ?? "max-w-4xl"} overflow-hidden rounded-xl`}>
           <TransformWrapper
             minScale={1}
@@ -1262,13 +1262,13 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
                         cursor: "pointer",
                       }}
                     />
-
                   );
                 })}
               </div>
             </TransformComponent>
           </TransformWrapper>
         </div>
+        <p className="md:hidden text-gray-900 text-base font-bold mt-3 px-4 text-center">배치도에서 면적을 누르면 VR로 연결됩니다. 확대하시면 더 편리합니다.</p>
       </div>
     </div>
   );

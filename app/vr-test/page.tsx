@@ -1166,6 +1166,13 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
   const areaMap = VR_AREA_MAP[key] ?? {};
   const imgRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(true);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   if (!plan) {
     // 배치도 없는 단지 → 기존 타입 버튼 방식
     return (
@@ -1221,12 +1228,8 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
       <div className="flex-1 flex flex-col justify-start">
         <p className="text-accent text-base font-bold mb-3 px-4 md:px-0 text-center">배치도에서 면적을 누르면 VR로 연결됩니다.<br />확대하시면 더 편리합니다.</p>
         <div className={`w-full ${COMPLEX_MAX_WIDTH[key] ?? "max-w-4xl"} overflow-hidden rounded-xl`}>
-          <TransformWrapper
-            minScale={1}
-            maxScale={5}
-            panning={{ velocityDisabled: false }}
-          >
-            <TransformComponent wrapperClass="min-h-[70svh] md:min-h-0" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
+          {(() => {
+            const imageContent = (
               <div ref={imgRef} className="relative w-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -1264,8 +1267,15 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
                   );
                 })}
               </div>
-            </TransformComponent>
-          </TransformWrapper>
+            );
+            return isMobile ? (
+              <TransformWrapper minScale={1} maxScale={5} panning={{ velocityDisabled: false }}>
+                <TransformComponent wrapperClass="min-h-[70svh]" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
+                  {imageContent}
+                </TransformComponent>
+              </TransformWrapper>
+            ) : imageContent;
+          })()}
         </div>
       </div>
     </div>

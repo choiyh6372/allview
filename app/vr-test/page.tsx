@@ -2113,7 +2113,7 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
           <ChevronLeft size={16} /> 목록으로
         </button>
         <div>
-          <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-1 md:mb-8">{complex.name}</h2>
+          <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-1 md:mb-8 text-center md:text-left">{complex.name}</h2>
         </div>
         <div className="hidden md:flex flex-col gap-1.5 mt-6">
           {complex.types.map((type) => {
@@ -2182,11 +2182,13 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
               </div>
             );
             return isMobile ? (
-              <TransformWrapper minScale={1} maxScale={5} panning={{ velocityDisabled: false }}>
-                <TransformComponent wrapperClass="min-h-[70svh]" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
-                  {imageContent}
-                </TransformComponent>
-              </TransformWrapper>
+              <div className="border-2 border-gray-300 rounded-xl overflow-hidden">
+                <TransformWrapper minScale={1} maxScale={5} panning={{ velocityDisabled: false }}>
+                  <TransformComponent wrapperClass="min-h-[60svh]" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
+                    {imageContent}
+                  </TransformComponent>
+                </TransformWrapper>
+              </div>
             ) : imageContent;
           })()}
         </div>

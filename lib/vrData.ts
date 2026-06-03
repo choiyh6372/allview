@@ -7,6 +7,7 @@ export interface VRComplex {
   regionId: string;
   regionName: string;
   types: string[];
+  noVR?: true;
 }
 
 export const complexData: VRComplex[] = [
@@ -44,6 +45,8 @@ export const complexData: VRComplex[] = [
     types: ["26","29a","29b","33a","33b"] },
   { id: "kukje_elife", slug: "elife", name: "이편한세상", regionId: "kukje", regionName: "명지국제신도시",
     types: ["34a","34b","34c","39a","39b","39c"] },
+  { id: "kukje_hoban1", slug: "hoban1", name: "호반1차", regionId: "kukje", regionName: "명지국제신도시",
+    types: ["27","30a","30b","34"], noVR: true },
   { id: "kukje_hoban2", slug: "hoban2", name: "호반2차", regionId: "kukje", regionName: "명지국제신도시",
     types: ["28a","28b","28c","33"] },
   { id: "kukje_hyupsung", slug: "hyupsung", name: "협성", regionId: "kukje", regionName: "명지국제신도시",
@@ -57,7 +60,7 @@ export const complexData: VRComplex[] = [
   { id: "kukje_kumkang2", slug: "kumkang2", name: "금강2차", regionId: "kukje", regionName: "명지국제신도시",
     types: ["26a","26b","26c","33a","33b"] },
   { id: "kukje_kumkang3", slug: "kumkang3", name: "금강3차", regionId: "kukje", regionName: "명지국제신도시",
-    types: ["59a","59b","59c","59c1"] },
+    types: ["25a","25b","25c","25c1"] },
   { id: "kukje_thehill", slug: "thehill", name: "더힐", regionId: "kukje", regionName: "명지국제신도시",
     types: ["33","49a","49b","49c"] },
   { id: "kukje_thewestern", slug: "thewestern", name: "더웨스턴", regionId: "kukje", regionName: "명지국제신도시",
@@ -89,6 +92,10 @@ export const complexData: VRComplex[] = [
     types: ["25a","25b","35a","35b","45a","45b"] },
   { id: "ecodelta_dietr_first", slug: "dietr_first", name: "디에트르더퍼스트", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["34a","34b","34c","43a","43b","43c"] },
+  { id: "ecodelta_jungheung2", slug: "jungheung2", name: "중흥S클래스에코델타시티", regionId: "ecodelta", regionName: "에코델타시티",
+    types: ["33a","33b","33c","39a","39b"] },
+  { id: "ecodelta_elium", slug: "elium", name: "대방엘리움리버뷰", regionId: "ecodelta", regionName: "에코델타시티",
+    types: ["43a","43b","43c","43d"] },
 ];
 
 export function getVRUrl(regionId: string, slug: string, type: string): string {

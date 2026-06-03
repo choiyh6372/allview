@@ -6,6 +6,8 @@ import { Trash2, Undo2, Copy, Check, ChevronDown, Download } from "lucide-react"
 import { complexData } from "@/lib/vrData";
 
 const OCEAN_COMPLEXES = complexData.filter((c) => c.regionId === "ocean");
+const KUKJE_COMPLEXES = complexData.filter((c) => c.regionId === "kukje");
+const ECODELTA_COMPLEXES = complexData.filter((c) => c.regionId === "ecodelta");
 
 const PALETTE = [
   { bg: "#e87c7c", border: "#c45c5c", text: "#fff" },
@@ -46,9 +48,39 @@ const COMPLEX_IMAGE: Record<string, string> = {
   ocean_qweendom_einstein: "/apt_map/ocean/qweendom_einstein.jpg",
   ocean_samjung: "/apt_map/ocean/samjung.jpg",
   ocean_solmare: "/apt_map/ocean/solmare.jpg",
+  kukje_daebang1: "/apt_map/kukje/daebang1.jpg",
+  kukje_daebang2: "/apt_map/kukje/darbang2.jpg",
+  kukje_eileen: "/apt_map/kukje/eileen.jpg",
+  kukje_elife: "/apt_map/kukje/elife.jpg",
+  kukje_hoban1: "/apt_map/kukje/hoban1.jpg",
+  kukje_hoban2: "/apt_map/kukje/hoban2.jpg",
+  kukje_hyupsung: "/apt_map/kukje/hyupsung.jpg",
+  kukje_jungheung1: "/apt_map/kukje/jungheung1.jpg",
+  kukje_jungheung2: "/apt_map/kukje/jungheung2.jpg",
+  kukje_kumkang1: "/apt_map/kukje/kumkang1.jpg",
+  kukje_kumkang2: "/apt_map/kukje/kumkang2.jpg",
+  kukje_kumkang3: "/apt_map/kukje/kumkang3.jpg",
+  kukje_thehill: "/apt_map/kukje/thehill.jpg",
+  kukje_samjung: "/apt_map/kukje/samjung.jpg",
+  kukje_posco2: "/apt_map/kukje/posco2.jpg",
+  kukje_thewestern: "/apt_map/kukje/thewestern.jpg",
+  kukje_posco3: "/apt_map/kukje/posco3.jpg",
+  ecodelta_hoban: "/apt_map/ecodelta/호반써밋 단지.jpg",
+  ecodelta_sujain: "/apt_map/ecodelta/수자인.jpg",
+  ecodelta_prugio_lin: "/apt_map/ecodelta/푸르지오린.jpg",
+  ecodelta_xi: "/apt_map/ecodelta/강서자이.jpg",
+  ecodelta_elife: "/apt_map/ecodelta/이편한센터포인트.jpg",
+  ecodelta_prugio_center: "/apt_map/ecodelta/푸르지오센터파크단지.jpg",
+  ecodelta_theberhill: "/apt_map/ecodelta/대성베르힐.jpg",
+  ecodelta_jungheung: "/apt_map/ecodelta/중흥s클래스에듀리버.jpg",
+  ecodelta_dietr_grand: "/apt_map/ecodelta/대방 그랑루체.jpg",
+  ecodelta_dietr_first: "/apt_map/ecodelta/대방디에트르더퍼스트.jpg",
+  ecodelta_jungheung2: "/apt_map/ecodelta/중흥에코델타시티.jpg",
+  ecodelta_elium: "/apt_map/ecodelta/대방엘리움리버뷰저장.jpg",
 };
 
 export default function VREditorPage() {
+  const [region, setRegion] = useState<"ocean" | "kukje" | "ecodelta">("ocean");
   const [complexId, setComplexId] = useState("ocean_doosan");
   const [allHotspots, setAllHotspots] = useState<AllHotspots>({});
   const [isLoaded, setIsLoaded] = useState(false);
@@ -59,7 +91,8 @@ export default function VREditorPage() {
   const [copiedAll, setCopiedAll] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const complex = OCEAN_COMPLEXES.find((c) => c.id === complexId)!;
+  const CURRENT_COMPLEXES = region === "ocean" ? OCEAN_COMPLEXES : region === "kukje" ? KUKJE_COMPLEXES : ECODELTA_COMPLEXES;
+  const complex = CURRENT_COMPLEXES.find((c) => c.id === complexId) ?? CURRENT_COMPLEXES[0]!;
   const hotspots: Hotspot[] = allHotspots[complexId] ?? [];
 
   const typeColorMap = useMemo(() => {
@@ -69,6 +102,12 @@ export default function VREditorPage() {
     });
     return map;
   }, [complex]);
+
+  function switchRegion(r: "ocean" | "kukje" | "ecodelta") {
+    setRegion(r);
+    const list = r === "ocean" ? OCEAN_COMPLEXES : r === "kukje" ? KUKJE_COMPLEXES : ECODELTA_COMPLEXES;
+    setComplexId(list[0].id);
+  }
 
   useEffect(() => {
     if (complex.types.length > 0 && !complex.types.includes(selectedType)) {
@@ -200,16 +239,32 @@ export default function VREditorPage() {
       {/* Top bar */}
       <div className="bg-white border-b shadow-sm px-4 py-3 flex flex-wrap items-center gap-3">
         <h1 className="text-lg font-black text-gray-900">배치도 핫스팟 에디터</h1>
-        <span className="text-xs text-gray-400">명지오션시티 ({doneCount}/{OCEAN_COMPLEXES.length} 완료)</span>
+
+        {/* Region tabs */}
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+          <button onClick={() => switchRegion("ocean")}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${region === "ocean" ? "bg-blue-500 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
+            오션시티
+          </button>
+          <button onClick={() => switchRegion("kukje")}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${region === "kukje" ? "bg-blue-500 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
+            국제신도시
+          </button>
+          <button onClick={() => switchRegion("ecodelta")}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${region === "ecodelta" ? "bg-blue-500 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
+            에코델타
+          </button>
+        </div>
+        <span className="text-xs text-gray-400">({doneCount}/{CURRENT_COMPLEXES.length} 완료)</span>
 
         {/* Complex selector */}
-        <div className="relative ml-4">
+        <div className="relative ml-2">
           <select
             value={complexId}
             onChange={(e) => setComplexId(e.target.value)}
             className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            {OCEAN_COMPLEXES.map((c) => (
+            {CURRENT_COMPLEXES.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name} {(allHotspots[c.id]?.length ?? 0) > 0 ? `(${allHotspots[c.id].length}개)` : ""}
               </option>

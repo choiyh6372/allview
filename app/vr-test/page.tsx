@@ -1219,14 +1219,14 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
 
       {/* 배치도 */}
       <div className="flex-1 flex flex-col justify-start">
+        <p className="text-accent text-base font-bold mb-3 px-4 md:px-0 text-center">배치도에서 면적을 누르면 VR로 연결됩니다. 확대하시면 더 편리합니다.</p>
         <div className={`w-full ${COMPLEX_MAX_WIDTH[key] ?? "max-w-4xl"} overflow-hidden rounded-xl`}>
           <TransformWrapper
             minScale={1}
             maxScale={5}
-            centerOnInit
             panning={{ velocityDisabled: false }}
           >
-            <TransformComponent wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
+            <TransformComponent wrapperClass="min-h-[70svh] md:min-h-0" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
               <div ref={imgRef} className="relative w-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -1267,7 +1267,6 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
             </TransformComponent>
           </TransformWrapper>
         </div>
-        <p className="text-accent text-base font-bold mt-3 px-4 md:px-0 text-center">배치도에서 면적을 누르면 VR로 연결됩니다. 확대하시면 더 편리합니다.</p>
       </div>
     </div>
   );

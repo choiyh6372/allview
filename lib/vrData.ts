@@ -75,7 +75,7 @@ export const complexData: VRComplex[] = [
   { id: "ecodelta_hoban", slug: "hoban", name: "호반써밋스마트시티", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["33a","33b","33c"] },
   { id: "ecodelta_sujain", slug: "sujain", name: "수자인", regionId: "ecodelta", regionName: "에코델타시티",
-    types: ["38","40","49a","49b","49c"] },
+    types: ["38a","40a","49a","49b","49c"] },
   { id: "ecodelta_prugio_lin", slug: "prugio_lin", name: "푸르지오린", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["33a1","33a2","33a3","33a4","33b","37","37t1","37t2","38","40","42"] },
   { id: "ecodelta_xi", slug: "xi", name: "강서자이", regionId: "ecodelta", regionName: "에코델타시티",
@@ -86,16 +86,12 @@ export const complexData: VRComplex[] = [
     types: ["30a","30b","33a","33b","33c","33d","33e","33f","33g","33t"] },
   { id: "ecodelta_theberhill", slug: "theberhill", name: "더베르힐", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["33a","33a1","33ap","33b","33c","39","39p"] },
-  { id: "ecodelta_jungheung", slug: "jungheung", name: "중흥S클래스", regionId: "ecodelta", regionName: "에코델타시티",
-    types: ["33a","33b","33c","39a","39b"] },
   { id: "ecodelta_dietr_grand", slug: "dietr_grand", name: "디에트르그랑루체", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["25a","25b","35a","35b","45a","45b"] },
   { id: "ecodelta_dietr_first", slug: "dietr_first", name: "디에트르더퍼스트", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["34a","34b","34c","43a","43b","43c"] },
-  { id: "ecodelta_jungheung2", slug: "jungheung2", name: "중흥S클래스에코델타시티", regionId: "ecodelta", regionName: "에코델타시티",
+  { id: "ecodelta_jungheung2", slug: "jungheung_ecodelta", name: "중흥S클래스에코델타시티", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["33a","33b","33c","39a","39b"] },
-  { id: "ecodelta_elium", slug: "elium", name: "대방엘리움리버뷰", regionId: "ecodelta", regionName: "에코델타시티",
-    types: ["43a","43b","43c","43d"] },
 ];
 
 export function getVRUrl(regionId: string, slug: string, type: string): string {

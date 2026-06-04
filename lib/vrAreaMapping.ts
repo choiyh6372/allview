@@ -90,7 +90,7 @@ export const VR_AREA_MAP: Record<string, Record<string, number>> = {
   kukje_thewestern: { "31a1": 75, "31a2": 75, "31b": 75, "35a1": 85, "35a2": 85, "35b": 85 },
   // 에코델타시티
   ecodelta_hoban:          { "33a": 85, "33b": 85, "33c": 85 },
-  ecodelta_sujain:         { "38": 102, "40": 108, "49a": 133, "49b": 132, "49c": 132 },
+  ecodelta_sujain:         { "38a": 102, "40a": 108, "49a": 133, "49b": 132, "49c": 132 },
   ecodelta_prugio_lin:     {
     "33a1": 85, "33a2": 85, "33a3": 85, "33a4": 85, "33b": 85,
     "37": 94, "37t1": 95, "37t2": 95, "38": 100, "40": 103, "42": 110,
@@ -105,4 +105,5 @@ export const VR_AREA_MAP: Record<string, Record<string, number>> = {
   ecodelta_jungheung:      { "33a": 85, "33b": 85, "33c": 85, "39a": 102, "39b": 102 },
   ecodelta_dietr_grand:    { "25a": 60, "25b": 60, "35a": 85, "35b": 85, "45a": 111, "45b": 111 },
   ecodelta_dietr_first:    { "34a": 85, "34b": 85, "34c": 85, "43a": 111, "43b": 111, "43c": 111 },
+  ecodelta_jungheung_ecodelta: { "33a": 85, "33b": 85, "33c": 85, "39a": 102, "39b": 102 },
 };

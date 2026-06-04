@@ -3103,7 +3103,7 @@ function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => 
 }
 
 // ── 단지 카드 ──
-function ComplexCard({ complex, onSelect }: { complex: VRComplex; onSelect: () => void }) {
+function ComplexCard({ complex, vrCount, onSelect }: { complex: VRComplex; vrCount?: number; onSelect: () => void }) {
   const [imgError, setImgError] = useState(false);
   const thumbUrl = `https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/${complex.regionId}/${complex.slug}/thumb.jpg`;
   const hasPlan = !!FLOOR_PLAN_DATA[`${complex.regionId}_${complex.slug}`];
@@ -3135,7 +3135,7 @@ function ComplexCard({ complex, onSelect }: { complex: VRComplex; onSelect: () =
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-gray-900">{complex.name}</h3>
-          <span className="text-xs text-green-600">{complex.types.length}개 평형</span>
+          <span className="text-xs text-green-600">{vrCount !== undefined ? `${vrCount} / ${complex.types.length}개 평형` : `${complex.types.length}개 평형`}</span>
         </div>
         <button onClick={onSelect}
           className="w-full py-2 bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/20 hover:border-accent rounded-xl text-xs font-semibold transition-all">
@@ -3150,6 +3150,14 @@ function ComplexCard({ complex, onSelect }: { complex: VRComplex; onSelect: () =
 export default function VRTestPage() {
   const [region, setRegion] = useState("명지오션시티");
   const [selected, setSelected] = useState<VRComplex | null>(null);
+  const [vrCounts, setVRCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    fetch("/api/vr-counts")
+      .then((r) => r.json())
+      .then(setVRCounts)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onPop = () => {
@@ -3205,7 +3213,7 @@ export default function VRTestPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map((c) => (
-          <ComplexCard key={c.id} complex={c} onSelect={() => selectComplex(c)} />
+          <ComplexCard key={c.id} complex={c} vrCount={vrCounts[c.id]} onSelect={() => selectComplex(c)} />
         ))}
       </div>
     </div>

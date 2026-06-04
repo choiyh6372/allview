@@ -156,11 +156,10 @@ export default function StoreBanner({ compact }: { compact?: boolean }) {
     <section className={compact ? "pt-1 pb-1 overflow-hidden" : "pt-16 pb-4 overflow-hidden"}>
       <div className={compact ? "px-4 mb-3 flex items-center justify-between" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8"}>
         {compact ? (
-          <p className="text-sm font-semibold text-gray-900">주변 추천 가게</p>
+          <p className="text-sm font-semibold text-gray-900">추천 가게</p>
         ) : (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">주변 추천 가게</h2>
-            <p className="text-sm text-gray-600">입주 단지 주변 홍보 가게를 확인하세요</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">추천 가게</h2>
           </div>
         )}
       </div>

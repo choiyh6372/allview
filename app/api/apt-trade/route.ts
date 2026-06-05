@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchAptTradeData, CACHE_TTL } from "@/lib/molitApi";
+import { getTradeCache, saveTradeCache } from "@/lib/tradeCache";
+import type { RawItem } from "@/lib/molitApi";
 
 export type { RawItem } from "@/lib/molitApi";
 
@@ -8,7 +10,16 @@ export async function GET(request: Request) {
   const lawdCd = searchParams.get("lawdCd") ?? "26440";
   const months = Math.min(parseInt(searchParams.get("months") ?? "12"), 60);
 
+  const cached = await getTradeCache<RawItem>("apt-trade");
+  if (cached) {
+    return NextResponse.json(
+      { items: cached, count: cached.length },
+      { headers: { "Cache-Control": `public, s-maxage=${CACHE_TTL}, stale-while-revalidate` } }
+    );
+  }
+
   const items = await fetchAptTradeData(lawdCd, months);
+  saveTradeCache("apt-trade", items).catch(() => {});
 
   return NextResponse.json(
     { items, count: items.length },

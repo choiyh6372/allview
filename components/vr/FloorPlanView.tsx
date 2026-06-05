@@ -614,7 +614,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
             return isMobile ? (
               <div className="border-2 border-gray-300 rounded-xl overflow-hidden relative">
                 <TransformWrapper minScale={1} maxScale={5} panning={{ velocityDisabled: false }}
-                  onPinchingStart={() => setShowPinchHint(false)}
+                  onPinchStart={() => setShowPinchHint(false)}
                 >
                   <TransformComponent wrapperClass="min-h-[55svh]" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
                     {imageContent}

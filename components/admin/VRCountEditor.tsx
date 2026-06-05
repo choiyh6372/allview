@@ -81,8 +81,9 @@ export default function VRCountEditor() {
                         min={0}
                         max={complex.types.length}
                         value={counts[complex.id] ?? complex.types.length}
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) =>
-                          setCounts((prev) => ({ ...prev, [complex.id]: Number(e.target.value) }))
+                          setCounts((prev) => ({ ...prev, [complex.id]: e.target.value === "" ? 0 : Number(e.target.value) }))
                         }
                         className="w-10 text-center bg-bg border border-border rounded-lg px-1 py-0.5 text-xs text-gray-900 focus:outline-none focus:border-accent"
                       />

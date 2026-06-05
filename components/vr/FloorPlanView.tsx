@@ -500,11 +500,12 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6 p-0 md:p-6 min-h-screen">
-      <div className="md:w-72 md:flex-shrink-0 flex flex-col gap-3 px-4 pt-4 md:px-0 md:pt-0">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-gray-700 hover:text-gray-900 text-sm">
-          <ChevronLeft size={16} /> 목록으로
-        </button>
+    <div className="p-0 md:p-6 min-h-screen">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-gray-700 hover:text-gray-900 text-base font-medium px-4 pt-4 md:px-0 md:pt-0 mb-4">
+        <ChevronLeft size={16} /> 목록으로
+      </button>
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+      <div className="md:w-72 md:flex-shrink-0 flex flex-col gap-3 px-4 md:px-0">
         <div>
           <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-1 md:mb-8 text-center md:text-left">{complex.name}</h2>
         </div>
@@ -585,6 +586,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
           })()}
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -526,10 +526,10 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             {onToggleTxPanel && (
               <button
                 onClick={onToggleTxPanel}
-                className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-base font-semibold border transition-colors ${
                   txPanelOpen
-                    ? "bg-accent text-white border-accent"
-                    : "bg-accent/10 border-accent/30 text-accent hover:bg-accent hover:text-white hover:border-accent"
+                    ? "bg-blue-700 text-white border-blue-700"
+                    : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700"
                 }`}
               >
                 {txPanelOpen ? "거래내역 닫기" : "매매 · 전월세 거래내역"}
@@ -540,7 +540,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                 href={aptNaverUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-sm font-semibold rounded-lg transition-colors"
+                className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-base font-semibold rounded-lg transition-colors"
               >
                 네이버 부동산 보기
               </a>

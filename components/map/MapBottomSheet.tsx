@@ -645,7 +645,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               className={`md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white rounded-t-2xl shadow-2xl transition-transform duration-300 flex flex-col ${
                 showTxTable ? "translate-y-0" : "translate-y-full"
               }`}
-              style={{ maxHeight: "88vh" }}
+              style={{ height: "88vh" }}
               onTouchStart={(e) => { txStartYRef.current = e.touches[0].clientY; }}
               onTouchEnd={(e) => {
                 if (txStartYRef.current === null) return;
@@ -688,7 +688,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
                 <button
                   onClick={() => setSelectedArea("")}
-                  className={`shrink-0 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     !selectedArea ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
@@ -698,7 +698,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   <button
                     key={a}
                     onClick={() => setSelectedArea(a)}
-                    className={`shrink-0 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                    className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >

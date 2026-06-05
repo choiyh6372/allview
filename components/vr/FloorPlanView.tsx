@@ -436,6 +436,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
   const [showNoVR, setShowNoVR] = useState(false);
   const [noVRTypes, setNoVRTypes] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(true);
+  const [showPinchHint, setShowPinchHint] = useState(true);
 
   function handleHotspotClick(type: string) {
     if (complex.noVR) {
@@ -611,12 +612,38 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
               </div>
             );
             return isMobile ? (
-              <div className="border-2 border-gray-300 rounded-xl overflow-hidden">
-                <TransformWrapper minScale={1} maxScale={5} panning={{ velocityDisabled: false }}>
+              <div className="border-2 border-gray-300 rounded-xl overflow-hidden relative">
+                <TransformWrapper minScale={1} maxScale={5} panning={{ velocityDisabled: false }}
+                  onPinchingStart={() => setShowPinchHint(false)}
+                >
                   <TransformComponent wrapperClass="min-h-[55svh]" wrapperStyle={{ width: "100%" }} contentStyle={{ width: "100%" }}>
                     {imageContent}
                   </TransformComponent>
                 </TransformWrapper>
+                {showPinchHint && (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    style={{ animation: "pinch-fade 2s ease 3 forwards" }}
+                    onAnimationEnd={() => setShowPinchHint(false)}
+                  >
+                    <div className="relative w-24 h-24">
+                      {/* 왼쪽 손가락 */}
+                      <div
+                        className="absolute top-1/2 left-1/2 w-14 h-14 rounded-full bg-white/80 border-2 border-gray-400 shadow-lg flex items-center justify-center text-3xl"
+                        style={{ animation: "pinch-left 2s ease 3 forwards" }}
+                      >
+                        👆
+                      </div>
+                      {/* 오른쪽 손가락 */}
+                      <div
+                        className="absolute top-1/2 left-1/2 w-14 h-14 rounded-full bg-white/80 border-2 border-gray-400 shadow-lg flex items-center justify-center text-3xl"
+                        style={{ animation: "pinch-right 2s ease 3 forwards" }}
+                      >
+                        👆
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : imageContent;
           })()}

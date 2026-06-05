@@ -109,6 +109,14 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
           {/* 면적 필터 */}
           {complex && (
             <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
+              <button
+                onClick={() => setSelectedArea("")}
+                className={`shrink-0 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  !selectedArea ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                전체
+              </button>
               {complex.areas.map((a) => (
                 <button
                   key={a}

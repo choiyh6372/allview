@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { VRComplex, getVRUrl } from "@/lib/vrData";
 import { VR_AREA_MAP } from "@/lib/vrAreaMapping";
+import { APT_COMPLEXES } from "@/lib/mapData";
 import { ChevronLeft } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { OCEAN_FLOOR_PLAN } from "@/lib/hotspots/ocean";
@@ -391,8 +392,8 @@ export const COMPLEX_MAX_WIDTH: Record<string, string> = {
   ecodelta_prugio_lin: "max-w-3xl",
   ecodelta_xi: "max-w-3xl",
   ecodelta_dietr_first: "max-w-2xl",
-  ocean_samjung: "max-w-sm",
-  ocean_solmare: "max-w-lg",
+  ocean_samjung: "max-w-lg",
+  ocean_solmare: "max-w-2xl",
   kukje_daebang2: "max-w-2xl",
   kukje_eileen: "max-w-3xl",
   kukje_hyupsung: "max-w-2xl",
@@ -401,7 +402,8 @@ export const COMPLEX_MAX_WIDTH: Record<string, string> = {
   kukje_kumkang2: "max-w-3xl",
   kukje_thehill: "max-w-3xl",
   kukje_thewestern: "max-w-3xl",
-  kukje_posco2: "max-w-2xl",
+  kukje_posco2: "max-w-3xl",
+  kukje_posco3: "max-w-5xl",
   kukje_samjung: "max-w-xs",
   kukje_hoban1: "max-w-3xl",
 };
@@ -510,17 +512,50 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
           <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-4 text-center md:text-left">{complex.name}</h2>
           <p className="text-accent text-base font-bold text-center md:text-left">배치도에서 면적을 누르면 VR로 연결됩니다.</p>
         </div>
-        <div className="hidden md:flex flex-col gap-1.5 mt-6">
+        {(() => {
+          const apt = APT_COMPLEXES.find((a) => a.id === complex.id);
+          if (!apt) return null;
+          const rows = [
+            apt.address      && { label: "주소",         value: apt.address },
+            apt.hoCnt        && { label: "세대수",        value: `${apt.hoCnt.toLocaleString()}세대` },
+            apt.buildYear    && { label: "건축연도",      value: `${apt.buildYear}년` },
+            apt.dongCnt      && { label: "동수",          value: `${apt.dongCnt}개동` },
+            apt.heatType     && { label: "난방방식",      value: apt.heatType },
+            apt.evChargerCnt && { label: "전기차충전기",  value: `${apt.evChargerCnt}기` },
+            apt.officeTel    && { label: "관리사무소",    value: apt.officeTel, href: `tel:${apt.officeTel}` },
+          ].filter(Boolean) as { label: string; value: string; href?: string }[];
+          if (rows.length === 0) return null;
+          return (
+            <div className="hidden md:block mt-4 rounded-xl border border-border bg-bg-card overflow-hidden text-sm">
+              {rows.map(({ label, value, href }) => (
+                <div key={label} className="flex items-start justify-between gap-3 px-4 py-2.5 border-b border-border last:border-b-0">
+                  <span className="text-gray-500 shrink-0">{label}</span>
+                  {href
+                    ? <a href={href} className="font-semibold text-blue-600 hover:underline text-right">{value}</a>
+                    : <span className="font-semibold text-gray-900 text-right">{value}</span>
+                  }
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+        <div className="hidden md:block mt-3 rounded-xl border border-border bg-bg-card overflow-hidden text-sm">
+          <div className="px-4 py-2.5 border-b border-border">
+            <span className="text-xs text-gray-400 font-medium">평형 범례</span>
+          </div>
           {complex.types.map((type) => {
             const cfg = typeColor(key, type);
             const sqm = areaMap[type];
             return (
-              <div key={type} className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
-                <span className="text-sm font-semibold text-gray-700">
-                  {type.toUpperCase()}{sqm ? ` · ${sqm}㎡` : ""}
-                  {noVRTypes.has(type) && <span className="ml-1 text-xs text-gray-400 font-normal">준비중</span>}
-                </span>
+              <div key={type} className="flex items-center justify-between px-4 py-2 border-b border-border last:border-b-0">
+                <div className="flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
+                  <span className="text-sm font-semibold text-gray-700">{type.toUpperCase()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {sqm && <span className="text-sm text-gray-600">{sqm.toFixed(2)}㎡</span>}
+                  {noVRTypes.has(type) && <span className="text-xs text-gray-400">준비중</span>}
+                </div>
               </div>
             );
           })}

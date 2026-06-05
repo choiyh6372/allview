@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { complexData, VRComplex } from "@/lib/vrData";
 import StoreBanner from "@/components/home/StoreBanner";
 import { Building2 } from "lucide-react";
 import { FLOOR_PLAN_DATA } from "@/components/vr/FloorPlanView";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const regions = ["명지오션시티", "명지국제신도시", "에코델타시티"];
 
@@ -52,9 +52,10 @@ function ComplexCard({ complex, vrCount, onSelect }: { complex: VRComplex; vrCou
   );
 }
 
-export default function VRTourPage() {
+function VRTourContent() {
   const router = useRouter();
-  const [region, setRegion] = useState("명지오션시티");
+  const searchParams = useSearchParams();
+  const [region, setRegion] = useState(() => searchParams.get("region") ?? "명지오션시티");
   const [vrCounts, setVRCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -98,5 +99,13 @@ export default function VRTourPage() {
       </div>
       <StoreBanner />
     </>
+  );
+}
+
+export default function VRTourPage() {
+  return (
+    <Suspense>
+      <VRTourContent />
+    </Suspense>
   );
 }

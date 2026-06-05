@@ -178,16 +178,22 @@ interface Props {
   selectedProperty: SelectedProperty | null;
   selectedJeongbi: JeongbiProject | null;
   onClose: () => void;
+  txPanelOpen?: boolean;
+  onToggleTxPanel?: () => void;
+  sharedArea?: string;
+  onSharedAreaChange?: (area: string) => void;
 }
 
-export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose }: Props) {
+export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange }: Props) {
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     dedupingInterval: 5 * 60 * 1000,
   });
 
-  const [selectedArea, setSelectedArea] = useState("");
+  const [localArea, setLocalArea] = useState("");
+  const selectedArea = sharedArea !== undefined ? sharedArea : localArea;
+  const setSelectedArea = onSharedAreaChange ?? setLocalArea;
   const [photoIndex, setPhotoIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -517,23 +523,29 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               onAreaChange={setSelectedArea}
               light
             />
+            {onToggleTxPanel && (
+              <button
+                onClick={onToggleTxPanel}
+                className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                  txPanelOpen
+                    ? "bg-accent text-white border-accent"
+                    : "bg-accent/10 border-accent/30 text-accent hover:bg-accent hover:text-white hover:border-accent"
+                }`}
+              >
+                {txPanelOpen ? "거래내역 닫기" : "매매 · 전월세 거래내역"}
+              </button>
+            )}
             {aptNaverUrl && (
               <a
                 href={aptNaverUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-sm font-semibold rounded-lg transition-colors"
               >
                 네이버 부동산 보기
               </a>
             )}
             <AptInfoCard apt={selectedApt} />
-            <TransactionTable
-              complex={complex}
-              rentTransactions={buildRentTransactions(rentItems, complex.name)}
-              selectedArea={selectedArea}
-              light
-            />
           </div>
         )}
 

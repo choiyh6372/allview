@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { APT_COMPLEXES, REGION_COLORS, REGION_NAME_COLORS, REGION_CENTER, OFFI_SHORT_NAMES, RH_SHORT_NAMES, type AptComplex } from "@/lib/mapData";
 import { SCHOOL_POS_OVERRIDES } from "@/lib/schoolPositions";
 import MapSidePanel from "@/components/map/MapSidePanel";
+import MapTransactionPanel from "@/components/map/MapTransactionPanel";
 import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
@@ -119,6 +120,8 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
   const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionItem | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<SelectedProperty | null>(null);
   const [selectedJeongbi, setSelectedJeongbi] = useState<JeongbiProject | null>(null);
+  const [txPanelOpen, setTxPanelOpen] = useState(false);
+  const [sharedArea, setSharedArea] = useState("");
   const setSelectedSubscriptionRef = useRef<((s: SubscriptionItem | null) => void) | null>(null);
   const setSelectedPropertyRef = useRef<((p: SelectedProperty | null) => void) | null>(null);
   const setSelectedJeongbiRef = useRef<((j: JeongbiProject | null) => void) | null>(null);
@@ -632,6 +635,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
     setSelectedSubscriptionRef.current?.(null);
     setSelectedPropertyRef.current?.(null);
     setSelectedJeongbiRef.current?.(null);
+    setSharedArea("");
   }
 
   async function loadJeongbiMarkers(map: KakaoMapInstance) {
@@ -1358,6 +1362,10 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         selectedProperty={selectedProperty}
         selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
+        txPanelOpen={txPanelOpen}
+        onToggleTxPanel={() => setTxPanelOpen((v) => !v)}
+        sharedArea={sharedArea}
+        onSharedAreaChange={setSharedArea}
       />
 
       <MapBottomSheet
@@ -1371,6 +1379,13 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
 
       <div className="relative flex-1">
         <div ref={containerRef} className="absolute inset-0" />
+        <MapTransactionPanel
+          selectedApt={selectedApt}
+          isOpen={txPanelOpen}
+          onClose={() => setTxPanelOpen(false)}
+          sharedArea={sharedArea}
+          onAreaChange={setSharedArea}
+        />
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-bg">
             <span className="text-gray-400 text-sm">지도 로딩 중...</span>

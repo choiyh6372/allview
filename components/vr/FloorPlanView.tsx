@@ -507,7 +507,8 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
     <div className="flex flex-col md:flex-row gap-4 md:gap-6">
       <div className="md:w-72 md:flex-shrink-0 flex flex-col gap-3 px-4 md:px-0">
         <div>
-          <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-1 md:mb-8 text-center md:text-left">{complex.name}</h2>
+          <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-4 text-center md:text-left">{complex.name}</h2>
+          <p className="text-accent text-base font-bold text-center md:text-left">배치도에서 면적을 누르면 VR로 연결됩니다.</p>
         </div>
         <div className="hidden md:flex flex-col gap-1.5 mt-6">
           {complex.types.map((type) => {
@@ -527,7 +528,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
       </div>
 
       <div className="flex-1 flex flex-col justify-start">
-        <p className="text-accent text-base font-bold mb-3 px-4 md:px-0 text-center">배치도에서 면적을 누르면 VR로 연결됩니다.<br />확대하시면 더 편리합니다.</p>
+        <p className="md:hidden text-accent text-sm font-bold mb-3 px-4 text-center"><span className="opacity-50">✦</span> 확대하시면 더 편리합니다. <span className="opacity-50">✦</span></p>
         {showNoVR && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-sm font-semibold px-6 py-3 rounded-full shadow-lg animate-fade-in">
             🚧 VR 준비 중입니다

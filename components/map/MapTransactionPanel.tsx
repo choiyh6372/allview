@@ -79,7 +79,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
   return (
     <div
       className={`hidden md:flex flex-col absolute left-0 top-0 bottom-0 z-10 bg-white shadow-xl overflow-hidden transition-all duration-300 ${
-        isOpen && selectedApt ? "w-[380px]" : "w-0"
+        isOpen && selectedApt ? "w-[460px]" : "w-0"
       }`}
     >
       {isOpen && selectedApt && (

@@ -154,12 +154,12 @@ export default function RealEstateClient() {
           </span>
         </div>
 
-        <div className="flex gap-0.5 sm:gap-1 p-1 mb-6 bg-bg-card border border-border rounded-xl w-fit">
+        <div className="flex gap-0.5 sm:gap-1 p-1 mb-6 bg-bg-card border border-border rounded-xl overflow-x-auto w-full sm:w-fit">
           {(["apt", "silv", "offi", "rh"] as TradeType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-3 sm:px-6 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${
+              className={`shrink-0 px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg text-sm font-semibold transition-colors ${
                 activeTab === tab
                   ? "bg-accent text-white"
                   : "text-gray-700 hover:text-gray-900"

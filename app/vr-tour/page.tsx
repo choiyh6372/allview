@@ -77,7 +77,7 @@ function VRTourContent() {
 
         <div className="flex flex-wrap gap-2 mb-8">
           {regions.map((r) => (
-            <button key={r} onClick={() => setRegion(r)}
+            <button key={r} onClick={() => { setRegion(r); router.replace(`/vr-tour?region=${encodeURIComponent(r)}`); }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 region === r ? "bg-accent text-white" : "bg-bg-card border border-border text-gray-700 hover:text-gray-900 hover:border-accent/40"
               }`}>

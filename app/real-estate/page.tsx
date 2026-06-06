@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import RealEstateClient from "@/components/real-estate/RealEstateClient";
+import { parseAptMapping } from "@/lib/parseAptMapping";
 
 export const metadata: Metadata = {
   title: "아파트 실거래가 | AllView360(올뷰360) - 부산 강서구",
@@ -20,5 +21,6 @@ export const metadata: Metadata = {
 };
 
 export default function RealEstatePage() {
-  return <RealEstateClient />;
+  const areaTypeMap = parseAptMapping();
+  return <RealEstateClient areaTypeMap={areaTypeMap} />;
 }

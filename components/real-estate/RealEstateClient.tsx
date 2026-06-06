@@ -8,9 +8,10 @@ import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
 import { type Complex } from "@/lib/realEstateData";
-import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 import { APT_COMPLEXES, PROPERTY_NAVER_URLS } from "@/lib/mapData";
+import type { AreaTypeMap } from "@/lib/parseAptMapping";
 
 type TradeType = "apt" | "silv" | "offi" | "rh";
 
@@ -72,7 +73,7 @@ async function fetchRealEstateData(): Promise<RealEstateData> {
   return { aptComplexes, silvComplexes, offiComplexes, rhComplexes, rentItems: rentData.items ?? [], offiRentItems: offiRentData.items ?? [], rhRentItems: rhRentData.items ?? [] };
 }
 
-export default function RealEstateClient() {
+export default function RealEstateClient({ areaTypeMap }: { areaTypeMap: AreaTypeMap }) {
   const { data, isLoading } = useSWR<RealEstateData>(
     "real-estate-data",
     fetchRealEstateData,
@@ -242,6 +243,7 @@ export default function RealEstateClient() {
                   selectedArea={selectedArea}
                   onAreaChange={setSelectedArea}
                   naverUrl={naverUrl ?? undefined}
+                  areaTypeMap={areaTypeMap}
                   areaCols={7}
                 />
                 {/* 모바일 버튼 영역 */}
@@ -268,6 +270,7 @@ export default function RealEstateClient() {
                     complex={complex}
                     rentTransactions={buildRentTransactions(activeRentItems, complex.name)}
                     selectedArea={selectedArea}
+                    areaTypeMap={areaTypeMap}
                   />
                 </div>
               </>
@@ -384,7 +387,7 @@ export default function RealEstateClient() {
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    {a}㎡
+                    {a}{getAreaType(areaTypeMap, complex.name, a)}㎡
                   </button>
                 ))}
               </div>
@@ -423,7 +426,7 @@ export default function RealEstateClient() {
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-3 py-2 text-gray-700">{t.date}</td>
                                 <td className="px-2 py-2 text-right text-gray-500">{t.dong ?? "-"}</td>
-                                <td className="px-2 py-2 text-right text-gray-600">{t.area}㎡</td>
+                                <td className="px-2 py-2 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
                                 <td className="px-2 py-2 text-right text-gray-500">{t.floor}</td>
                                 <td className="px-3 py-2 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
                               </tr>
@@ -431,7 +434,7 @@ export default function RealEstateClient() {
                           : visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-3 py-2 text-gray-700">{t.date}</td>
-                                <td className="px-2 py-2 text-right text-gray-600">{t.area}㎡</td>
+                                <td className="px-2 py-2 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
                                 <td className="px-2 py-2 text-right text-gray-500">{t.floor}</td>
                                 <td className="px-2 py-2 text-right">
                                   {t.monthlyRent === 0

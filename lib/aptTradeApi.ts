@@ -5,6 +5,10 @@ import { complexData as vrComplexData } from "./vrData";
 
 export type { RawItem, RentRawItem };
 
+export function getAreaType(areaTypeMap: Record<string, Record<string, string>>, aptName: string, area: string): string {
+  return areaTypeMap[aptName]?.[area] ?? "";
+}
+
 async function fetchItems(path: string, lawdCd: string, months: number): Promise<RawItem[]> {
   try {
     const res = await fetch(`${path}?lawdCd=${lawdCd}&months=${months}`, {

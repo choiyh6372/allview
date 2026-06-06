@@ -13,7 +13,8 @@ import {
 } from "recharts";
 import type { Complex } from "@/lib/realEstateData";
 import type { RentRawItem } from "@/lib/aptTradeApi";
-import { buildRentMonthlyPrices } from "@/lib/aptTradeApi";
+import { buildRentMonthlyPrices, getAreaType } from "@/lib/aptTradeApi";
+import type { AreaTypeMap } from "@/lib/parseAptMapping";
 import { Eye } from "lucide-react";
 import VRModal from "@/components/vr-tour/VRModal";
 import type { VRComplex } from "@/lib/vrData";
@@ -62,9 +63,10 @@ interface Props {
   light?: boolean;
   naverUrl?: string;
   areaCols?: 4 | 7;
+  areaTypeMap?: AreaTypeMap;
 }
 
-export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange, hideVrButton, light, naverUrl, areaCols = 4 }: Props) {
+export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange, hideVrButton, light, naverUrl, areaCols = 4, areaTypeMap = {} }: Props) {
   const [showVR, setShowVR] = useState(false);
 
   useEffect(() => {
@@ -174,7 +176,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
                 : "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900"
             }`}
           >
-            {a}㎡
+            {a}{getAreaType(areaTypeMap, complex.name, a)}㎡
           </button>
         ))}
       </div>

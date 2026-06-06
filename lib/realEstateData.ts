@@ -11,6 +11,7 @@ export interface Transaction {
   area: string;
   floor: number;
   price: number;
+  dong?: string;
 }
 
 export interface MonthlyPrice {

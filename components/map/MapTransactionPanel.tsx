@@ -151,6 +151,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                     {tab === "매매" ? (
                       <tr>
                         <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">거래일</th>
+                        <th className="text-right px-3 py-2.5 text-xs font-medium text-gray-500">동</th>
                         <th className="text-right px-3 py-2.5 text-xs font-medium text-gray-500">면적</th>
                         <th className="text-right px-3 py-2.5 text-xs font-medium text-gray-500">층</th>
                         <th className="text-right px-4 py-2.5 text-xs font-medium text-gray-500">거래가</th>
@@ -170,6 +171,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                       ? visibleRows.map((t: any, i) => (
                           <tr key={i} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-2.5 text-gray-700">{t.date}</td>
+                            <td className="px-3 py-2.5 text-right text-gray-500">{t.dong ?? "-"}</td>
                             <td className="px-3 py-2.5 text-right text-gray-600">{t.area}㎡</td>
                             <td className="px-3 py-2.5 text-right text-gray-500">{t.floor}</td>
                             <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{fmt(t.price)}</td>

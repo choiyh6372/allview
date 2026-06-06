@@ -84,45 +84,13 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
         </div>
         {tradeRows.length === 0 ? (
           <div className={`px-6 py-10 text-center text-sm ${sub}`}>거래 내역이 없습니다</div>
-        ) : light ? (
-          <>
-            <table className="w-full text-sm">
-              <thead className={stickyBg}>
-                <tr className={hdr}>
-                  <th className={`text-left px-6 py-3 text-xs font-medium ${sub}`}>거래일</th>
-                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>면적</th>
-                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>층</th>
-                  <th className={`text-right px-6 py-3 text-xs font-medium ${sub}`}>거래가</th>
-                </tr>
-              </thead>
-              <tbody className={`divide-y ${divRow}`}>
-                {visibleTrade.map((t, i) => (
-                  <tr key={i} className={`${hover} transition-colors`}>
-                    <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
-                    <td className={`px-4 py-3 text-right ${cell}`}>{t.area}㎡</td>
-                    <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}</td>
-                    <td className={`px-6 py-3 text-right ${txt}`}>
-                      <span className="font-semibold">{fmt(t.price)}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {tradeLimit < tradeRows.length && (
-              <button
-                onClick={() => setTradeLimit((v) => v + PREVIEW)}
-                className={`w-full py-2.5 text-xs font-medium border-t ${hdr} ${sub} hover:text-gray-800 transition-colors`}
-              >
-                더보기 ({Math.min(PREVIEW, tradeRows.length - tradeLimit)}건 더)
-              </button>
-            )}
-          </>
         ) : (
           <>
             <table className="w-full text-sm">
               <thead className={stickyBg}>
                 <tr className={hdr}>
                   <th className={`text-left px-6 py-3 text-xs font-medium ${sub}`}>거래일</th>
+                  <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>동</th>
                   <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>면적</th>
                   <th className={`text-right px-4 py-3 text-xs font-medium ${sub}`}>층</th>
                   <th className={`text-right px-6 py-3 text-xs font-medium ${sub}`}>거래가</th>
@@ -132,6 +100,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                 {visibleTrade.map((t, i) => (
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
+                    <td className={`px-4 py-3 text-right ${sub}`}>{t.dong ?? "-"}</td>
                     <td className={`px-4 py-3 text-right ${cell}`}>{t.area}㎡</td>
                     <td className={`px-4 py-3 text-right ${sub}`}>{t.floor}</td>
                     <td className={`px-6 py-3 text-right ${txt}`}>

@@ -95,12 +95,14 @@ export function toTransaction(item: RawItem): Transaction {
   const area = String(areaRaw);
   const month = (item.dealMonth ?? "1").padStart(2, "0");
   const day = (item.dealDay ?? "1").padStart(2, "0");
+  const dong = item.aptDong?.trim() || undefined;
 
   return {
     date: `${item.dealYear}.${month}.${day}`,
     area,
     floor: parseInt(item.floor ?? "1") || 1,
     price,
+    dong,
   };
 }
 

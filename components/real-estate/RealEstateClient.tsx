@@ -101,6 +101,8 @@ export default function RealEstateClient() {
   const [txLimit, setTxLimit] = useState(20);
   const txScrollRef = useRef<HTMLDivElement>(null);
   const txStartYRef = useRef<number | null>(null);
+  const mobileHistoryPushedRef = useRef(false);
+  const sheetHistoryPushedRef = useRef(false);
 
   useEffect(() => {
     if (aptComplexes.length > 0 && selectedAptId === null) {
@@ -140,6 +142,45 @@ export default function RealEstateClient() {
     setSelectedArea(complex?.areas[0] ?? "");
   }, [complex?.id]);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      if (sheetHistoryPushedRef.current) {
+        sheetHistoryPushedRef.current = false;
+        setShowTxSheet(false);
+      } else {
+        mobileHistoryPushedRef.current = false;
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const handleMobileSelect = (id: number) => {
+    setSelectedId(id);
+    if (typeof window !== "undefined" && window.innerWidth < 768 && !mobileHistoryPushedRef.current) {
+      mobileHistoryPushedRef.current = true;
+      window.history.pushState({ complexSelected: true }, "");
+    }
+  };
+
+  const handleOpenTxSheet = () => {
+    setShowTxSheet(true);
+    setTxLimit(20);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      sheetHistoryPushedRef.current = true;
+      window.history.pushState({ txSheetOpen: true }, "");
+    }
+  };
+
+  const closeTxSheet = () => {
+    if (sheetHistoryPushedRef.current) {
+      sheetHistoryPushedRef.current = false;
+      window.history.back();
+    } else {
+      setShowTxSheet(false);
+    }
+  };
+
   return (
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -175,7 +216,7 @@ export default function RealEstateClient() {
             <ComplexList
               complexes={complexes}
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onSelect={handleMobileSelect}
               isLoading={isLoading}
             />
           </aside>
@@ -198,7 +239,7 @@ export default function RealEstateClient() {
                 {/* 모바일 버튼 영역 */}
                 <div className="md:hidden flex flex-col gap-2">
                   <button
-                    onClick={() => { setShowTxSheet(true); setTxLimit(20); }}
+                    onClick={handleOpenTxSheet}
                     className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-base font-semibold border transition-colors bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700"
                   >
                     매매 · 전월세 거래내역
@@ -257,7 +298,7 @@ export default function RealEstateClient() {
               className={`md:hidden fixed inset-0 z-[55] bg-black/20 transition-opacity duration-300 ${
                 showTxSheet ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
-              onClick={() => setShowTxSheet(false)}
+              onClick={closeTxSheet}
             />
             <div
               className={`md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white rounded-t-2xl shadow-2xl transition-transform duration-300 flex flex-col ${
@@ -269,7 +310,7 @@ export default function RealEstateClient() {
                 if (txStartYRef.current === null) return;
                 const dy = e.changedTouches[0].clientY - txStartYRef.current;
                 txStartYRef.current = null;
-                if (dy > 80 && (txScrollRef.current?.scrollTop ?? 0) === 0) setShowTxSheet(false);
+                if (dy > 80 && (txScrollRef.current?.scrollTop ?? 0) === 0) closeTxSheet();
               }}
             >
               <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing">
@@ -291,7 +332,7 @@ export default function RealEstateClient() {
                   ))}
                 </div>
                 <button
-                  onClick={() => setShowTxSheet(false)}
+                  onClick={closeTxSheet}
                   className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   <X size={16} />

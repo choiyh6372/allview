@@ -101,6 +101,8 @@ export default function RealEstateClient() {
   const [txLimit, setTxLimit] = useState(20);
   const txScrollRef = useRef<HTMLDivElement>(null);
   const txStartYRef = useRef<number | null>(null);
+  const txStartXRef = useRef<number | null>(null);
+  const areaScrollRef = useRef<HTMLDivElement>(null);
   const mobileHistoryPushedRef = useRef(false);
   const sheetHistoryPushedRef = useRef(false);
 
@@ -141,6 +143,12 @@ export default function RealEstateClient() {
   useEffect(() => {
     setSelectedArea(complex?.areas[0] ?? "");
   }, [complex?.id]);
+
+  useEffect(() => {
+    if (!areaScrollRef.current) return;
+    const btn = areaScrollRef.current.querySelector(`[data-area="${selectedArea}"]`) as HTMLElement | null;
+    btn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [selectedArea]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -285,6 +293,7 @@ export default function RealEstateClient() {
           : rentTransactions;
         const rows = txTab === "매매" ? tradeRows : rentRows;
         const visibleRows = rows.slice(0, txLimit);
+        const allAreas = ["", ...complex.areas];
 
         function fmt(v: number) {
           if (v >= 10000) return `${(v / 10000).toFixed(2)}억`;
@@ -305,12 +314,29 @@ export default function RealEstateClient() {
                 showTxSheet ? "translate-y-0" : "translate-y-full"
               }`}
               style={{ height: "88vh" }}
-              onTouchStart={(e) => { txStartYRef.current = e.touches[0].clientY; }}
+              onTouchStart={(e) => {
+                txStartYRef.current = e.touches[0].clientY;
+                txStartXRef.current = e.touches[0].clientX;
+              }}
               onTouchEnd={(e) => {
                 if (txStartYRef.current === null) return;
                 const dy = e.changedTouches[0].clientY - txStartYRef.current;
+                const dx = e.changedTouches[0].clientX - (txStartXRef.current ?? 0);
                 txStartYRef.current = null;
-                if (dy > 80 && (txScrollRef.current?.scrollTop ?? 0) === 0) closeTxSheet();
+                txStartXRef.current = null;
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                  const currentIndex = allAreas.indexOf(selectedArea);
+                  if (dx < 0) {
+                    const next = Math.min(currentIndex + 1, allAreas.length - 1);
+                    setSelectedArea(allAreas[next]);
+                  } else {
+                    const prev = Math.max(currentIndex - 1, 0);
+                    setSelectedArea(allAreas[prev]);
+                  }
+                  setTxLimit(20);
+                } else if (dy > 80 && (txScrollRef.current?.scrollTop ?? 0) === 0) {
+                  closeTxSheet();
+                }
               }}
             >
               <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing">
@@ -339,9 +365,10 @@ export default function RealEstateClient() {
                 </button>
               </div>
 
-              <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
+              <div ref={areaScrollRef} className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
                 <button
-                  onClick={() => setSelectedArea("")}
+                  data-area=""
+                  onClick={() => { setSelectedArea(""); setTxLimit(20); }}
                   className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     !selectedArea ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
@@ -351,7 +378,8 @@ export default function RealEstateClient() {
                 {complex.areas.map((a) => (
                   <button
                     key={a}
-                    onClick={() => setSelectedArea(a)}
+                    data-area={a}
+                    onClick={() => { setSelectedArea(a); setTxLimit(20); }}
                     className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
@@ -369,23 +397,23 @@ export default function RealEstateClient() {
                     <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-100">
                       총 {rows.length}건
                     </div>
-                    <table className="w-full text-sm">
+                    <table className="w-full text-xs">
                       <thead className="sticky top-0 bg-white border-b border-gray-100">
                         {txTab === "매매" ? (
                           <tr>
-                            <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">거래일</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-medium text-gray-500">동</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-medium text-gray-500">면적</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-medium text-gray-500">층</th>
-                            <th className="text-right px-4 py-2.5 text-xs font-medium text-gray-500">거래가</th>
+                            <th className="text-left px-3 py-2 font-medium text-gray-500">거래일</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500">동</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500">면적</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500">층</th>
+                            <th className="text-right px-3 py-2 font-medium text-gray-500">거래가</th>
                           </tr>
                         ) : (
                           <tr>
-                            <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">거래일</th>
-                            <th className="text-right px-2 py-2.5 text-xs font-medium text-gray-500">면적</th>
-                            <th className="text-right px-2 py-2.5 text-xs font-medium text-gray-500">층</th>
-                            <th className="text-right px-2 py-2.5 text-xs font-medium text-gray-500">유형</th>
-                            <th className="text-right px-4 py-2.5 text-xs font-medium text-gray-500">보증/월세</th>
+                            <th className="text-left px-3 py-2 font-medium text-gray-500">거래일</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500">면적</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500">층</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500">유형</th>
+                            <th className="text-right px-3 py-2 font-medium text-gray-500">보증/월세</th>
                           </tr>
                         )}
                       </thead>
@@ -393,25 +421,25 @@ export default function RealEstateClient() {
                         {txTab === "매매"
                           ? visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
-                                <td className="px-4 py-2.5 text-gray-700">{t.date}</td>
-                                <td className="px-3 py-2.5 text-right text-gray-500">{t.dong ?? "-"}</td>
-                                <td className="px-3 py-2.5 text-right text-gray-600">{t.area}㎡</td>
-                                <td className="px-3 py-2.5 text-right text-gray-500">{t.floor}</td>
-                                <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
+                                <td className="px-3 py-2 text-gray-700">{t.date}</td>
+                                <td className="px-2 py-2 text-right text-gray-500">{t.dong ?? "-"}</td>
+                                <td className="px-2 py-2 text-right text-gray-600">{t.area}㎡</td>
+                                <td className="px-2 py-2 text-right text-gray-500">{t.floor}</td>
+                                <td className="px-3 py-2 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
                               </tr>
                             ))
                           : visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
-                                <td className="px-4 py-2.5 text-gray-700 whitespace-nowrap">{t.date}</td>
-                                <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}㎡</td>
-                                <td className="px-2 py-2.5 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
-                                <td className="px-2 py-2.5 text-right whitespace-nowrap">
+                                <td className="px-3 py-2 text-gray-700">{t.date}</td>
+                                <td className="px-2 py-2 text-right text-gray-600">{t.area}㎡</td>
+                                <td className="px-2 py-2 text-right text-gray-500">{t.floor}</td>
+                                <td className="px-2 py-2 text-right">
                                   {t.monthlyRent === 0
                                     ? <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-500">전세</span>
                                     : <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-500">월세</span>
                                   }
                                 </td>
-                                <td className="px-4 py-2.5 text-right font-semibold text-gray-900 whitespace-nowrap">
+                                <td className="px-3 py-2 text-right font-semibold text-gray-900">
                                   {t.monthlyRent === 0 ? fmt(t.deposit) : `${fmtMan(t.deposit)} / ${fmtMan(t.monthlyRent)}`}
                                 </td>
                               </tr>

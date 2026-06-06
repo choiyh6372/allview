@@ -22,7 +22,7 @@ const TAB_LABELS: Record<TradeType, string> = {
   rh: "연립다세대",
 };
 
-interface RealEstateData {
+export interface RealEstateData {
   aptComplexes: Complex[];
   silvComplexes: Complex[];
   offiComplexes: Complex[];
@@ -73,11 +73,13 @@ async function fetchRealEstateData(): Promise<RealEstateData> {
   return { aptComplexes, silvComplexes, offiComplexes, rhComplexes, rentItems: rentData.items ?? [], offiRentItems: offiRentData.items ?? [], rhRentItems: rhRentData.items ?? [] };
 }
 
-export default function RealEstateClient({ areaTypeMap }: { areaTypeMap: AreaTypeMap }) {
+export default function RealEstateClient({ areaTypeMap, initialData }: { areaTypeMap: AreaTypeMap; initialData?: RealEstateData }) {
   const { data, isLoading } = useSWR<RealEstateData>(
     "real-estate-data",
     fetchRealEstateData,
     {
+      fallbackData: initialData,
+      revalidateOnMount: !initialData,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       dedupingInterval: 5 * 60 * 1000,

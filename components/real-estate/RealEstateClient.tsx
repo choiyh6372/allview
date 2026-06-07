@@ -105,6 +105,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
   const txScrollRef = useRef<HTMLDivElement>(null);
   const txStartYRef = useRef<number | null>(null);
   const txStartXRef = useRef<number | null>(null);
+  const savedScrollYRef = useRef(0);
   const areaScrollRef = useRef<HTMLDivElement>(null);
   const mobileHistoryPushedRef = useRef(false);
   const sheetHistoryPushedRef = useRef(false);
@@ -163,11 +164,19 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
 
   useEffect(() => {
     if (showTxSheet) {
+      savedScrollYRef.current = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${savedScrollYRef.current}px`;
+      document.body.style.width = "100%";
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        window.scrollTo(0, savedScrollYRef.current);
+      };
     }
-    return () => { document.body.style.overflow = ""; };
   }, [showTxSheet]);
 
   const handleMobileSelect = (id: number) => {
@@ -397,7 +406,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                 ))}
               </div>
 
-              <div ref={txScrollRef} className="flex-1 overflow-y-auto">
+              <div ref={txScrollRef} className="flex-1 overflow-y-auto overscroll-contain">
                 {rows.length === 0 ? (
                   <div className="text-center text-sm text-gray-400 py-12">거래 내역이 없습니다</div>
                 ) : (

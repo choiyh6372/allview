@@ -428,7 +428,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                       href={PROPERTY_NAVER_URLS[selectedProperty.name]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-base font-semibold rounded-lg border border-transparent transition-colors"
                     >
                       네이버 부동산 보기
                     </a>

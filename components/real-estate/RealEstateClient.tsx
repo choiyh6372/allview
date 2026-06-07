@@ -13,13 +13,12 @@ import type { RawItem, RentRawItem } from "@/lib/molitApi";
 import { APT_COMPLEXES, PROPERTY_NAVER_URLS } from "@/lib/mapData";
 import type { AreaTypeMap } from "@/lib/parseAptMapping";
 
-type TradeType = "apt" | "silv" | "offi" | "rh";
+type TradeType = "apt" | "silv" | "offi";
 
 const TAB_LABELS: Record<TradeType, string> = {
   apt: "아파트",
   silv: "분양권",
   offi: "오피스텔",
-  rh: "연립다세대",
 };
 
 export interface RealEstateData {
@@ -86,18 +85,19 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
     }
   );
 
-  const aptComplexes = data?.aptComplexes ?? [];
+  const aptComplexes = [
+    ...(data?.aptComplexes ?? []),
+    ...(data?.rhComplexes ?? []),
+  ].sort((a, b) => a.name.localeCompare(b.name, "ko")).map((c, i) => ({ ...c, id: i }));
   const silvComplexes = data?.silvComplexes ?? [];
   const offiComplexes = data?.offiComplexes ?? [];
-  const rhComplexes = data?.rhComplexes ?? [];
-  const rentItems = data?.rentItems ?? [];
+  const rentItems = [...(data?.rentItems ?? []), ...(data?.rhRentItems ?? [])];
   const offiRentItems = data?.offiRentItems ?? [];
 
   const [activeTab, setActiveTab] = useState<TradeType>("apt");
   const [selectedAptId, setSelectedAptId] = useState<number | null>(null);
   const [selectedSilvId, setSelectedSilvId] = useState<number | null>(null);
   const [selectedOffiId, setSelectedOffiId] = useState<number | null>(null);
-  const [selectedRhId, setSelectedRhId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState("");
   const [showTxSheet, setShowTxSheet] = useState(false);
   const [txTab, setTxTab] = useState<"매매" | "전월세">("매매");
@@ -124,15 +124,10 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
     if (offiComplexes.length > 0 && selectedOffiId === null) setSelectedOffiId(offiComplexes[0].id);
   }, [offiComplexes]);
 
-  useEffect(() => {
-    if (rhComplexes.length > 0 && selectedRhId === null) setSelectedRhId(rhComplexes[0].id);
-  }, [rhComplexes]);
-
-  const complexesMap: Record<TradeType, Complex[]> = { apt: aptComplexes, silv: silvComplexes, offi: offiComplexes, rh: rhComplexes };
-  const selectedIdMap: Record<TradeType, number | null> = { apt: selectedAptId, silv: selectedSilvId, offi: selectedOffiId, rh: selectedRhId };
-  const setSelectedIdMap: Record<TradeType, (id: number) => void> = { apt: setSelectedAptId, silv: setSelectedSilvId, offi: setSelectedOffiId, rh: setSelectedRhId };
-  const rhRentItems = data?.rhRentItems ?? [];
-  const rentItemsMap: Record<TradeType, RentRawItem[]> = { apt: rentItems, silv: [], offi: offiRentItems, rh: rhRentItems };
+  const complexesMap: Record<TradeType, Complex[]> = { apt: aptComplexes, silv: silvComplexes, offi: offiComplexes };
+  const selectedIdMap: Record<TradeType, number | null> = { apt: selectedAptId, silv: selectedSilvId, offi: selectedOffiId };
+  const setSelectedIdMap: Record<TradeType, (id: number) => void> = { apt: setSelectedAptId, silv: setSelectedSilvId, offi: setSelectedOffiId };
+  const rentItemsMap: Record<TradeType, RentRawItem[]> = { apt: rentItems, silv: [], offi: offiRentItems };
 
   const complexes = complexesMap[activeTab];
   const selectedId = selectedIdMap[activeTab];
@@ -206,7 +201,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
         </div>
 
         <div className="flex gap-0.5 sm:gap-1 p-1 mb-6 bg-bg-card border border-border rounded-xl overflow-x-auto w-full sm:w-fit">
-          {(["apt", "silv", "offi", "rh"] as TradeType[]).map((tab) => (
+          {(["apt", "silv", "offi"] as TradeType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}

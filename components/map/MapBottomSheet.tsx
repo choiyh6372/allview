@@ -287,11 +287,13 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
   const startYRef = useRef<number | null>(null);
   const startXRef = useRef<number | null>(null);
   const txStartYRef = useRef<number | null>(null);
+  const txStartXRef = useRef<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const txScrollRef = useRef<HTMLDivElement>(null);
   const propertyTxScrollRef = useRef<HTMLDivElement>(null);
   const propertyTxStartYRef = useRef<number | null>(null);
+  const propertyTxStartXRef = useRef<number | null>(null);
 
   function onSheetTouchStart(e: React.TouchEvent) {
     startYRef.current = e.touches[0].clientY;
@@ -659,12 +661,22 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 showTxTable ? "translate-y-0" : "translate-y-full"
               }`}
               style={{ height: "88vh" }}
-              onTouchStart={(e) => { txStartYRef.current = e.touches[0].clientY; }}
+              onTouchStart={(e) => { txStartYRef.current = e.touches[0].clientY; txStartXRef.current = e.touches[0].clientX; }}
               onTouchEnd={(e) => {
                 if (txStartYRef.current === null) return;
                 const dy = e.changedTouches[0].clientY - txStartYRef.current;
+                const dx = e.changedTouches[0].clientX - (txStartXRef.current ?? 0);
                 txStartYRef.current = null;
-                if (dy > 80 && (txScrollRef.current?.scrollTop ?? 0) === 0) setShowTxTable(false);
+                txStartXRef.current = null;
+                const allAreas = ["", ...complex.areas];
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                  const currentIndex = allAreas.indexOf(selectedArea);
+                  if (dx < 0) setSelectedArea(allAreas[Math.min(currentIndex + 1, allAreas.length - 1)]);
+                  else setSelectedArea(allAreas[Math.max(currentIndex - 1, 0)]);
+                  setTxLimit(20);
+                } else if (dy > 80 && (txScrollRef.current?.scrollTop ?? 0) === 0) {
+                  setShowTxTable(false);
+                }
               }}
             >
               {/* 드래그 핸들 */}
@@ -828,12 +840,22 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 showPropertyTxSheet ? "translate-y-0" : "translate-y-full"
               }`}
               style={{ height: "88vh" }}
-              onTouchStart={(e) => { propertyTxStartYRef.current = e.touches[0].clientY; }}
+              onTouchStart={(e) => { propertyTxStartYRef.current = e.touches[0].clientY; propertyTxStartXRef.current = e.touches[0].clientX; }}
               onTouchEnd={(e) => {
                 if (propertyTxStartYRef.current === null) return;
                 const dy = e.changedTouches[0].clientY - propertyTxStartYRef.current;
+                const dx = e.changedTouches[0].clientX - (propertyTxStartXRef.current ?? 0);
                 propertyTxStartYRef.current = null;
-                if (dy > 80 && (propertyTxScrollRef.current?.scrollTop ?? 0) === 0) setShowPropertyTxSheet(false);
+                propertyTxStartXRef.current = null;
+                const allAreas = ["", ...propertyComplex.areas];
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                  const currentIndex = allAreas.indexOf(selectedArea);
+                  if (dx < 0) setSelectedArea(allAreas[Math.min(currentIndex + 1, allAreas.length - 1)]);
+                  else setSelectedArea(allAreas[Math.max(currentIndex - 1, 0)]);
+                  setPropertyTxLimit(20);
+                } else if (dy > 80 && (propertyTxScrollRef.current?.scrollTop ?? 0) === 0) {
+                  setShowPropertyTxSheet(false);
+                }
               }}
             >
               <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing">

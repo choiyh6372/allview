@@ -644,6 +644,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 selectedArea={selectedArea}
                 onAreaChange={setSelectedArea}
                 areaTypeMap={areaTypeMap}
+                nameForAreaType={complex.name}
                 light
               />
               <button

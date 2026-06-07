@@ -524,6 +524,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               selectedArea={selectedArea}
               onAreaChange={setSelectedArea}
               areaTypeMap={areaTypeMap}
+              nameForAreaType={complex.name}
               light
             />
             {onToggleTxPanel && (

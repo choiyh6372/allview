@@ -64,9 +64,11 @@ interface Props {
   naverUrl?: string;
   areaCols?: 4 | 7;
   areaTypeMap?: AreaTypeMap;
+  nameForAreaType?: string;
 }
 
-export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange, hideVrButton, light, naverUrl, areaCols = 4, areaTypeMap = {} }: Props) {
+export default function PriceChart({ complex, rentItems, selectedArea, onAreaChange, hideVrButton, light, naverUrl, areaCols = 4, areaTypeMap = {}, nameForAreaType }: Props) {
+  const areaLookupName = nameForAreaType ?? complex.name;
   const [showVR, setShowVR] = useState(false);
 
   useEffect(() => {
@@ -176,7 +178,7 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
                 : "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900"
             }`}
           >
-            {a}{getAreaType(areaTypeMap, complex.name, a)}㎡
+            {a}{getAreaType(areaTypeMap, areaLookupName, a)}㎡
           </button>
         ))}
       </div>

@@ -92,21 +92,21 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
             <table className="w-full text-sm">
               <thead className={stickyBg}>
                 <tr className={hdr}>
-                  <th className={`text-left px-6 py-3 text-xs font-medium ${sub}`}>거래일</th>
+                  <th className={`text-left px-6 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래일</th>
                   <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>동</th>
                   <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>면적</th>
                   <th className={`text-right px-4 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>층</th>
-                  <th className={`text-right px-6 py-3 text-xs font-medium ${sub}`}>거래가</th>
+                  <th className={`text-right px-6 py-3 text-xs font-medium ${sub} whitespace-nowrap`}>거래가</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${divRow}`}>
                 {visibleTrade.map((t, i) => (
                   <tr key={i} className={`${hover} transition-colors`}>
-                    <td className={`px-6 py-3 ${cell}`}>{t.date}</td>
+                    <td className={`px-6 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
                     <td className={`px-4 py-3 text-right ${sub} whitespace-nowrap`}>{t.dong ?? "-"}</td>
                     <td className={`px-4 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
                     <td className={`px-4 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
-                    <td className={`px-6 py-3 text-right ${txt}`}>
+                    <td className={`px-6 py-3 text-right ${txt} whitespace-nowrap`}>
                       <span className="font-semibold">{fmt(t.price)}</span>
                     </td>
                   </tr>

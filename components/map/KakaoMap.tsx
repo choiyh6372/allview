@@ -1367,6 +1367,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
         onToggleTxPanel={() => setTxPanelOpen((v) => !v)}
         sharedArea={sharedArea}
         onSharedAreaChange={setSharedArea}
+        areaTypeMap={areaTypeMap}
       />
 
       <MapBottomSheet

@@ -182,9 +182,10 @@ interface Props {
   onToggleTxPanel?: () => void;
   sharedArea?: string;
   onSharedAreaChange?: (area: string) => void;
+  areaTypeMap?: Record<string, Record<string, string>>;
 }
 
-export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange }: Props) {
+export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange, areaTypeMap = {} }: Props) {
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -319,6 +320,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                   rentItems={propertyRentItems.filter((i) => i.aptNm?.trim() === propertyComplex.name)}
                   selectedArea={selectedArea}
                   onAreaChange={setSelectedArea}
+                  areaTypeMap={areaTypeMap}
                   light
                 />
                 {PROPERTY_NAVER_URLS[selectedProperty.name] && (
@@ -521,6 +523,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
               selectedArea={selectedArea}
               onAreaChange={setSelectedArea}
+              areaTypeMap={areaTypeMap}
               light
             />
             {onToggleTxPanel && (

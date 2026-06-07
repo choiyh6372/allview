@@ -407,10 +407,10 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                         {txTab === "매매" ? (
                           <tr>
                             <th className="text-left px-3 py-2 font-medium text-gray-500">거래일</th>
-                            <th className="text-right px-2 py-2 font-medium text-gray-500">동</th>
-                            <th className="text-right px-2 py-2 font-medium text-gray-500">면적</th>
-                            <th className="text-right px-2 py-2 font-medium text-gray-500">층</th>
-                            <th className="text-right px-3 py-2 font-medium text-gray-500">거래가</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500 whitespace-nowrap">동</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500 whitespace-nowrap">면적</th>
+                            <th className="text-right px-2 py-2 font-medium text-gray-500 whitespace-nowrap">층</th>
+                            <th className="text-right px-3 py-2 font-medium text-gray-500 whitespace-nowrap">거래가</th>
                           </tr>
                         ) : (
                           <tr>
@@ -427,9 +427,9 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                           ? visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-3 py-2 text-gray-700">{t.date}</td>
-                                <td className="px-2 py-2 text-right text-gray-500">{t.dong ?? "-"}</td>
-                                <td className="px-2 py-2 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
-                                <td className="px-2 py-2 text-right text-gray-500">{t.floor}</td>
+                                <td className="px-2 py-2 text-right text-gray-500 whitespace-nowrap">{t.dong ?? "-"}</td>
+                                <td className="px-2 py-2 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
+                                <td className="px-2 py-2 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
                                 <td className="px-3 py-2 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
                               </tr>
                             ))

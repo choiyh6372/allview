@@ -10,6 +10,7 @@ import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { type JeongbiProject, JEONGBI_TYPE_COLOR, JEONGBI_TYPE_ICON } from "@/lib/jeongbiData";
+import type { AreaTypeMap } from "@/lib/parseAptMapping";
 // ── Kakao SDK type declarations ───────────────────────────────────────────────
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
 interface KakaoMapInstance {
@@ -103,7 +104,7 @@ const JEONGBI_POLY_COLOR: Record<string, string> = {
   "기타":         "#94a3b8",
 };
 
-export default function KakaoMap({ apiKey }: { apiKey: string }) {
+export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string; areaTypeMap?: AreaTypeMap }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
   const popupOverlayRef = useRef<KakaoCustomOverlay | null>(null);
@@ -1375,6 +1376,7 @@ export default function KakaoMap({ apiKey }: { apiKey: string }) {
         selectedProperty={selectedProperty}
         selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
+        areaTypeMap={areaTypeMap}
       />
 
       <div className="relative flex-1">

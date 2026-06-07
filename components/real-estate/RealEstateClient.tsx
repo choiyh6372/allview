@@ -184,11 +184,10 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
   };
 
   const closeTxSheet = () => {
+    setShowTxSheet(false);
     if (sheetHistoryPushedRef.current) {
       sheetHistoryPushedRef.current = false;
       window.history.back();
-    } else {
-      setShowTxSheet(false);
     }
   };
 

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 import { X, MapPin, Phone, Navigation } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
-import { buildComplexList, buildRentTransactions, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import { type AptComplex, PROPERTY_NAVER_URLS } from "@/lib/mapData";
@@ -13,6 +13,7 @@ import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { complexData as vrComplexData } from "@/lib/vrData";
 import type { SelectedProperty } from "@/components/map/KakaoMap";
 import { type JeongbiProject, JEONGBI_TYPE_COLOR } from "@/lib/jeongbiData";
+import type { AreaTypeMap } from "@/lib/parseAptMapping";
 
 interface MapEstateData {
   aptComplexes: Complex[];
@@ -174,9 +175,10 @@ interface Props {
   selectedProperty: SelectedProperty | null;
   selectedJeongbi: JeongbiProject | null;
   onClose: () => void;
+  areaTypeMap?: AreaTypeMap;
 }
 
-export default function MapBottomSheet({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose }: Props) {
+export default function MapBottomSheet({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, areaTypeMap = {} }: Props) {
   const isVisible = !!(selectedApt || selectedStore || selectedSubscription || selectedProperty || selectedJeongbi);
 
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
@@ -228,6 +230,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
   useEffect(() => {
     setSelectedArea(complex?.areas[0] ?? "");
     setShowTxTable(false);
+    txSheetHistoryPushedRef.current = false;
     setTxTab("매매");
     setTxLimit(20);
     scrollRef.current?.scrollTo({ top: 0 });
@@ -240,6 +243,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
   useEffect(() => {
     if (selectedProperty) {
       setShowPropertyTxSheet(false);
+      propertyTxSheetHistoryPushedRef.current = false;
       setPropertyTxTab("매매");
       setPropertyTxLimit(20);
       scrollRef.current?.scrollTo({ top: 0 });
@@ -272,8 +276,20 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
         ignoringPopstateRef.current = false;
         return;
       }
-      // VR·자식 모달이 닫히며 돌아오는 경우 → 바텀시트 유지
-      if (e.state?.bottomSheet === true || e.state?.vrModal === true) return;
+      // bottomSheet 상태로 돌아옴 = 거래내역 서브시트가 뒤로가기로 닫힌 경우
+      if (e.state?.bottomSheet === true) {
+        if (txSheetHistoryPushedRef.current) {
+          txSheetHistoryPushedRef.current = false;
+          setShowTxTable(false);
+        }
+        if (propertyTxSheetHistoryPushedRef.current) {
+          propertyTxSheetHistoryPushedRef.current = false;
+          setShowPropertyTxSheet(false);
+        }
+        return;
+      }
+      // VR 모달이 닫히며 돌아오는 경우 → 바텀시트 유지
+      if (e.state?.vrModal === true) return;
       if (pushedStateRef.current) {
         pushedStateRef.current = false;
         onClose();
@@ -294,6 +310,33 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
   const propertyTxScrollRef = useRef<HTMLDivElement>(null);
   const propertyTxStartYRef = useRef<number | null>(null);
   const propertyTxStartXRef = useRef<number | null>(null);
+  const txSheetHistoryPushedRef = useRef(false);
+  const propertyTxSheetHistoryPushedRef = useRef(false);
+
+  function openTxSheet() {
+    setShowTxTable(true);
+    txSheetHistoryPushedRef.current = true;
+    history.pushState({ txSheet: true }, "");
+  }
+  function closeTxSheet() {
+    setShowTxTable(false);
+    if (txSheetHistoryPushedRef.current) {
+      txSheetHistoryPushedRef.current = false;
+      history.back();
+    }
+  }
+  function openPropertyTxSheet() {
+    setShowPropertyTxSheet(true);
+    propertyTxSheetHistoryPushedRef.current = true;
+    history.pushState({ propertyTxSheet: true }, "");
+  }
+  function closePropertyTxSheet() {
+    setShowPropertyTxSheet(false);
+    if (propertyTxSheetHistoryPushedRef.current) {
+      propertyTxSheetHistoryPushedRef.current = false;
+      history.back();
+    }
+  }
 
   function onSheetTouchStart(e: React.TouchEvent) {
     startYRef.current = e.touches[0].clientY;
@@ -413,10 +456,11 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                     rentItems={propertyRentItems.filter((i) => i.aptNm?.trim() === propertyComplex.name)}
                     selectedArea={selectedArea}
                     onAreaChange={setSelectedArea}
+                    areaTypeMap={areaTypeMap}
                     light
                   />
                   <button
-                    onClick={() => setShowPropertyTxSheet((v) => !v)}
+                    onClick={() => showPropertyTxSheet ? closePropertyTxSheet() : openPropertyTxSheet()}
                     className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-base font-semibold border transition-colors ${
                       showPropertyTxSheet
                         ? "bg-blue-700 text-white border-blue-700"
@@ -599,10 +643,11 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}
                 selectedArea={selectedArea}
                 onAreaChange={setSelectedArea}
+                areaTypeMap={areaTypeMap}
                 light
               />
               <button
-                onClick={() => setShowTxTable((v) => !v)}
+                onClick={() => showTxTable ? closeTxSheet() : openTxSheet()}
                 className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-base font-semibold border transition-colors ${
                   showTxTable
                     ? "bg-blue-700 text-white border-blue-700"
@@ -653,7 +698,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               className={`md:hidden fixed inset-0 z-[55] bg-black/20 transition-opacity duration-300 ${
                 showTxTable ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
-              onClick={() => setShowTxTable(false)}
+              onClick={() => closeTxSheet()}
             />
             {/* 거래내역 시트 */}
             <div
@@ -675,7 +720,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   else setSelectedArea(allAreas[Math.max(currentIndex - 1, 0)]);
                   setTxLimit(20);
                 } else if (dy > 80 && (txScrollRef.current?.scrollTop ?? 0) === 0) {
-                  setShowTxTable(false);
+                  closeTxSheet();
                 }
               }}
             >
@@ -702,7 +747,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   ))}
                 </div>
                 <button
-                  onClick={() => setShowTxTable(false)}
+                  onClick={() => closeTxSheet()}
                   className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   <X size={16} />
@@ -727,7 +772,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    {a}㎡
+                    {a}{getAreaType(areaTypeMap, complex.name, a)}㎡
                   </button>
                 ))}
               </div>
@@ -767,7 +812,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-4 py-2.5 text-gray-700">{t.date}</td>
                                 <td className="px-3 py-2.5 text-right text-gray-500">{t.dong ?? "-"}</td>
-                                <td className="px-3 py-2.5 text-right text-gray-600">{t.area}㎡</td>
+                                <td className="px-3 py-2.5 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
                                 <td className="px-3 py-2.5 text-right text-gray-500">{t.floor}</td>
                                 <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
                               </tr>
@@ -775,7 +820,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                           : visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-4 py-2.5 text-gray-700 whitespace-nowrap">{t.date}</td>
-                                <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}㎡</td>
+                                <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
                                 <td className="px-2 py-2.5 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
                                 <td className="px-2 py-2.5 text-right whitespace-nowrap">
                                   {t.monthlyRent === 0
@@ -833,7 +878,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               className={`md:hidden fixed inset-0 z-[55] bg-black/20 transition-opacity duration-300 ${
                 showPropertyTxSheet ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
-              onClick={() => setShowPropertyTxSheet(false)}
+              onClick={() => closePropertyTxSheet()}
             />
             <div
               className={`md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white rounded-t-2xl shadow-2xl transition-transform duration-300 flex flex-col ${
@@ -854,7 +899,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   else setSelectedArea(allAreas[Math.max(currentIndex - 1, 0)]);
                   setPropertyTxLimit(20);
                 } else if (dy > 80 && (propertyTxScrollRef.current?.scrollTop ?? 0) === 0) {
-                  setShowPropertyTxSheet(false);
+                  closePropertyTxSheet();
                 }
               }}
             >
@@ -879,7 +924,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   ))}
                 </div>
                 <button
-                  onClick={() => setShowPropertyTxSheet(false)}
+                  onClick={() => closePropertyTxSheet()}
                   className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   <X size={16} />
@@ -903,7 +948,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    {a}㎡
+                    {a}{getAreaType(areaTypeMap, propertyComplex.name, a)}㎡
                   </button>
                 ))}
               </div>
@@ -940,7 +985,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                           ? visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-4 py-2.5 text-gray-700 whitespace-nowrap">{t.date}</td>
-                                <td className="px-3 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}㎡</td>
+                                <td className="px-3 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, propertyComplex.name, t.area)}㎡</td>
                                 <td className="px-3 py-2.5 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
                                 <td className="px-4 py-2.5 text-right font-semibold text-gray-900 whitespace-nowrap">{fmt(t.price)}</td>
                               </tr>
@@ -948,7 +993,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                           : visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-4 py-2.5 text-gray-700 whitespace-nowrap">{t.date}</td>
-                                <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}㎡</td>
+                                <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, propertyComplex.name, t.area)}㎡</td>
                                 <td className="px-2 py-2.5 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
                                 <td className="px-2 py-2.5 text-right whitespace-nowrap">
                                   {t.monthlyRent === 0

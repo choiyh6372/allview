@@ -161,6 +161,15 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
+  useEffect(() => {
+    if (showTxSheet) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [showTxSheet]);
+
   const handleMobileSelect = (id: number) => {
     setSelectedId(id);
     if (typeof window !== "undefined" && window.innerWidth < 768 && !mobileHistoryPushedRef.current) {

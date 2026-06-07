@@ -139,9 +139,9 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
             {!hideVrButton && complex.vrInfo && (
               <button
                 onClick={() => setShowVR(true)}
-                className="shrink-0 flex items-center gap-1.5 px-7 py-1.5 bg-accent text-white hover:bg-accent/80 rounded-lg text-xs font-semibold transition-all"
+                className="shrink-0 flex items-center gap-1.5 px-4 py-2 sm:px-7 sm:py-1.5 bg-accent text-white hover:bg-accent/80 rounded-lg text-sm sm:text-xs font-semibold transition-all"
               >
-                <Eye size={12} />
+                <Eye size={14} />
                 VR 보기
               </button>
             )}

@@ -1388,6 +1388,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
           onClose={() => setTxPanelOpen(false)}
           sharedArea={sharedArea}
           onAreaChange={setSharedArea}
+          areaTypeMap={areaTypeMap}
         />
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-bg">

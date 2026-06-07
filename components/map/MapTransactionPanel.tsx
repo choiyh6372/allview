@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { X } from "lucide-react";
-import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, getAreaType } from "@/lib/aptTradeApi";
 import type { AptComplex } from "@/lib/mapData";
 import type { Complex } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
@@ -37,9 +37,10 @@ interface Props {
   onClose: () => void;
   sharedArea?: string;
   onAreaChange?: (area: string) => void;
+  areaTypeMap?: Record<string, Record<string, string>>;
 }
 
-export default function MapTransactionPanel({ selectedApt, isOpen, onClose, sharedArea, onAreaChange }: Props) {
+export default function MapTransactionPanel({ selectedApt, isOpen, onClose, sharedArea, onAreaChange, areaTypeMap = {} }: Props) {
   const { data, isLoading } = useSWR("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -127,7 +128,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  {a}㎡
+                  {a}{getAreaType(areaTypeMap, selectedApt?.name ?? "", a)}㎡
                 </button>
               ))}
             </div>
@@ -172,7 +173,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                           <tr key={i} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-2.5 text-gray-700">{t.date}</td>
                             <td className="px-3 py-2.5 text-right text-gray-500">{t.dong ?? "-"}</td>
-                            <td className="px-3 py-2.5 text-right text-gray-600">{t.area}㎡</td>
+                            <td className="px-3 py-2.5 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, selectedApt?.name ?? "", t.area)}㎡</td>
                             <td className="px-3 py-2.5 text-right text-gray-500">{t.floor}</td>
                             <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
                           </tr>
@@ -180,7 +181,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                       : visibleRows.map((t: any, i) => (
                           <tr key={i} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-2.5 text-gray-700 whitespace-nowrap">{t.date}</td>
-                            <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}㎡</td>
+                            <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, selectedApt?.name ?? "", t.area)}㎡</td>
                             <td className="px-2 py-2.5 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
                             <td className="px-2 py-2.5 text-right whitespace-nowrap">
                               {t.monthlyRent === 0

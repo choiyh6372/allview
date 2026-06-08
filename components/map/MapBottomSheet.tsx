@@ -313,6 +313,15 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
   const propertyTxStartXRef = useRef<number | null>(null);
   const txSheetHistoryPushedRef = useRef(false);
   const propertyTxSheetHistoryPushedRef = useRef(false);
+  const txAreaScrollRef = useRef<HTMLDivElement>(null);
+  const propertyTxAreaScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ref = showTxTable ? txAreaScrollRef : showPropertyTxSheet ? propertyTxAreaScrollRef : null;
+    if (!ref?.current) return;
+    const btn = ref.current.querySelector(`[data-area="${selectedArea}"]`) as HTMLElement | null;
+    btn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [selectedArea, showTxTable, showPropertyTxSheet]);
 
   function openTxSheet() {
     setShowTxTable(true);
@@ -757,8 +766,9 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               </div>
 
               {/* 면적 필터 */}
-              <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
+              <div ref={txAreaScrollRef} className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
                 <button
+                  data-area=""
                   onClick={(e) => { setSelectedArea(""); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                   className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     !selectedArea ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -769,6 +779,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 {complex.areas.map((a) => (
                   <button
                     key={a}
+                    data-area={a}
                     onClick={(e) => { setSelectedArea(a); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                     className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -933,8 +944,9 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 </button>
               </div>
 
-              <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
+              <div ref={propertyTxAreaScrollRef} className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
                 <button
+                  data-area=""
                   onClick={(e) => { setSelectedArea(""); setPropertyTxLimit(20); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                   className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     !selectedArea ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -945,6 +957,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 {propertyComplex.areas.map((a) => (
                   <button
                     key={a}
+                    data-area={a}
                     onClick={(e) => { setSelectedArea(a); setPropertyTxLimit(20); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                     className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"

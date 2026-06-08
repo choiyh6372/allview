@@ -1157,6 +1157,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
 
     function updateVisibility() {
       if (showJeongbiRef.current) return;
+      if (showSubscriptionRef.current) return;
       const level = map.getLevel();
       const zoomed = level >= ZOOM_THRESHOLD;
       aptOverlaysRef.current.forEach((o) => o.setMap(zoomed ? null : map));

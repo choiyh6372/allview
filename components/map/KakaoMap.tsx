@@ -1385,6 +1385,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
         <div ref={containerRef} className="absolute inset-0" />
         <MapTransactionPanel
           selectedApt={selectedApt}
+          selectedProperty={selectedProperty}
           isOpen={txPanelOpen}
           onClose={() => setTxPanelOpen(false)}
           sharedArea={sharedArea}

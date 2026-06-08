@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { X } from "lucide-react";
-import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, getAreaType } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { AptComplex } from "@/lib/mapData";
 import type { Complex } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
+import type { SelectedProperty } from "@/components/map/KakaoMap";
 
 function mergeComplexes(apt: Complex, silv: Complex): Complex {
   const transactions = [...apt.transactions, ...silv.transactions].sort((a, b) => b.date.localeCompare(a.date));
@@ -15,21 +16,37 @@ function mergeComplexes(apt: Complex, silv: Complex): Complex {
 }
 
 async function fetchData() {
-  const [aptRes, silvRes, rentRes] = await Promise.all([
+  const [aptRes, silvRes, rentRes, offiRes, rhRes, offiRentRes, rhRentRes] = await Promise.all([
     fetch("/api/apt-trade?lawdCd=26440&months=60"),
     fetch("/api/silv-trade?lawdCd=26440&months=60"),
     fetch("/api/apt-rent?lawdCd=26440&months=60"),
+    fetch("/api/offi-trade?lawdCd=26440&months=60"),
+    fetch("/api/rh-trade?lawdCd=26440&months=60"),
+    fetch("/api/offi-rent?lawdCd=26440&months=60"),
+    fetch("/api/rh-rent?lawdCd=26440&months=60"),
   ]);
-  const [aptData, silvData, rentData] = await Promise.all([aptRes.json(), silvRes.json(), rentRes.json()]);
+  const [aptData, silvData, rentData, offiData, rhData, offiRentData, rhRentData] = await Promise.all([
+    aptRes.json(), silvRes.json(), rentRes.json(), offiRes.json(), rhRes.json(), offiRentRes.json(), rhRentRes.json(),
+  ]);
   const base = buildComplexList(aptData.items ?? []);
   const rentOnly = buildRentOnlyComplexes(rentData.items ?? [], new Set(base.map((c) => c.name)));
   const silvComplexes = buildComplexList(
     (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
   );
+  const offiComplexes = (() => {
+    const offiBase = buildComplexList(offiData.items ?? []);
+    const offiRentOnly = buildRentOnlyDynamic(offiRentData.items ?? [], new Set(offiBase.map((c) => c.name)), 8000);
+    return [...offiBase, ...offiRentOnly];
+  })();
+  const rhComplexes = buildComplexList(rhData.items ?? []);
   return {
     aptComplexes: [...base, ...rentOnly],
     silvComplexes,
     rentItems: (rentData.items ?? []) as RentRawItem[],
+    offiComplexes,
+    rhComplexes,
+    offiRentItems: (offiRentData.items ?? []) as RentRawItem[],
+    rhRentItems: (rhRentData.items ?? []) as RentRawItem[],
   };
 }
 
@@ -44,6 +61,7 @@ const PREVIEW = 20;
 
 interface Props {
   selectedApt: AptComplex | null;
+  selectedProperty?: SelectedProperty | null;
   isOpen: boolean;
   onClose: () => void;
   sharedArea?: string;
@@ -51,7 +69,7 @@ interface Props {
   areaTypeMap?: Record<string, Record<string, string>>;
 }
 
-export default function MapTransactionPanel({ selectedApt, isOpen, onClose, sharedArea, onAreaChange, areaTypeMap = {} }: Props) {
+export default function MapTransactionPanel({ selectedApt, selectedProperty, isOpen, onClose, sharedArea, onAreaChange, areaTypeMap = {} }: Props) {
   const { data, isLoading } = useSWR("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -64,6 +82,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
   const setSelectedArea = onAreaChange ?? setLocalArea;
   const [limit, setLimit] = useState(PREVIEW);
 
+  // 아파트/분양권 데이터
   const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
   const aptComplex = aptName ? (data?.aptComplexes.find((c) => c.name === aptName) ?? null) : null;
   const silvNames: string[] = selectedApt?.silvApiNames?.length
@@ -76,9 +95,25 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
         return acc ? mergeComplexes(acc, found) : found;
       }, null)
     : null;
-  const complex = aptComplex && silvComplex ? mergeComplexes(aptComplex, silvComplex) : aptComplex ?? silvComplex ?? null;
-  const rentItems = data?.rentItems ?? [];
-  const rentTransactions = complex ? buildRentTransactions(rentItems, complex.name) : [];
+  const aptMergedComplex = aptComplex && silvComplex ? mergeComplexes(aptComplex, silvComplex) : aptComplex ?? silvComplex ?? null;
+
+  // 연립/오피스텔 데이터
+  const propertyComplex = selectedProperty
+    ? (selectedProperty.propertyType === "offi"
+        ? (data?.offiComplexes ?? []).find((c) => c.name === selectedProperty.name) ?? null
+        : (data?.rhComplexes ?? []).find((c) => c.name === selectedProperty.name) ?? null)
+    : null;
+  const propertyRentItems = selectedProperty?.propertyType === "offi"
+    ? (data?.offiRentItems ?? [])
+    : (data?.rhRentItems ?? []);
+
+  // 활성 단지
+  const complex = selectedApt ? aptMergedComplex : propertyComplex;
+  const activeName = selectedApt ? (aptName ?? "") : (selectedProperty?.name ?? "");
+  const activeRentItems = selectedApt
+    ? (data?.rentItems ?? [])
+    : propertyRentItems.filter((i) => i.aptNm?.trim() === propertyComplex?.name);
+  const rentTransactions = complex ? buildRentTransactions(activeRentItems, complex.name) : [];
 
   useEffect(() => {
     setLimit(PREVIEW);
@@ -99,13 +134,15 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
   const rows = tab === "매매" ? tradeRows : rentRows;
   const visibleRows = rows.slice(0, limit);
 
+  const isVisible = isOpen && !!(selectedApt || selectedProperty);
+
   return (
     <div
       className={`hidden md:flex flex-col absolute left-0 top-0 bottom-0 z-10 bg-white shadow-xl overflow-hidden transition-all duration-300 ${
-        isOpen && selectedApt ? "w-[460px]" : "w-0"
+        isVisible ? "w-[460px]" : "w-0"
       }`}
     >
-      {isOpen && selectedApt && (
+      {isVisible && (
         <>
           {/* 헤더 */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 shrink-0">
@@ -156,7 +193,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  {a}{getAreaType(areaTypeMap, aptName ?? "",a)}㎡
+                  {a}{getAreaType(areaTypeMap, activeName, a)}㎡
                 </button>
               ))}
             </div>
@@ -201,7 +238,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                           <tr key={i} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-2.5 text-gray-700">{t.date}</td>
                             <td className="px-3 py-2.5 text-right text-gray-500">{t.dong ?? "-"}</td>
-                            <td className="px-3 py-2.5 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, aptName ?? "",t.area)}㎡</td>
+                            <td className="px-3 py-2.5 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, activeName, t.area)}㎡</td>
                             <td className="px-3 py-2.5 text-right text-gray-500">{t.floor}</td>
                             <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
                           </tr>
@@ -209,7 +246,7 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
                       : visibleRows.map((t: any, i) => (
                           <tr key={i} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-2.5 text-gray-700 whitespace-nowrap">{t.date}</td>
-                            <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, aptName ?? "",t.area)}㎡</td>
+                            <td className="px-2 py-2.5 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, activeName, t.area)}㎡</td>
                             <td className="px-2 py-2.5 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
                             <td className="px-2 py-2.5 text-right whitespace-nowrap">
                               {t.monthlyRent === 0

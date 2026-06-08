@@ -4,9 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 import { MapPin, Phone, Navigation } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
-import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
-import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
+import { buildComplexList, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import { type AptComplex, PROPERTY_NAVER_URLS } from "@/lib/mapData";
@@ -324,22 +323,40 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                   areaTypeMap={areaTypeMap}
                   light
                 />
+                {onToggleTxPanel && (
+                  <button
+                    onClick={onToggleTxPanel}
+                    className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-base font-semibold border transition-colors ${
+                      txPanelOpen
+                        ? "bg-blue-700 text-white border-blue-700"
+                        : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700"
+                    }`}
+                  >
+                    {txPanelOpen ? "거래내역 닫기" : "매매 · 전월세 거래내역"}
+                  </button>
+                )}
                 {PROPERTY_NAVER_URLS[selectedProperty.name] && (
                   <a
                     href={PROPERTY_NAVER_URLS[selectedProperty.name]}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                    className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-base font-semibold rounded-lg transition-colors"
                   >
                     네이버 부동산 보기
                   </a>
                 )}
-                <TransactionTable
-                  complex={propertyComplex}
-                  rentTransactions={buildRentTransactions(propertyRentItems, propertyComplex.name)}
-                  selectedArea={selectedArea}
-                  light
-                />
+                {selectedProperty.address && (
+                  <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden text-sm">
+                    <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                      <h2 className="text-sm font-semibold text-gray-900">{selectedProperty.name}</h2>
+                      <span className="text-xs text-gray-400">기본정보</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 px-6 py-3 hover:bg-gray-50 transition-colors">
+                      <span className="text-gray-600 shrink-0">도로명주소</span>
+                      <span className="font-semibold text-gray-900 text-right">{selectedProperty.address}</span>
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <p className="text-xs text-gray-400 text-center py-8">실거래가 데이터가 없습니다</p>

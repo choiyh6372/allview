@@ -10,7 +10,7 @@ function StoreCard({ store, compact, onClick }: { store: PromotionStore; compact
   const photo = store.photos[0];
   return (
     <div onClick={onClick} className={`flex-shrink-0 ${compact ? "w-36" : "w-52"} rounded-xl bg-bg-card border border-border hover:border-accent/30 transition-colors overflow-hidden${onClick ? " cursor-pointer" : ""}`}>
-      <div className={`w-full ${compact ? "h-20" : "aspect-[4/3]"} bg-bg-hover overflow-hidden`}>
+      <div className="w-full aspect-[4/3] bg-bg-hover overflow-hidden">
         {photo ? (
           <img src={photo} alt={store.name} className="w-full h-full object-cover" />
         ) : (

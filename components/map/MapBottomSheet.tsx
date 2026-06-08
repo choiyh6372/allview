@@ -388,7 +388,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
         className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl transition-transform duration-300 ${
           isVisible ? "translate-y-0" : "translate-y-full"
         }`}
-        style={{ maxHeight: "78vh" }}
+        style={{ height: "88vh" }}
         onTouchStart={onSheetTouchStart}
         onTouchEnd={onSheetTouchEnd}
       >
@@ -406,7 +406,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
         </button>
 
         {/* 스크롤 콘텐츠 */}
-        <div ref={scrollRef} className="overflow-y-auto scrollbar-light pb-6" style={{ maxHeight: "calc(78vh - 48px)" }}>
+        <div ref={scrollRef} className="overflow-y-auto scrollbar-light pb-6" style={{ maxHeight: "calc(88vh - 48px)" }}>
 
           {/* 정비사업 */}
           {selectedJeongbi && !selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && (() => {
@@ -759,7 +759,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               {/* 면적 필터 */}
               <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
                 <button
-                  onClick={() => setSelectedArea("")}
+                  onClick={(e) => { setSelectedArea(""); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                   className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     !selectedArea ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
@@ -769,7 +769,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 {complex.areas.map((a) => (
                   <button
                     key={a}
-                    onClick={() => setSelectedArea(a)}
+                    onClick={(e) => { setSelectedArea(a); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                     className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
@@ -935,7 +935,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
 
               <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0">
                 <button
-                  onClick={() => { setSelectedArea(""); setPropertyTxLimit(20); }}
+                  onClick={(e) => { setSelectedArea(""); setPropertyTxLimit(20); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                   className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     !selectedArea ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
@@ -945,7 +945,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 {propertyComplex.areas.map((a) => (
                   <button
                     key={a}
-                    onClick={() => { setSelectedArea(a); setPropertyTxLimit(20); }}
+                    onClick={(e) => { setSelectedArea(a); setPropertyTxLimit(20); (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }}
                     className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}

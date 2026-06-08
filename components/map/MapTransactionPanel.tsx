@@ -8,16 +8,27 @@ import type { AptComplex } from "@/lib/mapData";
 import type { Complex } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 
+function mergeComplexes(apt: Complex, silv: Complex): Complex {
+  const transactions = [...apt.transactions, ...silv.transactions].sort((a, b) => b.date.localeCompare(a.date));
+  const areas = Array.from(new Set([...apt.areas, ...silv.areas])).sort((a, b) => parseInt(a) - parseInt(b));
+  return { ...apt, transactions, areas };
+}
+
 async function fetchData() {
-  const [aptRes, rentRes] = await Promise.all([
+  const [aptRes, silvRes, rentRes] = await Promise.all([
     fetch("/api/apt-trade?lawdCd=26440&months=60"),
+    fetch("/api/silv-trade?lawdCd=26440&months=60"),
     fetch("/api/apt-rent?lawdCd=26440&months=60"),
   ]);
-  const [aptData, rentData] = await Promise.all([aptRes.json(), rentRes.json()]);
+  const [aptData, silvData, rentData] = await Promise.all([aptRes.json(), silvRes.json(), rentRes.json()]);
   const base = buildComplexList(aptData.items ?? []);
   const rentOnly = buildRentOnlyComplexes(rentData.items ?? [], new Set(base.map((c) => c.name)));
+  const silvComplexes = buildComplexList(
+    (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
+  );
   return {
     aptComplexes: [...base, ...rentOnly],
+    silvComplexes,
     rentItems: (rentData.items ?? []) as RentRawItem[],
   };
 }
@@ -54,7 +65,18 @@ export default function MapTransactionPanel({ selectedApt, isOpen, onClose, shar
   const [limit, setLimit] = useState(PREVIEW);
 
   const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
-  const complex = aptName ? (data?.aptComplexes.find((c) => c.name === aptName) ?? null) : null;
+  const aptComplex = aptName ? (data?.aptComplexes.find((c) => c.name === aptName) ?? null) : null;
+  const silvNames: string[] = selectedApt?.silvApiNames?.length
+    ? selectedApt.silvApiNames
+    : (aptName ? [aptName] : []);
+  const silvComplex = (data?.silvComplexes ?? []).length > 0
+    ? silvNames.reduce<Complex | null>((acc, n) => {
+        const found = data!.silvComplexes.find((c) => c.name === n) ?? null;
+        if (!found) return acc;
+        return acc ? mergeComplexes(acc, found) : found;
+      }, null)
+    : null;
+  const complex = aptComplex && silvComplex ? mergeComplexes(aptComplex, silvComplex) : aptComplex ?? silvComplex ?? null;
   const rentItems = data?.rentItems ?? [];
   const rentTransactions = complex ? buildRentTransactions(rentItems, complex.name) : [];
 

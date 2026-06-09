@@ -15,6 +15,7 @@ import type { AreaTypeMap } from "@/lib/parseAptMapping";
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
 interface KakaoMapInstance {
   setCenter: (latlng: KakaoLatLng) => void;
+  getCenter: () => KakaoLatLng;
   setLevel: (level: number) => void;
   getLevel: () => number;
 }

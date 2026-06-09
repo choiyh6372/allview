@@ -56,11 +56,11 @@ ecodelta_xi             | 강서자이                 |  https://new.land.naver
 ecodelta_elife          | 이편한세상센터포인트      |  https://new.land.naver.com/complexes/150280?ms=2z8oBG,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
 ecodelta_prugio_center  | 푸르지오센터파크         |  https://new.land.naver.com/complexes/153642?ms=2z8uSI,3AAMk2,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
 ecodelta_theberhill     | 더베르힐                 |  https://new.land.naver.com/complexes/157345?ms=2z8CVu,3AAY4y,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
-ecodelta_jungheung      | 중흥S클래스              |  https://new.land.naver.com/complexes/194197?ms=2z8Kme,3AAKcw,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_jungheung      | 중흥S클래스에코델타시티              |  https://new.land.naver.com/complexes/170038?ms=2z8KMC,3AB4K8,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
 ecodelta_dietr_grand    | 디에트르그랑루체         |  https://new.land.naver.com/complexes/174037?ms=2z8X6r,3AASd9,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
 ecodelta_dietr_first    | 디에트르더퍼스트         |  https://new.land.naver.com/complexes/158598?ms=2z8DCH,3AB8qy,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
 ecodelta_atheara        | 아테라                   |  https://new.land.naver.com/complexes/184519?ms=2z8DCH,3AB8qy,17&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
-ecodelta_daebang        | 대방엘리움리버뷰         |  https://new.land.naver.com/complexes/189037?ms=2z8m8i,3ABleP,16&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
+ecodelta_daebang        | 대방엘리움리버뷰         |  https://new.land.naver.com/complexes/189037?ms=2z8ETv,3ABcDR,15&a=APT:PRE:ABYG:JGC&e=RETAIL&ad=true
 
 # ── 오피스텔 ─────────────────────────────────────────────────────────────────
 # 형식: API 단지명 (offiNm 그대로) | 표시명 | 네이버부동산URL

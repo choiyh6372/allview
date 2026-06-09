@@ -1137,9 +1137,20 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
     if (!containerRef.current) return;
     const { kakao } = window;
 
+    const savedPos = (() => {
+      try {
+        const raw = localStorage.getItem("mapLastPos");
+        if (!raw) return null;
+        return JSON.parse(raw) as { lat: number; lng: number; level: number };
+      } catch { return null; }
+    })();
+
     const map = new kakao.maps.Map(containerRef.current, {
-      center: new kakao.maps.LatLng(REGION_CENTER.kukje.lat, REGION_CENTER.kukje.lng),
-      level: REGION_CENTER.kukje.level,
+      center: new kakao.maps.LatLng(
+        savedPos?.lat ?? REGION_CENTER.kukje.lat,
+        savedPos?.lng ?? REGION_CENTER.kukje.lng,
+      ),
+      level: savedPos?.level ?? REGION_CENTER.kukje.level,
     });
     mapRef.current = map;
 
@@ -1167,6 +1178,15 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
     }
     updateVisibilityRef.current = updateVisibility;
     kakao.maps.event.addListener(map, "zoom_changed", updateVisibility);
+
+    const saveMapPos = () => {
+      try {
+        const c = map.getCenter();
+        localStorage.setItem("mapLastPos", JSON.stringify({ lat: c.getLat(), lng: c.getLng(), level: map.getLevel() }));
+      } catch {}
+    };
+    kakao.maps.event.addListener(map, "dragend", saveMapPos);
+    kakao.maps.event.addListener(map, "zoom_changed", saveMapPos);
 
     // 아파트 핀 (저장된 좌표 오버라이드 반영)
     APT_COMPLEXES.forEach((apt) => {

@@ -215,6 +215,8 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
 
       const groups: SchoolGroup[] = [];
       let selectedIdx = -1;
+      let ignorePinClick = false;
+      let skipNextDeselectAll = false;
 
       const applySelection = (idx: number) => {
         if (selectedIdx === idx) {
@@ -241,6 +243,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
       };
 
       const deselectAll = () => {
+        if (skipNextDeselectAll) { skipNextDeselectAll = false; return; }
         if (selectedIdx === -1) return;
         selectedIdx = -1;
         groups.forEach(({ polygons, label }) => {
@@ -283,6 +286,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
           const capturedIdx = fi;
           kakao.maps.event.addListener(polygon, "click", (e) => {
             e?.stopPropagation?.();
+            if (ignorePinClick) return;
             applySelection(capturedIdx);
           });
         }
@@ -352,8 +356,14 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
           </div>
           <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #ec4899;"></div>`;
         const capturedIdx = fi;
+        pin.addEventListener("mousedown", () => {
+          ignoreNextMapClickRef.current = true;
+          skipNextDeselectAll = true;
+        });
         pin.addEventListener("click", (e) => {
           e.stopPropagation();
+          ignorePinClick = true;
+          setTimeout(() => { ignorePinClick = false; }, 100);
           hidePopupOverlay();
           applySelection(capturedIdx);
         });

@@ -10,7 +10,7 @@ import StoreBanner from "@/components/home/StoreBanner";
 import { type Complex } from "@/lib/realEstateData";
 import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
-import { APT_COMPLEXES, PROPERTY_NAVER_URLS } from "@/lib/mapData";
+import { APT_COMPLEXES, PROPERTY_NAVER_URLS, SILV_TO_APT_API_NAME } from "@/lib/mapData";
 import type { AreaTypeMap } from "@/lib/parseAptMapping";
 
 type TradeType = "apt" | "silv" | "offi";
@@ -52,13 +52,54 @@ async function fetchRealEstateData(): Promise<RealEstateData> {
     rhRentRes.json(),
   ]);
 
+  const aptSilvNormMap = new Map<string, string>();
+  for (const apt of APT_COMPLEXES) {
+    if (apt.silvApiNames && apt.apiName) {
+      for (const nm of apt.silvApiNames) aptSilvNormMap.set(nm, apt.apiName);
+    }
+  }
   const aptComplexes = (() => {
-    const base = buildComplexList(aptData.items ?? []);
+    const normalizedAptItems = (aptData.items ?? []).map((i: RawItem) => {
+      const nm = i.aptNm?.trim();
+      if (!nm) return i;
+      const canonical = aptSilvNormMap.get(nm);
+      return canonical ? { ...i, aptNm: canonical } : i;
+    });
+    // silv API에만 있는 면적 데이터(분양권 시절 거래)도 apt 단지에 합산
+    const silvItemsForApt = (silvData.items ?? [])
+      .filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
+      .flatMap((i: RawItem) => {
+        const nm = i.aptNm?.trim();
+        if (!nm) return [];
+        const aptName = aptSilvNormMap.get(nm);
+        return aptName ? [{ ...i, aptNm: aptName }] : [];
+      });
+    const base = buildComplexList([...normalizedAptItems, ...silvItemsForApt]);
     const rentOnly = buildRentOnlyComplexes(rentData.items ?? [], new Set(base.map((c) => c.name)));
     return [...base, ...rentOnly].sort((a, b) => a.name.localeCompare(b.name, "ko"));
   })();
+  const silvNormMap = new Map<string, string>();
+  for (const apt of APT_COMPLEXES) {
+    if (apt.silvApiNames && apt.silvApiNames.length > 1) {
+      const canonical = apt.silvApiNames[0];
+      for (const nm of apt.silvApiNames.slice(1)) silvNormMap.set(nm, canonical);
+    }
+  }
   const silvComplexes = buildComplexList(
-    (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
+    (silvData.items ?? [])
+      .filter((i: RawItem) => {
+        if ((i.ownershipGbn ?? "").trim() === "입주권") return false;
+        // 이미 입주 완료되어 아파트 탭에 합산된 단지는 분양권 탭에서 제외
+        const nm = i.aptNm?.trim();
+        if (nm && aptSilvNormMap.has(nm)) return false;
+        return true;
+      })
+      .map((i: RawItem) => {
+        const nm = i.aptNm?.trim();
+        if (!nm) return i;
+        const canonical = silvNormMap.get(nm);
+        return canonical ? { ...i, aptNm: canonical } : i;
+      })
   );
   const offiComplexes = (() => {
     const base = buildComplexList(offiData.items ?? []);
@@ -69,7 +110,15 @@ async function fetchRealEstateData(): Promise<RealEstateData> {
     c.name === "부산명지중흥S-클래스더테라스"
   );
 
-  return { aptComplexes, silvComplexes, offiComplexes, rhComplexes, rentItems: rentData.items ?? [], offiRentItems: offiRentData.items ?? [], rhRentItems: rhRentData.items ?? [] };
+  const normalizeRentName = (nm: string) => aptSilvNormMap.get(nm) ?? silvNormMap.get(nm) ?? nm;
+  const rentItems = (rentData.items ?? []).map((i: RentRawItem) => {
+    const nm = i.aptNm?.trim();
+    if (!nm) return i;
+    const canonical = normalizeRentName(nm);
+    return canonical !== nm ? { ...i, aptNm: canonical } : i;
+  });
+
+  return { aptComplexes, silvComplexes, offiComplexes, rhComplexes, rentItems, offiRentItems: offiRentData.items ?? [], rhRentItems: rhRentData.items ?? [] };
 }
 
 export default function RealEstateClient({ areaTypeMap, initialData }: { areaTypeMap: AreaTypeMap; initialData?: RealEstateData }) {
@@ -135,6 +184,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
   const setSelectedId = setSelectedIdMap[activeTab];
   const activeRentItems = rentItemsMap[activeTab];
   const complex = complexes.find((c) => c.id === selectedId) ?? null;
+  const complexTypeKey = complex ? (SILV_TO_APT_API_NAME[complex.name] ?? complex.name) : "";
   const naverUrl = complex
     ? (APT_COMPLEXES.find((a) => (a.apiName ?? a.name) === complex.name || a.silvApiNames?.includes(complex.name))?.naverUrl ?? PROPERTY_NAVER_URLS[complex.name] ?? null)
     : null;
@@ -258,6 +308,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                   onAreaChange={setSelectedArea}
                   naverUrl={naverUrl ?? undefined}
                   areaTypeMap={areaTypeMap}
+                  nameForAreaType={complexTypeKey}
                   areaCols={7}
                 />
                 {/* 모바일 버튼 영역 */}
@@ -285,6 +336,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                     rentTransactions={buildRentTransactions(activeRentItems, complex.name)}
                     selectedArea={selectedArea}
                     areaTypeMap={areaTypeMap}
+                    nameForAreaType={complexTypeKey}
                   />
                 </div>
               </>
@@ -401,7 +453,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                       selectedArea === a ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    {a}{getAreaType(areaTypeMap, complex.name, a)}㎡
+                    {a}{getAreaType(areaTypeMap, complexTypeKey, a)}㎡
                   </button>
                 ))}
               </div>
@@ -440,7 +492,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-3 py-2 text-gray-700">{t.date}</td>
                                 <td className="px-2 py-2 text-right text-gray-500 whitespace-nowrap">{t.dong ?? "-"}</td>
-                                <td className="px-2 py-2 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
+                                <td className="px-2 py-2 text-right text-gray-600 whitespace-nowrap">{t.area}{getAreaType(areaTypeMap, complexTypeKey, t.area)}㎡</td>
                                 <td className="px-2 py-2 text-right text-gray-500 whitespace-nowrap">{t.floor}</td>
                                 <td className="px-3 py-2 text-right font-semibold text-gray-900">{fmt(t.price)}</td>
                               </tr>
@@ -448,7 +500,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
                           : visibleRows.map((t: any, i) => (
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-3 py-2 text-gray-700">{t.date}</td>
-                                <td className="px-2 py-2 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
+                                <td className="px-2 py-2 text-right text-gray-600">{t.area}{getAreaType(areaTypeMap, complexTypeKey, t.area)}㎡</td>
                                 <td className="px-2 py-2 text-right text-gray-500">{t.floor}</td>
                                 <td className="px-2 py-2 text-right">
                                   {t.monthlyRent === 0

@@ -44,9 +44,11 @@ interface Props {
   selectedArea: string;
   light?: boolean;
   areaTypeMap?: AreaTypeMap;
+  nameForAreaType?: string;
 }
 
-export default function TransactionTable({ complex, rentTransactions, selectedArea, light, areaTypeMap = {} }: Props) {
+export default function TransactionTable({ complex, rentTransactions, selectedArea, light, areaTypeMap = {}, nameForAreaType }: Props) {
+  const areaLookupName = nameForAreaType ?? complex.name;
   const [tradeLimit, setTradeLimit] = useState(PREVIEW);
   const [rentLimit, setRentLimit] = useState(PREVIEW);
 
@@ -104,7 +106,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-6 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
                     <td className={`px-4 py-3 text-right ${sub} whitespace-nowrap`}>{t.dong ?? "-"}</td>
-                    <td className={`px-4 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
+                    <td className={`px-4 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}{getAreaType(areaTypeMap, areaLookupName, t.area)}㎡</td>
                     <td className={`px-4 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
                     <td className={`px-6 py-3 text-right ${txt} whitespace-nowrap`}>
                       <span className="font-semibold">{fmt(t.price)}</span>
@@ -152,7 +154,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                 {visibleRent.map((t, i) => (
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-3 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
-                    <td className={`px-2 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
+                    <td className={`px-2 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}{getAreaType(areaTypeMap, areaLookupName, t.area)}㎡</td>
                     <td className={`px-1 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
                     <td className="px-1 py-3 text-right whitespace-nowrap">
                       <RentBadge monthlyRent={t.monthlyRent} />
@@ -189,7 +191,7 @@ export default function TransactionTable({ complex, rentTransactions, selectedAr
                 {visibleRent.map((t, i) => (
                   <tr key={i} className={`${hover} transition-colors`}>
                     <td className={`px-3 py-3 ${cell} whitespace-nowrap`}>{t.date}</td>
-                    <td className={`px-2 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}{getAreaType(areaTypeMap, complex.name, t.area)}㎡</td>
+                    <td className={`px-2 py-3 text-right ${cell} whitespace-nowrap`}>{t.area}{getAreaType(areaTypeMap, areaLookupName, t.area)}㎡</td>
                     <td className={`px-1 py-3 text-right ${sub} whitespace-nowrap`}>{t.floor}</td>
                     <td className="px-1 py-3 text-right whitespace-nowrap">
                       <RentBadge monthlyRent={t.monthlyRent} />

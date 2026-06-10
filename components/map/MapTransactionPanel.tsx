@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { X } from "lucide-react";
 import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { AptComplex } from "@/lib/mapData";
+import { APT_COMPLEXES } from "@/lib/mapData";
 import type { Complex } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import type { SelectedProperty } from "@/components/map/KakaoMap";
@@ -28,10 +29,56 @@ async function fetchData() {
   const [aptData, silvData, rentData, offiData, rhData, offiRentData, rhRentData] = await Promise.all([
     aptRes.json(), silvRes.json(), rentRes.json(), offiRes.json(), rhRes.json(), offiRentRes.json(), rhRentRes.json(),
   ]);
-  const base = buildComplexList(aptData.items ?? []);
-  const rentOnly = buildRentOnlyComplexes(rentData.items ?? [], new Set(base.map((c) => c.name)));
+
+  const aptSilvNormMap = new Map<string, string>();
+  const silvNormMap = new Map<string, string>();
+  for (const apt of APT_COMPLEXES) {
+    if (apt.silvApiNames && apt.apiName) {
+      for (const nm of apt.silvApiNames) aptSilvNormMap.set(nm, apt.apiName);
+    }
+    if (apt.silvApiNames && apt.silvApiNames.length > 1) {
+      const canonical = apt.silvApiNames[0];
+      for (const nm of apt.silvApiNames.slice(1)) silvNormMap.set(nm, canonical);
+    }
+  }
+
+  const normalizedAptItems = (aptData.items ?? []).map((i: RawItem) => {
+    const nm = i.aptNm?.trim();
+    if (!nm) return i;
+    const canonical = aptSilvNormMap.get(nm);
+    return canonical ? { ...i, aptNm: canonical } : i;
+  });
+  const silvItemsForApt = (silvData.items ?? [])
+    .filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
+    .flatMap((i: RawItem) => {
+      const nm = i.aptNm?.trim();
+      if (!nm) return [];
+      const aptName = aptSilvNormMap.get(nm);
+      return aptName ? [{ ...i, aptNm: aptName }] : [];
+    });
+  const base = buildComplexList([...normalizedAptItems, ...silvItemsForApt]);
+  const normalizeRentName = (nm: string) => aptSilvNormMap.get(nm) ?? silvNormMap.get(nm) ?? nm;
+  const normalizedRentItems = (rentData.items ?? []).map((i: RentRawItem) => {
+    const nm = i.aptNm?.trim();
+    if (!nm) return i;
+    const canonical = normalizeRentName(nm);
+    return canonical !== nm ? { ...i, aptNm: canonical } : i;
+  });
+  const rentOnly = buildRentOnlyComplexes(normalizedRentItems, new Set(base.map((c) => c.name)));
   const silvComplexes = buildComplexList(
-    (silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권")
+    (silvData.items ?? [])
+      .filter((i: RawItem) => {
+        if ((i.ownershipGbn ?? "").trim() === "입주권") return false;
+        const nm = i.aptNm?.trim();
+        if (nm && aptSilvNormMap.has(nm)) return false;
+        return true;
+      })
+      .map((i: RawItem) => {
+        const nm = i.aptNm?.trim();
+        if (!nm) return i;
+        const canonical = silvNormMap.get(nm);
+        return canonical ? { ...i, aptNm: canonical } : i;
+      })
   );
   const offiComplexes = (() => {
     const offiBase = buildComplexList(offiData.items ?? []);
@@ -39,10 +86,11 @@ async function fetchData() {
     return [...offiBase, ...offiRentOnly];
   })();
   const rhComplexes = buildComplexList(rhData.items ?? []);
+  const rentItems = normalizedRentItems;
   return {
     aptComplexes: [...base, ...rentOnly],
     silvComplexes,
-    rentItems: (rentData.items ?? []) as RentRawItem[],
+    rentItems,
     offiComplexes,
     rhComplexes,
     offiRentItems: (offiRentData.items ?? []) as RentRawItem[],
@@ -70,7 +118,7 @@ interface Props {
 }
 
 export default function MapTransactionPanel({ selectedApt, selectedProperty, isOpen, onClose, sharedArea, onAreaChange, areaTypeMap = {} }: Props) {
-  const { data, isLoading } = useSWR("map-estate-data", fetchData, {
+  const { data, isLoading } = useSWR("map-estate-data-v2", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     dedupingInterval: 5 * 60 * 1000,
@@ -118,6 +166,7 @@ export default function MapTransactionPanel({ selectedApt, selectedProperty, isO
   useEffect(() => {
     setLimit(PREVIEW);
     setTab("매매");
+    setSelectedArea("");
   }, [complex?.id]);
 
   useEffect(() => {

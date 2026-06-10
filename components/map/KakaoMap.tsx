@@ -1395,6 +1395,13 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
         selectedProperty={selectedProperty}
         selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
+        onAptSelect={(apt) => {
+          setSelectedApt(apt);
+          if (mapRef.current) {
+            mapRef.current.setCenter(new window.kakao.maps.LatLng(apt.lat, apt.lng));
+            if (mapRef.current.getLevel() > 5) mapRef.current.setLevel(4);
+          }
+        }}
         txPanelOpen={txPanelOpen}
         onToggleTxPanel={() => setTxPanelOpen((v) => !v)}
         sharedArea={sharedArea}

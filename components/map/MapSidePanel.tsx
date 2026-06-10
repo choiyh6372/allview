@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
-import { MapPin, Phone, Navigation } from "lucide-react";
+import { MapPin, Phone, Navigation, ChevronLeft } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
 import StoreBanner from "@/components/home/StoreBanner";
 import { buildComplexList, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
-import { type AptComplex, PROPERTY_NAVER_URLS } from "@/lib/mapData";
+import { type AptComplex, APT_COMPLEXES, PROPERTY_NAVER_URLS } from "@/lib/mapData";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { complexData as vrComplexData } from "@/lib/vrData";
@@ -171,6 +171,17 @@ const JEONGBI_STATUS_STYLE: Record<JeongbiProject["status"], string> = {
   "해제":     "bg-gray-100 text-gray-600 border-gray-200",
 };
 
+const REGION_ORDER = ["ocean", "kukje", "ecodelta", "sinho", "jisa", "other"] as const;
+type RegionKey = typeof REGION_ORDER[number];
+const REGION_LABELS: Record<RegionKey, string> = {
+  ocean:    "오션시티",
+  kukje:    "국제신도시",
+  ecodelta: "에코델타",
+  sinho:    "신호·화전",
+  jisa:     "지사",
+  other:    "기타",
+};
+
 interface Props {
   selectedApt: AptComplex | null;
   selectedStore: PromotionStore | null;
@@ -178,6 +189,7 @@ interface Props {
   selectedProperty: SelectedProperty | null;
   selectedJeongbi: JeongbiProject | null;
   onClose: () => void;
+  onAptSelect?: (apt: AptComplex) => void;
   txPanelOpen?: boolean;
   onToggleTxPanel?: () => void;
   sharedArea?: string;
@@ -185,7 +197,7 @@ interface Props {
   areaTypeMap?: Record<string, Record<string, string>>;
 }
 
-export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange, areaTypeMap = {} }: Props) {
+export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, onAptSelect, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange, areaTypeMap = {} }: Props) {
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -196,6 +208,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
   const selectedArea = sharedArea !== undefined ? sharedArea : localArea;
   const setSelectedArea = onSharedAreaChange ?? setLocalArea;
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [listRegion, setListRegion] = useState<RegionKey>("ocean");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
@@ -404,13 +417,44 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
           );
         })()}
 
-        {/* 빈 상태 */}
+        {/* 빈 상태 - 단지 목록 */}
         {!selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && !selectedJeongbi && (
-          <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-8">
-            <MapPin size={40} className="text-border" />
-            <p className="text-sm text-gray-400 leading-relaxed">
-              지도에서 단지 핀을 클릭하면<br />실거래가·분양 정보를 확인할 수 있습니다
-            </p>
+          <div className="flex flex-col h-full">
+            {/* 지역 탭 */}
+            <div className="flex overflow-x-auto border-b border-gray-100 shrink-0">
+              {REGION_ORDER.filter((r) => APT_COMPLEXES.some((c) => c.region === r)).map((region) => (
+                <button
+                  key={region}
+                  onClick={() => setListRegion(region)}
+                  className={`shrink-0 px-4 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                    listRegion === region
+                      ? "border-accent text-accent"
+                      : "border-transparent text-gray-400 hover:text-gray-700"
+                  }`}
+                >
+                  {REGION_LABELS[region]}
+                </button>
+              ))}
+            </div>
+            {/* 단지 목록 */}
+            <div className="flex-1 overflow-y-auto">
+              <p className="text-xs text-gray-400 px-4 pt-3 pb-1">단지를 클릭하면 실거래가 정보를 확인할 수 있습니다</p>
+              {APT_COMPLEXES.filter((c) => c.region === listRegion).map((apt) => (
+                <button
+                  key={apt.id}
+                  onClick={() => onAptSelect?.(apt)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors group border-b border-gray-50"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 group-hover:text-accent transition-colors">{apt.name}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {[apt.buildYear && `${apt.buildYear}년`, apt.hoCnt && `${apt.hoCnt.toLocaleString()}세대`].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                  <MapPin size={14} className="text-gray-300 group-hover:text-accent shrink-0 transition-colors" />
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -498,6 +542,21 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* 아파트 뒤로가기 헤더 */}
+        {selectedApt && !selectedStore && (
+          <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-100 shrink-0">
+            <button
+              onClick={onClose}
+              className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-accent transition-colors"
+            >
+              <ChevronLeft size={18} />
+              목록으로
+            </button>
+            <span className="text-sm text-gray-300">|</span>
+            <span className="text-sm font-semibold text-gray-700 truncate">{selectedApt.name}</span>
           </div>
         )}
 

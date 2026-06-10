@@ -221,7 +221,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
     : null;
 
   useEffect(() => {
-    setSelectedArea(complex?.areas[0] ?? "");
+    setSelectedArea("");
     scrollRef.current?.scrollTo({ top: 0 });
   }, [complex?.id]);
 

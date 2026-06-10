@@ -229,7 +229,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
     : (data?.rhRentItems ?? []);
 
   useEffect(() => {
-    setSelectedArea(complex?.areas[0] ?? "");
+    setSelectedArea("");
     setShowTxTable(false);
     txSheetHistoryPushedRef.current = false;
     setTxTab("매매");

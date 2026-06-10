@@ -224,7 +224,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
     : null;
 
   useEffect(() => {
-    setSelectedArea(complex?.areas[0] ?? "");
+    setSelectedArea("");
   }, [complex?.id]);
 
   useEffect(() => {

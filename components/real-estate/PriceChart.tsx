@@ -166,6 +166,18 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
       </div>
 
       <div className={`grid gap-2 mb-6 ${areaCols === 7 ? "grid-cols-4 md:grid-cols-7" : "grid-cols-4"}`}>
+        <button
+          onClick={() => onAreaChange("")}
+          className={`py-1.5 rounded-lg text-xs font-medium transition-colors text-center ${
+            !selectedArea
+              ? "bg-accent text-white"
+              : light
+              ? "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900"
+              : "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900"
+          }`}
+        >
+          전체
+        </button>
         {complex.areas.map((a) => (
           <button
             key={a}
@@ -193,8 +205,8 @@ export default function PriceChart({ complex, rentItems, selectedArea, onAreaCha
         <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 30 }}>
           <defs>
             <linearGradient id="rangeGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5b6ef5" stopOpacity={0.12} />
-              <stop offset="100%" stopColor="#5b6ef5" stopOpacity={0} />
+              <stop offset="0%" stopColor="#5b6ef5" stopOpacity={0.3} />
+              <stop offset="100%" stopColor="#5b6ef5" stopOpacity={0.12} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />

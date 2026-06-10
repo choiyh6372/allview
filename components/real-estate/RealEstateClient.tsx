@@ -11,9 +11,23 @@ import { type Complex } from "@/lib/realEstateData";
 import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 import { APT_COMPLEXES, PROPERTY_NAVER_URLS, SILV_TO_APT_API_NAME } from "@/lib/mapData";
+import type { AptComplex } from "@/lib/mapData";
 import type { AreaTypeMap } from "@/lib/parseAptMapping";
 
 type TradeType = "apt" | "silv" | "offi";
+type RegionFilter = AptComplex["region"] | "all";
+
+const REGION_LABELS: Record<RegionFilter, string> = {
+  all:      "전체",
+  ocean:    "명지오션시티",
+  kukje:    "명지국제신도시",
+  ecodelta: "에코델타시티",
+  sinho:    "신호·화전",
+  jisa:     "지사",
+  other:    "기타",
+};
+
+const REGION_ORDER: RegionFilter[] = ["all", "ocean", "kukje", "ecodelta", "sinho", "jisa", "other"];
 
 const TAB_LABELS: Record<TradeType, string> = {
   apt: "아파트",
@@ -134,16 +148,33 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
     }
   );
 
-  const aptComplexes = [
+  const complexRegionMap = new Map<string, AptComplex["region"]>();
+  for (const apt of APT_COMPLEXES) {
+    const r = apt.region;
+    if (apt.apiName) complexRegionMap.set(apt.apiName, r);
+    if (apt.silvApiNames) for (const nm of apt.silvApiNames) complexRegionMap.set(nm, r);
+    complexRegionMap.set(apt.name, r);
+  }
+  complexRegionMap.set("부산명지중흥S-클래스더테라스", "kukje");
+  complexRegionMap.set("스위트팰리스", "kukje");
+
+  const allAptComplexes = [
     ...(data?.aptComplexes ?? []),
     ...(data?.rhComplexes ?? []),
   ].sort((a, b) => a.name.localeCompare(b.name, "ko")).map((c, i) => ({ ...c, id: i }));
-  const silvComplexes = data?.silvComplexes ?? [];
+  const allSilvComplexes = data?.silvComplexes ?? [];
   const offiComplexes = data?.offiComplexes ?? [];
   const rentItems = [...(data?.rentItems ?? []), ...(data?.rhRentItems ?? [])];
   const offiRentItems = data?.offiRentItems ?? [];
 
   const [activeTab, setActiveTab] = useState<TradeType>("apt");
+  const [activeRegion, setActiveRegion] = useState<RegionFilter>("all");
+  const filterByRegion = <T extends { name: string }>(list: T[]) =>
+    activeRegion === "all" ? list : list.filter((c) => (complexRegionMap.get(c.name) ?? "other") === activeRegion);
+
+  const aptComplexes = filterByRegion(allAptComplexes);
+  const silvComplexes = filterByRegion(allSilvComplexes);
+
   const [selectedAptId, setSelectedAptId] = useState<number | null>(null);
   const [selectedSilvId, setSelectedSilvId] = useState<number | null>(null);
   const [selectedOffiId, setSelectedOffiId] = useState<number | null>(null);
@@ -160,15 +191,18 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
   const sheetHistoryPushedRef = useRef(false);
 
   useEffect(() => {
-    if (aptComplexes.length > 0 && selectedAptId === null) {
+    if (aptComplexes.length > 0) {
       const defaultComplex = aptComplexes.find((c) => c.name === "극동스타클래스") ?? aptComplexes[0];
       setSelectedAptId(defaultComplex.id);
+    } else {
+      setSelectedAptId(null);
     }
-  }, [aptComplexes]);
+  }, [activeRegion, allAptComplexes.length]);
 
   useEffect(() => {
-    if (silvComplexes.length > 0 && selectedSilvId === null) setSelectedSilvId(silvComplexes[0].id);
-  }, [silvComplexes]);
+    if (silvComplexes.length > 0) setSelectedSilvId(silvComplexes[0].id);
+    else setSelectedSilvId(null);
+  }, [activeRegion, allSilvComplexes.length]);
 
   useEffect(() => {
     if (offiComplexes.length > 0 && selectedOffiId === null) setSelectedOffiId(offiComplexes[0].id);
@@ -268,20 +302,43 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
           </span>
         </div>
 
-        <div className="flex gap-0.5 sm:gap-1 p-1 mb-6 bg-bg-card border border-border rounded-xl overflow-x-auto w-full sm:w-fit">
-          {(["apt", "silv", "offi"] as TradeType[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`shrink-0 px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg text-sm font-semibold transition-colors ${
-                activeTab === tab
-                  ? "bg-accent text-white"
-                  : "text-gray-700 hover:text-gray-900"
-              }`}
-            >
-              {TAB_LABELS[tab]}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="flex gap-0.5 sm:gap-1 p-1 bg-bg-card border border-border rounded-xl overflow-x-auto">
+            {(["apt", "silv", "offi"] as TradeType[]).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`shrink-0 px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  activeTab === tab
+                    ? "bg-accent text-white"
+                    : "text-gray-700 hover:text-gray-900"
+                }`}
+              >
+                {TAB_LABELS[tab]}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-1 overflow-x-auto">
+            {REGION_ORDER.filter((r) => {
+              if (r === "all") return true;
+              if (activeTab === "offi") return false;
+              return allAptComplexes.concat(allSilvComplexes as typeof allAptComplexes).some(
+                (c) => (complexRegionMap.get(c.name) ?? "other") === r
+              );
+            }).map((r) => (
+              <button
+                key={r}
+                onClick={() => setActiveRegion(r)}
+                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
+                  activeRegion === r
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "text-gray-600 border-gray-200 hover:border-gray-400 hover:text-gray-900"
+                }`}
+              >
+                {REGION_LABELS[r]}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">

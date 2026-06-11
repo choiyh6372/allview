@@ -150,6 +150,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
   const rhLoadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
   const [latestTradeMap, setLatestTradeMap] = useState<Map<string, { price: number; area: number }>>(new Map());
+  const latestTradeMapRef = useRef<Map<string, { price: number; area: number }>>(new Map());
   const [showSchoolZones, setShowSchoolZones] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
   const [showJeongbi, setShowJeongbi] = useState(false);
@@ -193,6 +194,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
         const area = parseFloat(item.excluUseAr ?? "0");
         if (price > 0 && area > 0) map.set(nm, { price, area });
       }
+      latestTradeMapRef.current = map;
       setLatestTradeMap(map);
     }).catch(() => {});
   }, []);
@@ -213,6 +215,17 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
       el.style.padding = "2px 8px";
       el.textContent = `${areaStr} - ${priceStr}`;
     }
+    // 동적 마커
+    aptTradeElsRef.current.forEach((el, id) => {
+      if (!id.startsWith("dynamic_")) return;
+      const nm = id.slice(8);
+      const trade = latestTradeMap.get(nm);
+      if (!trade) return;
+      const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+      const areaStr = Math.round(trade.area) + "㎡";
+      el.style.padding = "2px 8px";
+      el.textContent = `${areaStr} - ${priceStr}`;
+    });
   }, [latestTradeMap]);
 
   useEffect(() => {
@@ -1399,16 +1412,28 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
                         content.style.cssText =
                           "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
                         content.innerHTML = `
-                          <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
-                            padding:4px 8px;border-radius:6px;white-space:nowrap;
-                            box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
+                          <div style="border-radius:6px;overflow:hidden;white-space:nowrap;
+                            box-shadow:0 2px 8px rgba(0,0,0,0.5);
                             transition:transform 0.15s,box-shadow 0.15s;"
                             onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
                             onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
-                            ${apt.aptNm}
+                            <div style="background:${color};color:#fff;font-size:12px;font-weight:700;
+                              padding:4px 9px;text-align:center;">${apt.aptNm}</div>
+                            <div class="apt-trade-sub" style="background:#334155;color:#fff;font-size:12px;
+                              font-weight:700;text-align:center;"></div>
                           </div>
                           <div style="width:0;height:0;border-left:6px solid transparent;
                             border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
+                        const dynSubEl = content.querySelector(".apt-trade-sub") as HTMLElement | null;
+                        if (dynSubEl) {
+                          aptTradeElsRef.current.set(`dynamic_${apt.aptNm}`, dynSubEl);
+                          const trade = latestTradeMapRef.current.get(apt.aptNm);
+                          if (trade) {
+                            const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+                            dynSubEl.style.padding = "2px 8px";
+                            dynSubEl.textContent = `${Math.round(trade.area)}㎡ - ${priceStr}`;
+                          }
+                        }
                         content.addEventListener("click", (e) => {
                           e.stopPropagation();
                           openPopup(aptObj, map);

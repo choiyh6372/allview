@@ -433,6 +433,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
   const areaMap = VR_AREA_MAP[key] ?? {};
   const imgRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredType, setHoveredType] = useState<string | null>(null);
   const [showNoVR, setShowNoVR] = useState(false);
   const [noVRTypes, setNoVRTypes] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(true);
@@ -548,7 +549,11 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
             const cfg = typeColor(key, type);
             const sqm = areaMap[type];
             return (
-              <div key={type} className="flex items-center justify-between px-4 py-2 border-b border-border last:border-b-0">
+              <div key={type}
+                className="flex items-center justify-between px-4 py-2 border-b border-border last:border-b-0 cursor-pointer hover:bg-bg-hover transition-colors"
+                onMouseEnter={() => setHoveredType(type)}
+                onMouseLeave={() => setHoveredType(null)}
+              >
                 <div className="flex items-center gap-2">
                   <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
                   <span className="text-sm font-semibold text-gray-700">{type.toUpperCase()}</span>
@@ -583,7 +588,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
                 />
                 {plan.hotspots.map((hs) => {
                   const cfg = typeColor(key, hs.type);
-                  const isHovered = hoveredId === hs.id;
+                  const isHovered = hoveredId === hs.id || hoveredType === hs.type;
                   return (
                     <button
                       key={hs.id}

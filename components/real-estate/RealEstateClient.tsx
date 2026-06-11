@@ -157,7 +157,7 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
   }
   complexRegionMap.set("부산명지중흥S-클래스더테라스", "kukje");
   complexRegionMap.set("스위트팰리스", "kukje");
-  complexRegionMap.set("지사과학삼정그린코아", "jisa");
+
   complexRegionMap.set("명진파크뷰", "jisa");
   complexRegionMap.set("명지화전우방아이유쉘", "sinho");
 

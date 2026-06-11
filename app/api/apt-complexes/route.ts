@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchAptTradeData, fetchSilvTradeData, fetchAptRentData } from "@/lib/molitApi";
-import { APT_COMPLEXES } from "@/lib/mapData";
+import { APT_COMPLEXES, RH_SHORT_NAMES } from "@/lib/mapData";
 
 // 전월세만 있는 단지 (매매 데이터 없어도 지도에 표시)
 const RENT_ONLY_EXTRAS = [
@@ -15,11 +15,12 @@ export async function GET() {
     fetchSilvTradeData("26440", 6),
   ]);
 
-  const knownNames = new Set<string>(
-    APT_COMPLEXES.flatMap((c) =>
+  const knownNames = new Set<string>([
+    ...APT_COMPLEXES.flatMap((c) =>
       [c.name, c.apiName, ...(c.silvApiNames ?? [])].filter(Boolean) as string[]
-    )
-  );
+    ),
+    ...Object.keys(RH_SHORT_NAMES),
+  ]);
 
   const countMap = new Map<string, { umdNm: string; count: number }>();
   for (const item of [...aptItems, ...silvItems]) {

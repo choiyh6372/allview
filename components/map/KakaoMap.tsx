@@ -173,25 +173,28 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
   useEffect(() => { showSubscriptionRef.current = showSubscription; }, [showSubscription]);
 
   useEffect(() => {
-    fetch("/api/apt-trade?lawdCd=26440&months=3")
-      .then((r) => r.json())
-      .then((data: { items: RawItem[] }) => {
-        const map = new Map<string, { price: number; area: number }>();
-        const sorted = (data.items ?? []).slice().sort((a, b) => {
-          const da = `${a.dealYear}${String(a.dealMonth ?? "").padStart(2, "0")}${String(a.dealDay ?? "").padStart(2, "0")}`;
-          const db = `${b.dealYear}${String(b.dealMonth ?? "").padStart(2, "0")}${String(b.dealDay ?? "").padStart(2, "0")}`;
-          return db.localeCompare(da);
-        });
-        for (const item of sorted) {
-          const nm = item.aptNm?.trim();
-          if (!nm || map.has(nm)) continue;
-          const price = parseInt((item.dealAmount ?? "").replace(/,/g, ""), 10);
-          const area = parseFloat(item.excluUseAr ?? "0");
-          if (price > 0 && area > 0) map.set(nm, { price, area });
-        }
-        setLatestTradeMap(map);
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch("/api/apt-trade?lawdCd=26440&months=3").then((r) => r.json()),
+      fetch("/api/silv-trade?lawdCd=26440&months=3").then((r) => r.json()),
+    ]).then(([aptData, silvData]) => {
+      const map = new Map<string, { price: number; area: number }>();
+      const allItems = [
+        ...(aptData.items ?? []),
+        ...(silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권"),
+      ].sort((a: RawItem, b: RawItem) => {
+        const da = `${a.dealYear}${String(a.dealMonth ?? "").padStart(2, "0")}${String(a.dealDay ?? "").padStart(2, "0")}`;
+        const db = `${b.dealYear}${String(b.dealMonth ?? "").padStart(2, "0")}${String(b.dealDay ?? "").padStart(2, "0")}`;
+        return db.localeCompare(da);
+      });
+      for (const item of allItems) {
+        const nm = item.aptNm?.trim();
+        if (!nm || map.has(nm)) continue;
+        const price = parseInt((item.dealAmount ?? "").replace(/,/g, ""), 10);
+        const area = parseFloat(item.excluUseAr ?? "0");
+        if (price > 0 && area > 0) map.set(nm, { price, area });
+      }
+      setLatestTradeMap(map);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -199,7 +202,11 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
     for (const apt of APT_COMPLEXES) {
       const el = aptTradeElsRef.current.get(apt.id);
       if (!el) continue;
-      const trade = latestTradeMap.get(apt.apiName ?? apt.name);
+      const names = [apt.apiName, ...(apt.silvApiNames ?? []), apt.name].filter(Boolean) as string[];
+      const trade = names.reduce<{ price: number; area: number } | undefined>(
+        (found, nm) => found ?? latestTradeMap.get(nm),
+        undefined
+      );
       if (!trade) continue;
       const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
       const areaStr = Math.round(trade.area) + "㎡";

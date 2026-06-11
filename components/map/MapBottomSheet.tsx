@@ -199,6 +199,24 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
   const [propertyTxTab, setPropertyTxTab] = useState<"매매" | "전월세">("매매");
   const [propertyTxLimit, setPropertyTxLimit] = useState(20);
 
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const stored = localStorage.getItem("apt-favorites");
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
+  const toggleFavorite = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try { localStorage.setItem("apt-favorites", JSON.stringify(Array.from(next))); } catch {}
+      return next;
+    });
+  };
+
   const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
   const aptComplex = aptName ? (data?.aptComplexes.find((c) => c.name === aptName) ?? null) : null;
 
@@ -642,6 +660,16 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => toggleFavorite(selectedApt.id, e)}
+                      className={`shrink-0 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-colors border ${
+                        favorites.has(selectedApt.id)
+                          ? "bg-yellow-400 text-white border-yellow-400"
+                          : "bg-gray-100 text-gray-400 border-gray-200 hover:text-yellow-500"
+                      }`}
+                    >
+                      ★
+                    </button>
                     {vrEntry && (
                       <button
                         onClick={() => setShowVrNoData(true)}
@@ -675,6 +703,19 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
           {/* 실거래가 데이터 */}
           {selectedApt && !selectedStore && !isLoading && complex && (
             <div className="p-4 space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
+                <button
+                  onClick={(e) => toggleFavorite(selectedApt.id, e)}
+                  className={`shrink-0 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-colors border ${
+                    favorites.has(selectedApt.id)
+                      ? "bg-yellow-400 text-white border-yellow-400"
+                      : "bg-gray-100 text-gray-400 border-gray-200 hover:text-yellow-500"
+                  }`}
+                >
+                  ★
+                </button>
+              </div>
               <PriceChart
                 complex={(() => {
                   const vrOverride = vrComplexData.find((c) => c.id === selectedApt.id);

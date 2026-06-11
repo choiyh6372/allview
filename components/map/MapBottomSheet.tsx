@@ -659,6 +659,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{selectedApt.name}</p>
                     <button
                       onClick={(e) => toggleFavorite(selectedApt.id, e)}
                       className={`shrink-0 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-colors border ${
@@ -669,7 +670,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                     >
                       ★
                     </button>
-                    <p className="text-sm font-semibold text-gray-900 truncate">{selectedApt.name}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {vrEntry && (
@@ -705,7 +705,8 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
           {/* 실거래가 데이터 */}
           {selectedApt && !selectedStore && !isLoading && complex && (
             <div className="p-4 space-y-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pr-10">
+                <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
                 <button
                   onClick={(e) => toggleFavorite(selectedApt.id, e)}
                   className={`shrink-0 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-colors border ${
@@ -716,7 +717,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 >
                   ★
                 </button>
-                <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
               </div>
               <PriceChart
                 complex={(() => {

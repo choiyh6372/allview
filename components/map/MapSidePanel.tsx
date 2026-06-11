@@ -211,6 +211,24 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
   const [photoIndex, setPhotoIndex] = useState(0);
   const [showVrNoData, setShowVrNoData] = useState(false);
   const [listRegion, setListRegion] = useState<RegionKey>("ocean");
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const stored = localStorage.getItem("apt-favorites");
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
+  const toggleFavorite = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try { localStorage.setItem("apt-favorites", JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  };
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
@@ -424,12 +442,22 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
           <div className="flex flex-col h-full">
             {/* 지역 탭 */}
             <div className="flex overflow-x-auto border-b border-gray-100 shrink-0">
+              <button
+                onClick={() => setShowFavorites(true)}
+                className={`shrink-0 px-4 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                  showFavorites
+                    ? "border-yellow-400 text-yellow-500"
+                    : "border-transparent text-gray-400 hover:text-gray-700"
+                }`}
+              >
+                ★ 즐겨찾기
+              </button>
               {REGION_ORDER.filter((r) => APT_COMPLEXES.some((c) => c.region === r)).map((region) => (
                 <button
                   key={region}
-                  onClick={() => setListRegion(region)}
+                  onClick={() => { setShowFavorites(false); setListRegion(region); }}
                   className={`shrink-0 px-4 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
-                    listRegion === region
+                    !showFavorites && listRegion === region
                       ? "border-accent text-accent"
                       : "border-transparent text-gray-400 hover:text-gray-700"
                   }`}
@@ -440,22 +468,43 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             </div>
             {/* 단지 목록 */}
             <div className="flex-1 overflow-y-auto">
-              <p className="text-xs text-gray-400 px-4 pt-3 pb-1">단지를 클릭하면 실거래가 정보를 확인할 수 있습니다</p>
-              {APT_COMPLEXES.filter((c) => c.region === listRegion).map((apt) => (
-                <button
-                  key={apt.id}
-                  onClick={() => onAptSelect?.(apt)}
-                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors group border-b border-gray-50"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 group-hover:text-accent transition-colors">{apt.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {[apt.buildYear && `${apt.buildYear}년`, apt.hoCnt && `${apt.hoCnt.toLocaleString()}세대`].filter(Boolean).join(" · ")}
-                    </p>
-                  </div>
-                  <MapPin size={14} className="text-gray-300 group-hover:text-accent shrink-0 transition-colors" />
-                </button>
-              ))}
+              {(() => {
+                const listApts = showFavorites
+                  ? APT_COMPLEXES.filter((c) => favorites.has(c.id))
+                  : APT_COMPLEXES.filter((c) => c.region === listRegion);
+                return (
+                  <>
+                    {showFavorites && favorites.size === 0 ? (
+                      <p className="text-xs text-gray-400 px-4 pt-8 text-center">즐겨찾기한 단지가 없습니다<br/>★ 버튼으로 단지를 저장하세요</p>
+                    ) : (
+                      <>
+                        {!showFavorites && <p className="text-xs text-gray-400 px-4 pt-3 pb-1">단지를 클릭하면 실거래가 정보를 확인할 수 있습니다</p>}
+                        {listApts.map((apt) => (
+                          <div
+                            key={apt.id}
+                            onClick={() => onAptSelect?.(apt)}
+                            className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors group border-b border-gray-50 cursor-pointer"
+                          >
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 group-hover:text-accent transition-colors">{apt.name}</p>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                {[apt.buildYear && `${apt.buildYear}년`, apt.hoCnt && `${apt.hoCnt.toLocaleString()}세대`].filter(Boolean).join(" · ")}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                onClick={(e) => toggleFavorite(apt.id, e)}
+                                className={`text-base transition-colors ${favorites.has(apt.id) ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"}`}
+                              >★</button>
+                              <MapPin size={14} className="text-gray-300 group-hover:text-accent shrink-0 transition-colors" />
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -558,7 +607,11 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               목록으로
             </button>
             <span className="text-sm text-gray-300">|</span>
-            <span className="text-sm font-semibold text-gray-700 truncate">{selectedApt.name}</span>
+            <span className="text-sm font-semibold text-gray-700 truncate flex-1">{selectedApt.name}</span>
+            <button
+              onClick={() => toggleFavorite(selectedApt.id)}
+              className={`text-xl shrink-0 transition-colors ${favorites.has(selectedApt.id) ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"}`}
+            >★</button>
           </div>
         )}
 

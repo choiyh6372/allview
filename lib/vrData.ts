@@ -79,7 +79,7 @@ export const complexData: VRComplex[] = [
   { id: "ecodelta_prugio_lin", slug: "prugio_lin", name: "푸르지오린", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["33a1","33a2","33a3","33a4","33b","37","37t1","37t2","38","40","42"] },
   { id: "ecodelta_xi", slug: "xi", name: "강서자이", regionId: "ecodelta", regionName: "에코델타시티",
-    types: ["28","28b","33a","33b","33c","33d","33e","33f"] },
+    types: ["28a","28b","33a","33b","33c","33d","33e","33f"] },
   { id: "ecodelta_elife", slug: "elife", name: "이편한세상센터포인트", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["27a","27b","28","32a","32b","33a","33b","33c","33p"] },
   { id: "ecodelta_prugio_center", slug: "prugio_center", name: "푸르지오센터파크", regionId: "ecodelta", regionName: "에코델타시티",

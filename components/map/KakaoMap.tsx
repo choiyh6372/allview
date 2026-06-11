@@ -1326,7 +1326,19 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
         <div style="width:0;height:0;border-left:6px solid transparent;
           border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
       const subEl = content.querySelector(".apt-trade-sub") as HTMLElement | null;
-      if (subEl) aptTradeElsRef.current.set(apt.id, subEl);
+      if (subEl) {
+        aptTradeElsRef.current.set(apt.id, subEl);
+        const names = [apt.apiName, ...(apt.silvApiNames ?? []), apt.name].filter(Boolean) as string[];
+        const trade = names.reduce<{ price: number; area: number } | undefined>(
+          (found, nm) => found ?? latestTradeMapRef.current.get(nm),
+          undefined
+        );
+        if (trade) {
+          const supply = findSupply(supplyAreaMap, names, trade.area);
+          subEl.style.padding = "2px 8px";
+          subEl.innerHTML = fmtMarkerBottom(trade.price, trade.area, supply);
+        }
+      }
       content.addEventListener("click", (e) => {
         e.stopPropagation();
         openPopup(aptWithPos, map);
@@ -1473,9 +1485,9 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
                           aptTradeElsRef.current.set(`dynamic_${apt.aptNm}`, dynSubEl);
                           const trade = latestTradeMapRef.current.get(apt.aptNm);
                           if (trade) {
-                            const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+                            const supply = findSupply(supplyAreaMap, [apt.aptNm], trade.area);
                             dynSubEl.style.padding = "2px 8px";
-                            dynSubEl.textContent = `${Math.round(trade.area)}㎡ - ${priceStr}`;
+                            dynSubEl.innerHTML = fmtMarkerBottom(trade.price, trade.area, supply);
                           }
                         }
                         content.addEventListener("click", (e) => {

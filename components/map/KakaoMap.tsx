@@ -208,12 +208,14 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
       fetch("/api/apt-trade?lawdCd=26440&months=3").then((r) => r.json()),
       fetch("/api/silv-trade?lawdCd=26440&months=3").then((r) => r.json()),
       fetch("/api/rh-trade?lawdCd=26440&months=3").then((r) => r.json()),
-    ]).then(([aptData, silvData, rhData]) => {
+      fetch("/api/offi-trade?lawdCd=26440&months=3").then((r) => r.json()),
+    ]).then(([aptData, silvData, rhData, offiData]) => {
       const map = new Map<string, { price: number; area: number }>();
       const allItems = [
         ...(aptData.items ?? []),
         ...(silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권"),
         ...(rhData.items ?? []),
+        ...(offiData.items ?? []),
       ].sort((a: RawItem, b: RawItem) => {
         const da = `${a.dealYear}${String(a.dealMonth ?? "").padStart(2, "0")}${String(a.dealDay ?? "").padStart(2, "0")}`;
         const db = `${b.dealYear}${String(b.dealMonth ?? "").padStart(2, "0")}${String(b.dealDay ?? "").padStart(2, "0")}`;
@@ -248,7 +250,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
     }
     // 동적·rh 마커
     aptTradeElsRef.current.forEach((el, id) => {
-      const nm = id.startsWith("dynamic_") ? id.slice(8) : id.startsWith("rh_") ? id.slice(3) : null;
+      const nm = id.startsWith("dynamic_") ? id.slice(8) : id.startsWith("rh_") ? id.slice(3) : id.startsWith("offi_") ? id.slice(5) : null;
       if (!nm) return;
       const trade = latestTradeMap.get(nm);
       if (!trade) return;
@@ -580,7 +582,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
                       border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
                   const propSubEl = pin.querySelector(".apt-trade-sub") as HTMLElement | null;
                   if (propSubEl) {
-                    aptTradeElsRef.current.set(`rh_${item.aptNm}`, propSubEl);
+                    aptTradeElsRef.current.set(`${propertyType}_${item.aptNm}`, propSubEl);
                     const trade = latestTradeMapRef.current.get(item.aptNm);
                     if (trade) {
                       const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";

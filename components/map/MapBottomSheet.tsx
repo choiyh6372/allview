@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
-import { X, MapPin, Phone, Navigation } from "lucide-react";
+import { X, MapPin, Phone, Navigation, Eye } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
+import VRModal from "@/components/vr-tour/VRModal";
 import { buildComplexList, buildRentTransactions, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
@@ -190,6 +191,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
 
   const [selectedArea, setSelectedArea] = useState("");
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [showVrNoData, setShowVrNoData] = useState(false);
   const [showTxTable, setShowTxTable] = useState(false);
   const [txTab, setTxTab] = useState<"매매" | "전월세">("매매");
   const [txLimit, setTxLimit] = useState(20);
@@ -633,13 +635,42 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
           )}
 
           {/* 아파트 데이터 없음 */}
-          {selectedApt && !selectedStore && !isLoading && !complex && (
-            <div className="p-4 space-y-3">
-              <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
-              <AptInfoCard apt={selectedApt} />
-              <p className="text-xs text-gray-400 text-center">실거래가 데이터가 없습니다</p>
-            </div>
-          )}
+          {selectedApt && !selectedStore && !isLoading && !complex && (() => {
+            const vrEntry = vrComplexData.find((c) => c.id === selectedApt.id);
+            return (
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
+                  <div className="flex items-center gap-2">
+                    {vrEntry && (
+                      <button
+                        onClick={() => setShowVrNoData(true)}
+                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 text-xs font-semibold rounded-lg transition-colors"
+                      >
+                        <Eye size={13} />
+                        VR 보기
+                      </button>
+                    )}
+                    {aptNaverUrl && (
+                      <a
+                        href={aptNaverUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                      >
+                        네이버 부동산
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <AptInfoCard apt={selectedApt} />
+                <p className="text-xs text-gray-400 text-center">실거래가 데이터가 없습니다</p>
+                {showVrNoData && vrEntry && (
+                  <VRModal complex={vrEntry} onClose={() => setShowVrNoData(false)} />
+                )}
+              </div>
+            );
+          })()}
 
           {/* 실거래가 데이터 */}
           {selectedApt && !selectedStore && !isLoading && complex && (

@@ -127,6 +127,7 @@ export const PROPERTY_NAVER_URLS: Record<string, string> = {
   "송정 삼정그린코아 더시티":            "https://fin.land.naver.com/map?layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjHwAcggAwAWMAF9qTLPQQALAAr1GLWOFIAjOGCIMAdkxIIiEJAaph6ZhNgAqDQvYCeaLOrABBPgFoAQnxW%2BiRGJmYWSi5YFgDmru4AcgCuKFpYdLoArMGGxqbmBo4kzm5Yuj5S1HTEyXQGJFrYcPrJWJIAukA&center=3AxWjx-2z673S&zoom=14&realEstateTypes=A02",
   "부산명지중흥S-클래스더테라스":        "https://fin.land.naver.com/map?center=3ABdk5-2z6Wx0&zoom=16&realEstateTypes=A02-A01-A04&layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjHwBsAZgDsAFjABfakyz0EACwAK9Ri1jhSAIzhgiDAHZMSCIhCSGqYeuYTYAKg0IOAnmiwawAQT4BaACE%2BawMSY1NzS2VXLEsAczcPADkAVxRtLDo9YRCjEzMLQycSF3csPV9pajpiFLpDEm1sOAMUrCkAXSA",
   "스위트팰리스":                        "https://fin.land.naver.com/map?center=3AB4d5-2z6W4W&zoom=16&realEstateTypes=A02-A01-A04&layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjAA4ATH0FgAvtSZZ6CABYAFeoxaxwpAEZwwRBgDsmJBEQhI9VMPRMJsAFQaFbATzRZVYAIJ8AtACE%2BFrokBkYmZgpOWGYA5s6uAHIArigaWHTaQoH6hsamevYkji5Y2l4S4gC6QA",
+  "지사과학삼정그린코아":                "https://fin.land.naver.com/map?layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjAAYAnAFYALADYwAX2pMs9BAAsACvUYtY4UgCM4YIgwB2TEgiIQkRqmHoWE2ACoNCjgJ5osmsAEE%2BAWgAhPhtDEhMzCysVNywrAHN3TwA5AFcUHSw6fQBmUONTc0sjZxJXDyx9PxlqOmJUuiMSHWw4Q1SsaQBdIA&center=3AxJmp-2z8IU4&zoom=15.794664572130818",
 };
 
 export const OFFI_SHORT_NAMES: Record<string, string> = {

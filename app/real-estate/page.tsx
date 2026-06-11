@@ -21,6 +21,6 @@ export const metadata: Metadata = {
 };
 
 export default function RealEstatePage() {
-  const areaTypeMap = parseAptMapping();
+  const { areaTypeMap } = parseAptMapping();
   return <RealEstateClient areaTypeMap={areaTypeMap} />;
 }

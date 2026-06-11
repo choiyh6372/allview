@@ -10,7 +10,7 @@ import MapBottomSheet from "@/components/map/MapBottomSheet";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { type JeongbiProject, JEONGBI_TYPE_COLOR, JEONGBI_TYPE_ICON } from "@/lib/jeongbiData";
-import type { AreaTypeMap } from "@/lib/parseAptMapping";
+import type { AreaTypeMap, SupplyAreaMap } from "@/lib/parseAptMapping";
 import type { RawItem } from "@/lib/molitApi";
 // ── Kakao SDK type declarations ───────────────────────────────────────────────
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
@@ -106,7 +106,37 @@ const JEONGBI_POLY_COLOR: Record<string, string> = {
   "기타":         "#94a3b8",
 };
 
-export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string; areaTypeMap?: AreaTypeMap }) {
+function fmtMarkerBottom(price: number, area: number, supply: number | undefined): string {
+  const priceStr = (price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+  const areaStr = Math.round(area) + "㎡";
+  const mainLine = `${areaStr} - ${priceStr}`;
+  if (supply && supply > 0) {
+    const perPyeong = Math.round(price / (supply / 3.3058));
+    return `${mainLine}<br><span style="font-size:11px;">평당 ${perPyeong.toLocaleString()}만</span>`;
+  }
+  return mainLine;
+}
+
+function findSupply(supplyAreaMap: SupplyAreaMap, names: string[], area: number): number | undefined {
+  const areaKey = String(area);
+  for (const nm of names) {
+    const entries = supplyAreaMap[nm];
+    if (!entries) continue;
+    // 정확한 키 매칭
+    if (entries[areaKey] > 0) return entries[areaKey];
+    // API 소수점 정밀도 차이 허용 (0.1㎡ 이내 가장 가까운 값)
+    let closest: number | undefined;
+    let minDiff = 0.1;
+    for (const [k, v] of Object.entries(entries)) {
+      const diff = Math.abs(parseFloat(k) - area);
+      if (diff < minDiff) { minDiff = diff; closest = v; }
+    }
+    if (closest !== undefined) return closest;
+  }
+  return undefined;
+}
+
+export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} }: { apiKey: string; areaTypeMap?: AreaTypeMap; supplyAreaMap?: SupplyAreaMap }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
   const popupOverlayRef = useRef<KakaoCustomOverlay | null>(null);
@@ -212,10 +242,9 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
         undefined
       );
       if (!trade) continue;
-      const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
-      const areaStr = Math.round(trade.area) + "㎡";
+      const supply = findSupply(supplyAreaMap, names, trade.area);
       el.style.padding = "2px 8px";
-      el.textContent = `${areaStr} - ${priceStr}`;
+      el.innerHTML = fmtMarkerBottom(trade.price, trade.area, supply);
     }
     // 동적·rh 마커
     aptTradeElsRef.current.forEach((el, id) => {
@@ -223,10 +252,9 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
       if (!nm) return;
       const trade = latestTradeMap.get(nm);
       if (!trade) return;
-      const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
-      const areaStr = Math.round(trade.area) + "㎡";
+      const supply = findSupply(supplyAreaMap, [nm], trade.area);
       el.style.padding = "2px 8px";
-      el.textContent = `${areaStr} - ${priceStr}`;
+      el.innerHTML = fmtMarkerBottom(trade.price, trade.area, supply);
     });
   }, [latestTradeMap]);
 

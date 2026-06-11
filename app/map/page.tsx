@@ -12,11 +12,11 @@ const KakaoMap = dynamic(() => import("@/components/map/KakaoMap"), { ssr: false
 
 export default function MapPage() {
   const apiKey = process.env.KAKAO_MAP_KEY ?? "";
-  const areaTypeMap = parseAptMapping();
+  const { areaTypeMap, supplyAreaMap } = parseAptMapping();
   return (
     <div className="h-[calc(100vh-64px)] w-full">
       <Suspense fallback={null}>
-        <KakaoMap apiKey={apiKey} areaTypeMap={areaTypeMap} />
+        <KakaoMap apiKey={apiKey} areaTypeMap={areaTypeMap} supplyAreaMap={supplyAreaMap} />
       </Suspense>
     </div>
   );

@@ -27,7 +27,7 @@ export const complexData: VRComplex[] = [
   { id: "ocean_lotte", slug: "lotte", name: "롯데캐슬", regionId: "ocean", regionName: "명지오션시티",
     types: ["33a","33b","38","46a","46b","54"] },
   { id: "ocean_qweendom_edison", slug: "qweendom_edison", name: "퀸덤 에디슨", regionId: "ocean", regionName: "명지오션시티",
-    types: ["33a","33b","34a","34b","39b","39c","39d","46a","55","87"] },
+    types: ["33a","33b","34a","34b","39c","39d","46a","55","87"] },
   { id: "ocean_qweendom_lincoln", slug: "qweendom_lincoln", name: "퀸덤 링컨", regionId: "ocean", regionName: "명지오션시티",
     types: ["33a","33b","34a","34b","39a","39b","39c","39d","46a","46b","46c","55","87"] },
   { id: "ocean_qweendom_einstein", slug: "qweendom_einstein", name: "퀸덤 아인슈타인", regionId: "ocean", regionName: "명지오션시티",

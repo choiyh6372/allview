@@ -585,9 +585,9 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
                     aptTradeElsRef.current.set(`${propertyType}_${item.aptNm}`, propSubEl);
                     const trade = latestTradeMapRef.current.get(item.aptNm);
                     if (trade) {
-                      const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+                      const supply = findSupply(supplyAreaMap, [item.aptNm], trade.area);
                       propSubEl.style.padding = "2px 8px";
-                      propSubEl.textContent = `${Math.round(trade.area)}㎡ - ${priceStr}`;
+                      propSubEl.innerHTML = fmtMarkerBottom(trade.price, trade.area, supply);
                     }
                   }
                   pin.addEventListener("click", (e) => {

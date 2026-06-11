@@ -203,7 +203,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
       if (!trade) continue;
       const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
       const areaStr = Math.round(trade.area) + "㎡";
-      el.textContent = `${priceStr} · ${areaStr}`;
+      el.textContent = `${areaStr} - ${priceStr}`;
     }
   }, [latestTradeMap]);
 

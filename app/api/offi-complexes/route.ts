@@ -9,10 +9,12 @@ export async function GET() {
     fetchOffiRentData("26440", 6),
   ]);
 
+  const isValidNm = (nm: string) => !/^\d+동$/.test(nm);
+
   const countMap = new Map<string, { umdNm: string; count: number }>();
   for (const item of tradeItems) {
     const nm = (item.offiNm ?? item.aptNm)?.trim();
-    if (!nm) continue;
+    if (!nm || !isValidNm(nm)) continue;
     const existing = countMap.get(nm);
     if (existing) existing.count++;
     else countMap.set(nm, { umdNm: item.umdNm?.trim() ?? "", count: 1 });
@@ -21,7 +23,7 @@ export async function GET() {
   // 전월세만 있는 단지 추가
   for (const item of rentItems) {
     const nm = (item.offiNm ?? item.aptNm)?.trim();
-    if (!nm || countMap.has(nm)) continue;
+    if (!nm || !isValidNm(nm) || countMap.has(nm)) continue;
     countMap.set(nm, { umdNm: item.umdNm?.trim() ?? "", count: 0 });
   }
 

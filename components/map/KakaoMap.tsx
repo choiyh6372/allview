@@ -223,7 +223,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
       });
       for (const item of allItems) {
         const nm = item.aptNm?.trim();
-        if (!nm || map.has(nm)) continue;
+        if (!nm || /^\d+동$/.test(nm) || map.has(nm)) continue;
         const price = parseInt((item.dealAmount ?? "").replace(/,/g, ""), 10);
         const area = parseFloat(item.excluUseAr ?? "0");
         if (price > 0 && area > 0) map.set(nm, { price, area });

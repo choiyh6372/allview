@@ -177,11 +177,13 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
     Promise.all([
       fetch("/api/apt-trade?lawdCd=26440&months=3").then((r) => r.json()),
       fetch("/api/silv-trade?lawdCd=26440&months=3").then((r) => r.json()),
-    ]).then(([aptData, silvData]) => {
+      fetch("/api/rh-trade?lawdCd=26440&months=3").then((r) => r.json()),
+    ]).then(([aptData, silvData, rhData]) => {
       const map = new Map<string, { price: number; area: number }>();
       const allItems = [
         ...(aptData.items ?? []),
         ...(silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권"),
+        ...(rhData.items ?? []),
       ].sort((a: RawItem, b: RawItem) => {
         const da = `${a.dealYear}${String(a.dealMonth ?? "").padStart(2, "0")}${String(a.dealDay ?? "").padStart(2, "0")}`;
         const db = `${b.dealYear}${String(b.dealMonth ?? "").padStart(2, "0")}${String(b.dealDay ?? "").padStart(2, "0")}`;
@@ -215,10 +217,10 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
       el.style.padding = "2px 8px";
       el.textContent = `${areaStr} - ${priceStr}`;
     }
-    // 동적 마커
+    // 동적·rh 마커
     aptTradeElsRef.current.forEach((el, id) => {
-      if (!id.startsWith("dynamic_")) return;
-      const nm = id.slice(8);
+      const nm = id.startsWith("dynamic_") ? id.slice(8) : id.startsWith("rh_") ? id.slice(3) : null;
+      if (!nm) return;
       const trade = latestTradeMap.get(nm);
       if (!trade) return;
       const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
@@ -536,16 +538,28 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
                   const pin = document.createElement("div");
                   pin.style.cssText = "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
                   pin.innerHTML = `
-                    <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
-                      padding:4px 8px;border-radius:6px;white-space:nowrap;
-                      box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
+                    <div style="border-radius:6px;overflow:hidden;white-space:nowrap;
+                      box-shadow:0 2px 8px rgba(0,0,0,0.5);
                       transition:transform 0.15s,box-shadow 0.15s;"
                       onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
                       onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
-                      ${displayName}
+                      <div style="background:${color};color:#fff;font-size:12px;font-weight:700;
+                        padding:4px 9px;text-align:center;">${displayName}</div>
+                      <div class="apt-trade-sub" style="background:#334155;color:#fff;font-size:12px;
+                        font-weight:700;text-align:center;"></div>
                     </div>
                     <div style="width:0;height:0;border-left:6px solid transparent;
                       border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
+                  const propSubEl = pin.querySelector(".apt-trade-sub") as HTMLElement | null;
+                  if (propSubEl) {
+                    aptTradeElsRef.current.set(`rh_${item.aptNm}`, propSubEl);
+                    const trade = latestTradeMapRef.current.get(item.aptNm);
+                    if (trade) {
+                      const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+                      propSubEl.style.padding = "2px 8px";
+                      propSubEl.textContent = `${Math.round(trade.area)}㎡ - ${priceStr}`;
+                    }
+                  }
                   pin.addEventListener("click", (e) => {
                     e.stopPropagation();
                     setSelectedAptRef.current?.(null);

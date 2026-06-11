@@ -65,7 +65,8 @@ function VRTourContent() {
       .catch(() => {});
   }, []);
 
-  const filtered = complexData.filter((c) => c.regionName === region);
+  const filtered = complexData.filter((c) => c.regionName === region)
+    .sort((a, b) => a.name.localeCompare(b.name, "ko"));
 
   return (
     <>

@@ -155,6 +155,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
   const [selectedJeongbi, setSelectedJeongbi] = useState<JeongbiProject | null>(null);
   const [txPanelOpen, setTxPanelOpen] = useState(false);
   const [sharedArea, setSharedArea] = useState("");
+  const [showMobileFavorites, setShowMobileFavorites] = useState(false);
   const setSelectedSubscriptionRef = useRef<((s: SubscriptionItem | null) => void) | null>(null);
   const setSelectedPropertyRef = useRef<((p: SelectedProperty | null) => void) | null>(null);
   const setSelectedJeongbiRef = useRef<((j: JeongbiProject | null) => void) | null>(null);
@@ -1548,6 +1549,15 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
         selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
         areaTypeMap={areaTypeMap}
+        showFavoritesList={showMobileFavorites}
+        onFavoritesListClose={() => setShowMobileFavorites(false)}
+        onAptSelect={(apt) => {
+          setSelectedApt(apt);
+          if (mapRef.current) {
+            mapRef.current.setCenter(new window.kakao.maps.LatLng(apt.lat, apt.lng));
+            if (mapRef.current.getLevel() > 5) mapRef.current.setLevel(4);
+          }
+        }}
       />
 
       <div className="relative flex-1">
@@ -1602,6 +1612,16 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
               {jeongbiLoading ? "로딩 중..." : "🏚️ 정비사업"}
             </button>
           </div>
+        )}
+
+        {/* 모바일 즐겨찾기 플로팅 버튼 */}
+        {loaded && !selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && !selectedJeongbi && (
+          <button
+            className="md:hidden absolute bottom-6 left-4 z-30 flex items-center gap-1.5 px-4 py-2.5 bg-yellow-400 text-white rounded-full shadow-lg text-sm font-bold active:bg-yellow-500 transition-colors"
+            onClick={() => setShowMobileFavorites(true)}
+          >
+            ★ 즐겨찾기
+          </button>
         )}
       </div>
     </div>

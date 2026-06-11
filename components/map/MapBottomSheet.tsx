@@ -8,7 +8,7 @@ import VRModal from "@/components/vr-tour/VRModal";
 import { buildComplexList, buildRentTransactions, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
-import { type AptComplex, PROPERTY_NAVER_URLS } from "@/lib/mapData";
+import { type AptComplex, PROPERTY_NAVER_URLS, APT_COMPLEXES } from "@/lib/mapData";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { complexData as vrComplexData } from "@/lib/vrData";
@@ -178,10 +178,19 @@ interface Props {
   selectedJeongbi: JeongbiProject | null;
   onClose: () => void;
   areaTypeMap?: AreaTypeMap;
+  showFavoritesList?: boolean;
+  onFavoritesListClose?: () => void;
+  onAptSelect?: (apt: AptComplex) => void;
 }
 
-export default function MapBottomSheet({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, areaTypeMap = {} }: Props) {
-  const isVisible = !!(selectedApt || selectedStore || selectedSubscription || selectedProperty || selectedJeongbi);
+export default function MapBottomSheet({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, areaTypeMap = {}, showFavoritesList = false, onFavoritesListClose, onAptSelect }: Props) {
+  const isFavoritesOnly = showFavoritesList && !selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && !selectedJeongbi;
+  const isVisible = !!(selectedApt || selectedStore || selectedSubscription || selectedProperty || selectedJeongbi || isFavoritesOnly);
+
+  function handleClose() {
+    if (isFavoritesOnly) onFavoritesListClose?.();
+    else onClose();
+  }
 
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
@@ -313,12 +322,13 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
       if (e.state?.vrModal === true) return;
       if (pushedStateRef.current) {
         pushedStateRef.current = false;
-        onClose();
+        handleClose();
       }
     };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
-  }, [onClose]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onClose, onFavoritesListClose, isFavoritesOnly]);
 
   // 드래그로 닫기
   const startYRef = useRef<number | null>(null);
@@ -380,7 +390,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
     startXRef.current = null;
     // 아래로 80px 이상, 수직이 수평보다 크고, 콘텐츠가 최상단일 때만 닫기
     if (dy > 80 && Math.abs(dy) > Math.abs(dx) && (scrollRef.current?.scrollTop ?? 0) === 0) {
-      onClose();
+      handleClose();
     }
   }
 
@@ -408,7 +418,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
         className={`md:hidden fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${
           isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* 바텀 시트 */}
@@ -428,7 +438,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
 
         {/* 닫기 버튼 */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-3 right-4 p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <X size={16} />
@@ -436,6 +446,40 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
 
         {/* 스크롤 콘텐츠 */}
         <div ref={scrollRef} className="overflow-y-auto scrollbar-light pb-6" style={{ maxHeight: "calc(88vh - 48px)" }}>
+
+          {/* 즐겨찾기 목록 */}
+          {isFavoritesOnly && (() => {
+            const favoriteApts = APT_COMPLEXES.filter((apt) => favorites.has(apt.id));
+            return (
+              <div className="p-4 space-y-3">
+                <h2 className="text-base font-bold text-gray-900 pr-8">★ 즐겨찾기</h2>
+                {favoriteApts.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-12">즐겨찾기한 단지가 없습니다<br /><span className="text-xs">단지를 탭한 후 ★ 버튼으로 추가하세요</span></p>
+                ) : (
+                  <div className="space-y-2">
+                    {favoriteApts.map((apt) => (
+                      <div
+                        key={apt.id}
+                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-gray-50 active:bg-gray-100 transition-colors"
+                        onClick={() => { onFavoritesListClose?.(); onAptSelect?.(apt); }}
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{apt.name}</p>
+                          <p className="text-xs text-gray-500">{apt.regionName}</p>
+                        </div>
+                        <button
+                          onClick={(e) => toggleFavorite(apt.id, e)}
+                          className="shrink-0 text-yellow-400 text-lg leading-none"
+                        >
+                          ★
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 정비사업 */}
           {selectedJeongbi && !selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && (() => {

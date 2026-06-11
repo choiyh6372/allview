@@ -11,6 +11,7 @@ import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 import { type JeongbiProject, JEONGBI_TYPE_COLOR, JEONGBI_TYPE_ICON } from "@/lib/jeongbiData";
 import type { AreaTypeMap } from "@/lib/parseAptMapping";
+import type { RawItem } from "@/lib/molitApi";
 // ── Kakao SDK type declarations ───────────────────────────────────────────────
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
 interface KakaoMapInstance {
@@ -136,6 +137,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
   const offiMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const rhMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const aptOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
+  const aptTradeElsRef = useRef<Map<string, HTMLElement>>(new Map());
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
   const storeMarkersRef = useRef<KakaoCustomOverlay[]>([]);
   const updateVisibilityRef = useRef<(() => void) | null>(null);
@@ -147,6 +149,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
   const offiLoadedRef = useRef(false);
   const rhLoadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
+  const [latestTradeMap, setLatestTradeMap] = useState<Map<string, { price: number; area: number }>>(new Map());
   const [showSchoolZones, setShowSchoolZones] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
   const [showJeongbi, setShowJeongbi] = useState(false);
@@ -168,6 +171,41 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
   useEffect(() => { setSelectedJeongbiRef.current = setSelectedJeongbi; }, []);
   useEffect(() => { showJeongbiRef.current = showJeongbi; }, [showJeongbi]);
   useEffect(() => { showSubscriptionRef.current = showSubscription; }, [showSubscription]);
+
+  useEffect(() => {
+    fetch("/api/apt-trade?lawdCd=26440&months=3")
+      .then((r) => r.json())
+      .then((data: { items: RawItem[] }) => {
+        const map = new Map<string, { price: number; area: number }>();
+        const sorted = (data.items ?? []).slice().sort((a, b) => {
+          const da = `${a.dealYear}${String(a.dealMonth ?? "").padStart(2, "0")}${String(a.dealDay ?? "").padStart(2, "0")}`;
+          const db = `${b.dealYear}${String(b.dealMonth ?? "").padStart(2, "0")}${String(b.dealDay ?? "").padStart(2, "0")}`;
+          return db.localeCompare(da);
+        });
+        for (const item of sorted) {
+          const nm = item.aptNm?.trim();
+          if (!nm || map.has(nm)) continue;
+          const price = parseInt((item.dealAmount ?? "").replace(/,/g, ""), 10);
+          const area = parseFloat(item.excluUseAr ?? "0");
+          if (price > 0 && area > 0) map.set(nm, { price, area });
+        }
+        setLatestTradeMap(map);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (latestTradeMap.size === 0) return;
+    for (const apt of APT_COMPLEXES) {
+      const el = aptTradeElsRef.current.get(apt.id);
+      if (!el) continue;
+      const trade = latestTradeMap.get(apt.apiName ?? apt.name);
+      if (!trade) continue;
+      const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+      const areaStr = Math.round(trade.area) + "㎡";
+      el.textContent = `${priceStr} · ${areaStr}`;
+    }
+  }, [latestTradeMap]);
 
   useEffect(() => {
     const storeId = searchParams.get("storeId");
@@ -1211,15 +1249,18 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
         "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
       content.innerHTML = `
         <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
-          padding:4px 8px;border-radius:6px;white-space:nowrap;
+          padding:4px 8px;border-radius:6px;white-space:nowrap;text-align:center;
           box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
           transition:transform 0.15s,box-shadow 0.15s;"
           onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
           onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
           ${apt.name}
+          <div class="apt-trade-sub" style="font-size:10px;font-weight:500;opacity:0.88;margin-top:1px;"></div>
         </div>
         <div style="width:0;height:0;border-left:6px solid transparent;
           border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;
+      const subEl = content.querySelector(".apt-trade-sub") as HTMLElement | null;
+      if (subEl) aptTradeElsRef.current.set(apt.id, subEl);
       content.addEventListener("click", (e) => {
         e.stopPropagation();
         openPopup(aptWithPos, map);

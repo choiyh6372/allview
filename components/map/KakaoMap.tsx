@@ -1256,8 +1256,8 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
           onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
           <div style="background:${color};color:#fff;font-size:13px;font-weight:700;
             padding:4px 9px;text-align:center;">${apt.name}</div>
-          <div class="apt-trade-sub" style="background:rgba(0,0,0,0.32);color:#fff;font-size:11px;
-            font-weight:500;text-align:center;"></div>
+          <div class="apt-trade-sub" style="background:rgba(0,0,0,0.32);color:#fff;font-size:13px;
+            font-weight:700;text-align:center;"></div>
         </div>
         <div style="width:0;height:0;border-left:6px solid transparent;
           border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;

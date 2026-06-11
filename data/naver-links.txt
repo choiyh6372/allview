@@ -37,7 +37,7 @@ kukje_posco2            | 포스코 2단지             |  https://fin.land.nave
 kukje_posco3            | 포스코 3단지             |  https://fin.land.naver.com/map?layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjHwCcAZgBMgsAF9qTLPQQALAAr1GLWOFIAjOGCIMAdkxIIiEJAaph6ZhNgAqDQvYCeaLOrABBPgFoAQnxW%2BiRGJmYWSi5YFgDmru4AcgCuKFpYdLrCwYbGpuYGjiTObli6PlLUdMTJdAYkWthw%2BslYkgC6QA&center=3AAtA6-2z6mhq&zoom=16.146419587826976
 
 # ── 화전동 ───────────────────────────────────────────────────────────────────
-hwajeon_ubang           | 우방아이유쉘             |  https://fin.land.naver.com/map?center=3AzrWA-2z6YIO&zoom=14.41258564078046&layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjABYArAAYBfMAF9qTLPQQALAAr1GLWOFIAjOGCIMAdkxIIiEJAaph6ZhNgAqDQvYCeaLOrABBPgFoAQhLU%2BiRGJmYWSi5YFgDmru4AcgCuKFpYdLoAzFYhYabmBo4kzm5Yuj5S1HTEyXQGJFrYcPrJWJIAukA
+hwajeon_ubang           | 우방아이유쉘             |  https://fin.land.naver.com/map?center=3AztBl-2z6YIO&zoom=14.546439633001135&layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjAFYA7ACY%2BQsAF9qTLPQQALAAr1GLWOFIAjOGCIMAdkxIIiEJAaph6ZhNgAqDQvYCeaLOrABBPgFoAQnxW%2BiRGJmYWSi5YFgDmru4AcgCuKFpYdLpB1CFhpuYGjiTObli6PlLUdMTJdAYkWthw%2BslYkgC6QA
 
 # ── 신호동 ───────────────────────────────────────────────────────────────────
 sinho_bunyoung1         | 부영사랑으로 1차         |  https://fin.land.naver.com/map?layer=NobwRAlgJmBcYGMD2BbADgGwKYA8D6UWALgIYQZgA0YaJATiSgM5zjLrY4CSM8AjAAYA7AGYALALABfakyz0EACwAK9Ri1jhSAIzhgiDAHZMSCIhCSGqYeuYTYAKg0IOAnmiwawAQT4BaACE%2BawMSY1NzS2VXLEsAczcPADkAVxRtLDo9YOpQ8LMLQycSF3csPV9pajpiFLpDEm1sOAMUrCkAXSA&center=3Az6Pt-2z63JA&zoom=15.340428007926347

@@ -203,6 +203,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
       if (!trade) continue;
       const priceStr = (trade.price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
       const areaStr = Math.round(trade.area) + "㎡";
+      el.style.padding = "2px 8px";
       el.textContent = `${areaStr} - ${priceStr}`;
     }
   }, [latestTradeMap]);
@@ -1248,14 +1249,15 @@ export default function KakaoMap({ apiKey, areaTypeMap = {} }: { apiKey: string;
       content.style.cssText =
         "position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
       content.innerHTML = `
-        <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
-          padding:4px 8px;border-radius:6px;white-space:nowrap;text-align:center;
+        <div style="border-radius:6px;overflow:hidden;white-space:nowrap;
           box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.2);
           transition:transform 0.15s,box-shadow 0.15s;"
           onmouseover="this.style.transform='scale(1.18)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.55)';"
           onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.5)';">
-          ${apt.name}
-          <div class="apt-trade-sub" style="font-size:10px;font-weight:500;margin-top:2px;padding-top:2px;color:rgba(255,255,255,0.85);border-top:1px solid rgba(255,255,255,0.3);"></div>
+          <div style="background:${color};color:#fff;font-size:11px;font-weight:700;
+            padding:4px 8px;text-align:center;">${apt.name}</div>
+          <div class="apt-trade-sub" style="background:rgba(0,0,0,0.32);color:#fff;font-size:10px;
+            font-weight:500;text-align:center;"></div>
         </div>
         <div style="width:0;height:0;border-left:6px solid transparent;
           border-right:6px solid transparent;border-top:8px solid ${color};"></div>`;

@@ -541,31 +541,38 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
             </div>
           );
         })()}
-        <div className="hidden md:block mt-3 rounded-xl border border-border bg-bg-card overflow-hidden text-sm">
-          <div className="px-4 py-2.5 border-b border-border">
-            <span className="text-xs text-gray-400 font-medium">평형 범례</span>
+        {(() => {
+          const twoCol = ["ocean_blueocean4", "ocean_blueocean5", "ocean_blueocean6", "ocean_qweendom_lincoln"].includes(key);
+          return (
+          <div className="hidden md:block mt-3 rounded-xl border border-border bg-bg-card overflow-hidden text-sm">
+            <div className="px-4 py-2.5 border-b border-border">
+              <span className="text-xs text-gray-400 font-medium">평형 범례</span>
+            </div>
+            <div className={twoCol ? "grid grid-cols-2" : ""}>
+              {complex.types.map((type) => {
+                const cfg = typeColor(key, type);
+                const sqm = areaMap[type];
+                return (
+                  <div key={type}
+                    className="flex items-center justify-between px-3 py-2 border-b border-border last:border-b-0 cursor-pointer hover:bg-bg-hover transition-colors"
+                    onMouseEnter={() => setHoveredType(type)}
+                    onMouseLeave={() => setHoveredType(null)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
+                      <span className="text-sm font-semibold text-gray-700">{type.toUpperCase()}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {sqm && <span className="text-sm text-gray-600">{sqm.toFixed(2)}㎡</span>}
+                      {noVRTypes.has(type) && <span className="text-xs text-gray-400">준비중</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          {complex.types.map((type) => {
-            const cfg = typeColor(key, type);
-            const sqm = areaMap[type];
-            return (
-              <div key={type}
-                className="flex items-center justify-between px-4 py-2 border-b border-border last:border-b-0 cursor-pointer hover:bg-bg-hover transition-colors"
-                onMouseEnter={() => setHoveredType(type)}
-                onMouseLeave={() => setHoveredType(null)}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
-                  <span className="text-sm font-semibold text-gray-700">{type.toUpperCase()}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {sqm && <span className="text-sm text-gray-600">{sqm.toFixed(2)}㎡</span>}
-                  {noVRTypes.has(type) && <span className="text-xs text-gray-400">준비중</span>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+          );
+        })()}
       </div>
 
       <div className="flex-1 flex flex-col justify-start">

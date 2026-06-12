@@ -409,7 +409,7 @@ export const COMPLEX_MAX_WIDTH: Record<string, string> = {
   ecodelta_prugio_lin: "max-w-3xl",
   ecodelta_xi: "max-w-3xl",
   ecodelta_dietr_first: "max-w-2xl",
-  ocean_samjung: "max-w-lg",
+  ocean_samjung: "max-w-[420px]",
   ocean_solmare: "max-w-2xl",
   kukje_daebang2: "max-w-2xl",
   kukje_eileen: "max-w-3xl",

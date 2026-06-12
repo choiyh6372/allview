@@ -622,7 +622,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
                       onMouseEnter={() => setHoveredId(hs.id)}
                       onMouseLeave={() => setHoveredId(null)}
                       title={`${hs.type.toUpperCase()} VR 보기`}
-                      className="absolute rounded-full transition-all duration-150"
+                      className="absolute rounded-full transition-all duration-150 flex items-center justify-center"
                       style={{
                         left: `${hs.x}%`,
                         top: `${hs.y}%`,
@@ -637,7 +637,12 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
                         zIndex: isHovered ? 20 : 10,
                         cursor: "pointer",
                       }}
-                    />
+                    >
+                      <span className="relative flex h-3 w-3 items-center justify-center">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style={{ background: cfg.bg }} />
+                        <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: cfg.bg }} />
+                      </span>
+                    </button>
                   );
                 })}
               </div>

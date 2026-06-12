@@ -381,6 +381,7 @@ const TYPE_COLOR: Record<string, ColorDef> = {
   "54b": { bg: "#c39bd3", border: "#9b59b6", text: "#333" },
   "55":  { bg: "#e67e22", border: "#ca6f1e", text: "#fff" },
   "59":  { bg: "#a855f7", border: "#7c3aed", text: "#fff" },
+  "75":  { bg: "#ff8c00", border: "#cc6600", text: "#fff" },
   "64":  { bg: "#17a589", border: "#0e7863", text: "#fff" },
   "65":  { bg: "#d4ac0d", border: "#a08000", text: "#fff" },
   "66":  { bg: "#f39c12", border: "#c87d0e", text: "#fff" },

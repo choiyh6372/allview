@@ -71,6 +71,10 @@ export const complexData: VRComplex[] = [
     types: ["32a","34a","34b","40","46"] },
   { id: "kukje_posco3", slug: "posco3", name: "포스코 3단지", regionId: "kukje", regionName: "명지국제신도시",
     types: ["32a","32b","34a","34b","40","46"] },
+  { id: "kukje_jungheung_terrace", slug: "jungheung_terrace", name: "중흥더테라스", regionId: "kukje", regionName: "명지국제신도시",
+    types: ["84a1","84a2","84a3","84a4","84b1","84b2","84b3","84b4"] },
+  { id: "kukje_sweetpalace", slug: "sweetpalace", name: "스위트팰리스", regionId: "kukje", regionName: "명지국제신도시",
+    types: ["74a","74a1","74b","84a"] },
   // 에코델타시티 (ecodelta)
   { id: "ecodelta_hoban", slug: "hoban", name: "호반써밋스마트시티", regionId: "ecodelta", regionName: "에코델타시티",
     types: ["33a","33b","33c"] },

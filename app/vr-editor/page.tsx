@@ -65,6 +65,8 @@ const COMPLEX_IMAGE: Record<string, string> = {
   kukje_posco2: "/apt_map/kukje/posco2.jpg",
   kukje_thewestern: "/apt_map/kukje/thewestern.jpg",
   kukje_posco3: "/apt_map/kukje/posco3.jpg",
+  kukje_jungheung_terrace: "/apt_map/kukje/jungheung_terrace.jpg",
+  kukje_sweetpalace: "/apt_map/kukje/sweetpalace.jpg",
   ecodelta_hoban: "/apt_map/ecodelta/호반써밋 단지.jpg",
   ecodelta_sujain: "/apt_map/ecodelta/수자인.jpg",
   ecodelta_prugio_lin: "/apt_map/ecodelta/푸르지오린.jpg",

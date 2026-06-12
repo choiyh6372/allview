@@ -213,6 +213,22 @@ const COMPLEX_TYPE_COLOR: Record<string, Record<string, ColorDef>> = {
     "79":  { bg: "#ff85c2", border: "#d45e99", text: "#fff" },
     "88b": { bg: "#fde68a", border: "#f59e0b", text: "#333" },
   },
+  kukje_sweetpalace: {
+    "74a":  { bg: "#87ceeb", border: "#4da6d6", text: "#333" },
+    "74a1": { bg: "#9b59b6", border: "#7d3c98", text: "#fff" },
+    "74b":  { bg: "#ff8c00", border: "#cc6600", text: "#fff" },
+    "84a":  { bg: "#ff85c2", border: "#d45e99", text: "#fff" },
+  },
+  kukje_jungheung_terrace: {
+    "84a1": { bg: "#ff8c00", border: "#cc6600", text: "#fff" },
+    "84a2": { bg: "#9b59b6", border: "#7d3c98", text: "#fff" },
+    "84a3": { bg: "#e74c3c", border: "#c0392b", text: "#fff" },
+    "84a4": { bg: "#795548", border: "#5d4037", text: "#fff" },
+    "84b1": { bg: "#2980b9", border: "#1f618d", text: "#fff" },
+    "84b2": { bg: "#2ecc71", border: "#1a8a4a", text: "#fff" },
+    "84b3": { bg: "#1a5276", border: "#154360", text: "#fff" },
+    "84b4": { bg: "#f0c8a0", border: "#c89060", text: "#333" },
+  },
   kukje_daebang1: {
     "34a": { bg: "#f5e642", border: "#c8b800", text: "#333" },
     "34b": { bg: "#ff85c2", border: "#d45e99", text: "#fff" },
@@ -405,6 +421,8 @@ export const COMPLEX_MAX_WIDTH: Record<string, string> = {
   kukje_posco2: "max-w-3xl",
   kukje_posco3: "max-w-5xl",
   kukje_samjung: "max-w-xs",
+  kukje_sweetpalace: "max-w-2xl",
+  kukje_jungheung_terrace: "max-w-2xl",
   kukje_hoban1: "max-w-3xl",
 };
 

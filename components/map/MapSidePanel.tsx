@@ -446,7 +446,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
         {!selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && !selectedJeongbi && (
           <div className="flex flex-col">
             {/* 지역 탭 */}
-            <div className="flex overflow-x-auto border-b border-gray-100 shrink-0">
+            <div className="flex overflow-x-auto border-b border-gray-100 shrink-0 sticky top-0 bg-white z-10">
               <button
                 onClick={() => setShowFavorites(true)}
                 className={`shrink-0 px-4 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${

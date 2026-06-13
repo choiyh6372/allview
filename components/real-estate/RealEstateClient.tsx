@@ -22,12 +22,12 @@ const REGION_LABELS: Record<RegionFilter, string> = {
   ocean:    "명지오션시티",
   kukje:    "명지국제신도시",
   ecodelta: "에코델타시티",
-  sinho:    "신호·화전",
+  sinho:    "신호·화전·지사",
   jisa:     "지사",
   other:    "기타",
 };
 
-const REGION_ORDER: RegionFilter[] = ["all", "ocean", "kukje", "ecodelta", "sinho", "jisa", "other"];
+const REGION_ORDER: RegionFilter[] = ["all", "ocean", "kukje", "ecodelta", "sinho", "other"];
 
 const TAB_LABELS: Record<TradeType, string> = {
   apt: "아파트",
@@ -160,7 +160,6 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
 
   complexRegionMap.set("명진파크뷰", "jisa");
   complexRegionMap.set("지사과학삼정그린코아", "jisa");
-  complexRegionMap.set("명지화전우방아이유쉘", "sinho");
 
   const allAptComplexes = [
     ...(data?.aptComplexes ?? []),
@@ -173,8 +172,13 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
 
   const [activeTab, setActiveTab] = useState<TradeType>("apt");
   const [activeRegion, setActiveRegion] = useState<RegionFilter>("all");
-  const filterByRegion = <T extends { name: string }>(list: T[]) =>
-    activeRegion === "all" ? list : list.filter((c) => (complexRegionMap.get(c.name) ?? "other") === activeRegion);
+  const filterByRegion = <T extends { name: string }>(list: T[]) => {
+    if (activeRegion === "all") return list;
+    return list.filter((c) => {
+      const r = complexRegionMap.get(c.name) ?? "other";
+      return activeRegion === "sinho" ? (r === "sinho" || r === "jisa") : r === activeRegion;
+    });
+  };
 
   const aptComplexes = filterByRegion(allAptComplexes);
   const silvComplexes = filterByRegion(allSilvComplexes);
@@ -326,9 +330,10 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
             {REGION_ORDER.filter((r) => {
               if (r === "all") return true;
               if (activeTab === "offi") return false;
-              return allAptComplexes.concat(allSilvComplexes as typeof allAptComplexes).some(
-                (c) => (complexRegionMap.get(c.name) ?? "other") === r
-              );
+              return allAptComplexes.concat(allSilvComplexes as typeof allAptComplexes).some((c) => {
+                const cr = complexRegionMap.get(c.name) ?? "other";
+                return r === "sinho" ? (cr === "sinho" || cr === "jisa") : cr === r;
+              });
             }).map((r) => (
               <button
                 key={r}

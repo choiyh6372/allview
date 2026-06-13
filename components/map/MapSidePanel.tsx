@@ -475,9 +475,10 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             {/* 단지 목록 */}
             <div className="flex-1 overflow-y-auto">
               {(() => {
-                const listApts = showFavorites
+                const listApts = (showFavorites
                   ? APT_COMPLEXES.filter((c) => favorites.has(c.id))
-                  : APT_COMPLEXES.filter((c) => c.region === listRegion);
+                  : APT_COMPLEXES.filter((c) => c.region === listRegion)
+                ).sort((a, b) => a.name.localeCompare(b.name, "ko"));
                 return (
                   <>
                     {showFavorites && favorites.size === 0 ? (

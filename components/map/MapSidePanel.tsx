@@ -444,7 +444,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
 
         {/* 빈 상태 - 단지 목록 */}
         {!selectedApt && !selectedStore && !selectedSubscription && !selectedProperty && !selectedJeongbi && (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col">
             {/* 지역 탭 */}
             <div className="flex overflow-x-auto border-b border-gray-100 shrink-0">
               <button
@@ -472,7 +472,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               ))}
             </div>
             {/* 단지 목록 */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1">
               {(() => {
                 const listApts = (showFavorites
                   ? APT_COMPLEXES.filter((c) => favorites.has(c.id))

@@ -1527,6 +1527,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
         selectedProperty={selectedProperty}
         selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
+        latestPriceMap={latestTradeMap}
         onAptSelect={(apt) => {
           setSelectedApt(apt);
           if (mapRef.current) {

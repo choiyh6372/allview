@@ -196,9 +196,15 @@ interface Props {
   sharedArea?: string;
   onSharedAreaChange?: (area: string) => void;
   areaTypeMap?: Record<string, Record<string, string>>;
+  latestPriceMap?: Map<string, { price: number; area: number }>;
 }
 
-export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, onAptSelect, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange, areaTypeMap = {} }: Props) {
+function fmtListPrice(price: number, area: number): string {
+  const priceStr = (price / 10000).toFixed(1).replace(/\.0$/, "") + "억";
+  return `${Math.round(area)}㎡ · ${priceStr}`;
+}
+
+export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, onAptSelect, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange, areaTypeMap = {}, latestPriceMap }: Props) {
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -479,27 +485,39 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                     ) : (
                       <>
                         {!showFavorites && <p className="text-xs text-gray-400 px-4 pt-3 pb-1">단지를 클릭하면 실거래가 정보를 확인할 수 있습니다</p>}
-                        {listApts.map((apt) => (
-                          <div
-                            key={apt.id}
-                            onClick={() => onAptSelect?.(apt)}
-                            className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors group border-b border-gray-50 cursor-pointer"
-                          >
-                            <div>
-                              <p className="text-sm font-medium text-gray-900 group-hover:text-accent transition-colors">{apt.name}</p>
-                              <p className="text-xs text-gray-400 mt-0.5">
-                                {[apt.buildYear && `${apt.buildYear}년`, apt.hoCnt && `${apt.hoCnt.toLocaleString()}세대`].filter(Boolean).join(" · ")}
-                              </p>
+                        {listApts.map((apt) => {
+                          const names = [apt.apiName, ...(apt.silvApiNames ?? []), apt.name].filter(Boolean) as string[];
+                          const trade = names.reduce<{ price: number; area: number } | undefined>(
+                            (found, nm) => found ?? latestPriceMap?.get(nm),
+                            undefined
+                          );
+                          return (
+                            <div
+                              key={apt.id}
+                              onClick={() => onAptSelect?.(apt)}
+                              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors group border-b border-gray-50 cursor-pointer"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-gray-900 group-hover:text-accent transition-colors">{apt.name}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                  {[apt.buildYear && `${apt.buildYear}년`, apt.hoCnt && `${apt.hoCnt.toLocaleString()}세대`].filter(Boolean).join(" · ")}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0 ml-2">
+                                {trade && (
+                                  <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                    {fmtListPrice(trade.price, trade.area)}
+                                  </span>
+                                )}
+                                <button
+                                  onClick={(e) => toggleFavorite(apt.id, e)}
+                                  className={`text-base transition-colors ${favorites.has(apt.id) ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"}`}
+                                >★</button>
+                                <MapPin size={14} className="text-gray-300 group-hover:text-accent shrink-0 transition-colors" />
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <button
-                                onClick={(e) => toggleFavorite(apt.id, e)}
-                                className={`text-base transition-colors ${favorites.has(apt.id) ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"}`}
-                              >★</button>
-                              <MapPin size={14} className="text-gray-300 group-hover:text-accent shrink-0 transition-colors" />
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </>
                     )}
                   </>

@@ -619,7 +619,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
 
         {/* 아파트 뒤로가기 헤더 */}
         {selectedApt && !selectedStore && (
-          <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-100 shrink-0 sticky top-0 bg-white z-10">
             <button
               onClick={onClose}
               className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-accent transition-colors"

@@ -180,8 +180,8 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
   const offiLoadedRef = useRef(false);
   const rhLoadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
-  const [latestTradeMap, setLatestTradeMap] = useState<Map<string, { price: number; area: number }>>(new Map());
-  const latestTradeMapRef = useRef<Map<string, { price: number; area: number }>>(new Map());
+  const [latestTradeMap, setLatestTradeMap] = useState<Map<string, { price: number; area: number; date: string }>>(new Map());
+  const latestTradeMapRef = useRef<Map<string, { price: number; area: number; date: string }>>(new Map());
   const [showSchoolZones, setShowSchoolZones] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
   const [showJeongbi, setShowJeongbi] = useState(false);
@@ -211,7 +211,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
       fetch("/api/rh-trade?lawdCd=26440&months=3").then((r) => r.json()),
       fetch("/api/offi-trade?lawdCd=26440&months=3").then((r) => r.json()),
     ]).then(([aptData, silvData, rhData, offiData]) => {
-      const map = new Map<string, { price: number; area: number }>();
+      const map = new Map<string, { price: number; area: number; date: string }>();
       const allItems = [
         ...(aptData.items ?? []),
         ...(silvData.items ?? []).filter((i: RawItem) => (i.ownershipGbn ?? "").trim() !== "입주권"),
@@ -227,7 +227,8 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
         if (!nm || /^\d+동$/.test(nm) || map.has(nm)) continue;
         const price = parseInt((item.dealAmount ?? "").replace(/,/g, ""), 10);
         const area = parseFloat(item.excluUseAr ?? "0");
-        if (price > 0 && area > 0) map.set(nm, { price, area });
+        const date = item.dealYear && item.dealMonth && item.dealDay ? `${String(item.dealYear).slice(2)}.${String(item.dealMonth).padStart(2, "0")}.${String(item.dealDay).padStart(2, "0")}` : "";
+        if (price > 0 && area > 0) map.set(nm, { price, area, date });
       }
       latestTradeMapRef.current = map;
       setLatestTradeMap(map);

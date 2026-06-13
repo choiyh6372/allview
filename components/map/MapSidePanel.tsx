@@ -195,7 +195,7 @@ interface Props {
   sharedArea?: string;
   onSharedAreaChange?: (area: string) => void;
   areaTypeMap?: Record<string, Record<string, string>>;
-  latestPriceMap?: Map<string, { price: number; area: number }>;
+  latestPriceMap?: Map<string, { price: number; area: number; date: string }>;
 }
 
 function fmtListPrice(price: number, area: number): string {
@@ -487,7 +487,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                         {!showFavorites && <p className="text-xs text-gray-400 px-4 pt-3 pb-1">단지를 클릭하면 실거래가 정보를 확인할 수 있습니다</p>}
                         {listApts.map((apt) => {
                           const names = [apt.apiName, ...(apt.silvApiNames ?? []), apt.name].filter(Boolean) as string[];
-                          const trade = names.reduce<{ price: number; area: number } | undefined>(
+                          const trade = names.reduce<{ price: number; area: number; date: string } | undefined>(
                             (found, nm) => found ?? latestPriceMap?.get(nm),
                             undefined
                           );
@@ -505,9 +505,12 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                               </div>
                               <div className="flex items-center gap-2 shrink-0 ml-2">
                                 {trade && (
-                                  <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap">
-                                    {fmtListPrice(trade.price, trade.area)}
-                                  </span>
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    {trade.date && <span className="text-xs font-medium text-gray-900 whitespace-nowrap">{trade.date}</span>}
+                                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                      {fmtListPrice(trade.price, trade.area)}
+                                    </span>
+                                  </div>
                                 )}
                                 <button
                                   onClick={(e) => toggleFavorite(apt.id, e)}

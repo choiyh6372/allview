@@ -172,14 +172,13 @@ const JEONGBI_STATUS_STYLE: Record<JeongbiProject["status"], string> = {
   "해제":     "bg-gray-100 text-gray-600 border-gray-200",
 };
 
-const REGION_ORDER = ["ocean", "kukje", "ecodelta", "sinho", "jisa", "other"] as const;
+const REGION_ORDER = ["ocean", "kukje", "ecodelta", "sinho", "other"] as const;
 type RegionKey = typeof REGION_ORDER[number];
 const REGION_LABELS: Record<RegionKey, string> = {
   ocean:    "오션시티",
   kukje:    "국제신도시",
   ecodelta: "에코델타",
-  sinho:    "신호·화전",
-  jisa:     "지사",
+  sinho:    "신호·화전·지사",
   other:    "기타",
 };
 
@@ -458,7 +457,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               >
                 ★ 즐겨찾기
               </button>
-              {REGION_ORDER.filter((r) => APT_COMPLEXES.some((c) => c.region === r)).map((region) => (
+              {REGION_ORDER.filter((r) => APT_COMPLEXES.some((c) => r === "sinho" ? (c.region === "sinho" || c.region === "jisa") : c.region === r)).map((region) => (
                 <button
                   key={region}
                   onClick={() => { setShowFavorites(false); setListRegion(region); }}
@@ -477,7 +476,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               {(() => {
                 const listApts = (showFavorites
                   ? APT_COMPLEXES.filter((c) => favorites.has(c.id))
-                  : APT_COMPLEXES.filter((c) => c.region === listRegion)
+                  : APT_COMPLEXES.filter((c) => listRegion === "sinho" ? (c.region === "sinho" || c.region === "jisa") : c.region === listRegion)
                 ).sort((a, b) => a.name.localeCompare(b.name, "ko"));
                 return (
                   <>

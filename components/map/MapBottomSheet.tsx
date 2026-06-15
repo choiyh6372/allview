@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 import { X, MapPin, Phone, Navigation, Eye } from "lucide-react";
+import BannerSlot from "@/components/common/BannerSlot";
 import PriceChart from "@/components/real-estate/PriceChart";
 import VRModal from "@/components/vr-tour/VRModal";
 import { buildComplexList, buildRentTransactions, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
@@ -798,6 +799,12 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
               <AptInfoCard apt={selectedApt} />
             </div>
           )}
+
+          {/* 광고 배너 */}
+          <div className="px-4 pt-4 pb-2 flex flex-col gap-3">
+            <BannerSlot position="map" slot={1} compact />
+            <BannerSlot position="map" slot={2} compact />
+          </div>
         </div>
       </div>
 

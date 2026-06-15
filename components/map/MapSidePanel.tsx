@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
-import { MapPin, Phone, Navigation, ChevronLeft, Eye } from "lucide-react";
+import { MapPin, Phone, Navigation, ChevronLeft, Eye, X } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
 import VRModal from "@/components/vr-tour/VRModal";
 import StoreBanner from "@/components/home/StoreBanner";
+import BannerSlot from "@/components/common/BannerSlot";
 import { buildComplexList, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
@@ -272,6 +273,10 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
   }, [selectedProperty?.name]);
 
   useEffect(() => {
+    if (selectedStore) scrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedStore?.id]);
+
+  useEffect(() => {
     setPhotoIndex(0);
   }, [selectedStore?.id]);
 
@@ -532,12 +537,19 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
 
         {/* 가게 정보 */}
         {selectedStore && (
-          <div className="p-4 space-y-4">
-            {/* 헤더 */}
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">{selectedStore.name}</h2>
+          <div>
+            {/* 고정 헤더 */}
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between gap-2">
+              <h2 className="text-lg font-bold text-gray-900 truncate">{selectedStore.name}</h2>
+              <button
+                onClick={onClose}
+                className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <X size={18} />
+              </button>
             </div>
 
+            <div className="p-4 space-y-4">
             {/* 상세 정보 */}
             <div className="space-y-2 text-sm">
               {selectedStore.address && (
@@ -614,6 +626,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                 ))}
               </div>
             )}
+            </div>
           </div>
         )}
 
@@ -722,6 +735,12 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             <AptInfoCard apt={selectedApt} />
           </div>
         )}
+
+        {/* 광고 배너 */}
+        <div className="px-4 pt-4 pb-2 border-t border-gray-200 flex flex-col gap-3">
+          <BannerSlot position="map" slot={1} compact />
+          <BannerSlot position="map" slot={2} compact />
+        </div>
 
         {/* 가게 홍보 슬라이드 */}
         <div className="border-t border-gray-200 bg-white pb-10">

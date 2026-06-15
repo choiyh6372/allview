@@ -1,6 +1,13 @@
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2, BUCKET } from "./r2Client";
 
+export interface BannerSlotConfig {
+  position: "real-estate" | "map";
+  slot: 1 | 2;
+  imageUrl: string;
+  active: boolean;
+}
+
 export interface PromotionStore {
   id: string;
   name: string;
@@ -14,6 +21,7 @@ export interface PromotionStore {
   lng?: number;
   promotionDays?: number;
   promotionEndDate?: string;
+  bannerSlots?: BannerSlotConfig[];
   createdAt: string;
   updatedAt: string;
 }

@@ -2,8 +2,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X, Upload, Trash2, Loader2, MapPin, GripVertical } from "lucide-react";
-import { STORE_CATEGORIES, STORE_REGIONS, type PromotionStore } from "@/lib/promotionStore";
+import { X, Upload, Trash2, Loader2, MapPin, GripVertical, Plus, ToggleLeft, ToggleRight } from "lucide-react";
+import { STORE_CATEGORIES, STORE_REGIONS, type PromotionStore, type BannerSlotConfig } from "@/lib/promotionStore";
 import CropModal from "@/components/admin/CropModal";
 
 interface Props {
@@ -21,7 +21,102 @@ const EMPTY: Omit<PromotionStore, "createdAt" | "updatedAt"> = {
   category: STORE_CATEGORIES[0],
   region: STORE_REGIONS[0],
   photos: [],
+  bannerSlots: [],
 };
+
+const POSITION_LABELS: Record<BannerSlotConfig["position"], string> = {
+  "real-estate": "실거래가",
+  map: "지도",
+};
+
+const ALL_SLOTS: { position: BannerSlotConfig["position"]; slot: 1 | 2 }[] = [
+  { position: "real-estate", slot: 1 },
+  { position: "real-estate", slot: 2 },
+  { position: "map", slot: 1 },
+  { position: "map", slot: 2 },
+];
+
+interface BannerSlotRowProps {
+  config: BannerSlotConfig;
+  storeId: string;
+  onUpdate: (updated: BannerSlotConfig) => void;
+  onRemove: () => void;
+}
+
+function BannerSlotRow({ config, storeId, onUpdate, onRemove }: BannerSlotRowProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (inputRef.current) inputRef.current.value = "";
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("storeId", storeId);
+      fd.append("position", config.position);
+      fd.append("slot", String(config.slot));
+      const res = await fetch("/api/admin/banner-upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error((await res.json()).error ?? "업로드 실패");
+      const { url } = await res.json();
+      onUpdate({ ...config, imageUrl: url });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "업로드 실패");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="bg-bg border border-border rounded-xl p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-900">
+          {POSITION_LABELS[config.position]} · 슬롯 {config.slot}
+        </span>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => onUpdate({ ...config, active: !config.active })}>
+            {config.active
+              ? <ToggleRight size={20} className="text-green-400" />
+              : <ToggleLeft size={20} className="text-gray-400" />}
+          </button>
+          <button type="button" onClick={onRemove} className="text-red-400 hover:text-red-500 transition-colors">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </div>
+
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+      <div
+        className="relative w-full h-20 rounded-lg overflow-hidden border border-dashed border-border cursor-pointer hover:border-accent/50 transition-colors bg-bg-hover"
+        onClick={() => !uploading && inputRef.current?.click()}
+      >
+        {config.imageUrl ? (
+          <img src={config.imageUrl} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-muted hover:text-accent/60 transition-colors">
+            <Upload size={16} />
+            <span className="text-xs">배너 이미지 (4:1 비율 권장)</span>
+          </div>
+        )}
+        {uploading && (
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+            <Loader2 size={18} className="text-accent animate-spin" />
+          </div>
+        )}
+        {config.imageUrl && !uploading && (
+          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100">
+            <span className="text-[10px] bg-black/50 text-white px-1.5 py-0.5 rounded">클릭해서 교체</span>
+          </div>
+        )}
+      </div>
+      {error && <p className="text-xs text-red-400">{error}</p>}
+    </div>
+  );
+}
 
 function generateId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -545,6 +640,73 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
               ))}
             </div>
             <p className="text-xs text-muted mt-1.5">첫 번째 사진이 카드의 대표 사진으로 사용됩니다.</p>
+          </div>
+
+          {/* Banner Slots */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-medium text-muted">배너 광고 (선택)</label>
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="flex items-center gap-1 text-xs text-accent hover:text-accent/80 transition-colors"
+                >
+                  <Plus size={12} />
+                  슬롯 추가
+                </button>
+                <div className="absolute right-0 top-5 z-10 hidden group-focus-within:block group-hover:block bg-bg-card border border-border rounded-xl shadow-lg py-1 w-36">
+                  {ALL_SLOTS.filter(
+                    (s) => !(form.bannerSlots ?? []).some(
+                      (b) => b.position === s.position && b.slot === s.slot
+                    )
+                  ).map((s) => (
+                    <button
+                      key={`${s.position}-${s.slot}`}
+                      type="button"
+                      className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-bg-hover hover:text-gray-900 transition-colors"
+                      onClick={() =>
+                        setForm((f) => ({
+                          ...f,
+                          bannerSlots: [
+                            ...(f.bannerSlots ?? []),
+                            { position: s.position, slot: s.slot, imageUrl: "", active: true },
+                          ],
+                        }))
+                      }
+                    >
+                      {POSITION_LABELS[s.position]} · 슬롯 {s.slot}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {(form.bannerSlots ?? []).length === 0 ? (
+              <p className="text-xs text-muted py-2">배너 광고 없음</p>
+            ) : (
+              <div className="space-y-2">
+                {(form.bannerSlots ?? []).map((config, i) => (
+                  <BannerSlotRow
+                    key={`${config.position}-${config.slot}`}
+                    config={config}
+                    storeId={storeId}
+                    onUpdate={(updated) =>
+                      setForm((f) => {
+                        const next = [...(f.bannerSlots ?? [])];
+                        next[i] = updated;
+                        return { ...f, bannerSlots: next };
+                      })
+                    }
+                    onRemove={() =>
+                      setForm((f) => ({
+                        ...f,
+                        bannerSlots: (f.bannerSlots ?? []).filter((_, j) => j !== i),
+                      }))
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {error && <p className="text-sm text-red-400">{error}</p>}

@@ -32,7 +32,7 @@ export default function ComplexList({ complexes, selectedId, onSelect, isLoading
           단지 정보가 없습니다
         </div>
       ) : (
-        <div className="divide-y divide-border h-72 lg:h-[930px] overflow-y-auto">
+        <div className="divide-y divide-border h-72 lg:h-[850px] overflow-y-auto">
           {regions.map((region) => (
             <div key={region}>
               <div className="px-4 py-1.5 lg:py-2 bg-bg/50">

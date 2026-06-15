@@ -7,6 +7,7 @@ import ComplexList from "@/components/real-estate/ComplexList";
 import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
 import StoreBanner from "@/components/home/StoreBanner";
+import BannerSlot from "@/components/common/BannerSlot";
 import { type Complex } from "@/lib/realEstateData";
 import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
@@ -351,13 +352,15 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
-          <aside className="lg:w-80 flex-shrink-0">
+          <aside className="lg:w-80 flex-shrink-0 flex flex-col gap-4 lg:self-start">
             <ComplexList
               complexes={complexes}
               selectedId={selectedId}
               onSelect={handleMobileSelect}
               isLoading={isLoading}
             />
+            <BannerSlot position="real-estate" slot={1} />
+            <BannerSlot position="real-estate" slot={2} />
           </aside>
 
           <div className="flex-1 min-w-0 space-y-6">

@@ -568,6 +568,11 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
               )}
             </div>
 
+            {/* 설명 */}
+            {selectedStore.description && (
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{selectedStore.description}</p>
+            )}
+
             {/* 사진 캐러셀 */}
             {photos.length > 0 && (
               <div className="relative rounded-xl overflow-hidden bg-gray-100">
@@ -615,11 +620,6 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
                   />
                 ))}
               </div>
-            )}
-
-            {/* 설명 */}
-            {selectedStore.description && (
-              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{selectedStore.description}</p>
             )}
 
             {/* 네이버 플레이스 */}

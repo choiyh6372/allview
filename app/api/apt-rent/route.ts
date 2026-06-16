@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   }
 
   const items = await fetchAptRentData(lawdCd, months);
-  saveTradeCache("apt-rent", items).catch(() => {});
+  if (items.length > 0) saveTradeCache("apt-rent", items).catch(() => {});
 
   return NextResponse.json(
     { items, count: items.length },

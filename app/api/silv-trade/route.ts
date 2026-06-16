@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   }
 
   const items = await fetchSilvTradeData(lawdCd, months);
-  saveTradeCache("silv-trade", items).catch(() => {});
+  if (items.length > 0) saveTradeCache("silv-trade", items).catch(() => {});
 
   return NextResponse.json(
     { items, count: items.length },

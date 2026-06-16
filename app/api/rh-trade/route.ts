@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const items = raw
     .filter((i) => !EXCLUDE_UMD.has((i.umdNm ?? "").trim()))
     .map((i) => ({ ...i, aptNm: i.aptNm ?? i.mhouseNm }));
-  saveTradeCache("rh-trade", items).catch(() => {});
+  if (items.length > 0) saveTradeCache("rh-trade", items).catch(() => {});
 
   return NextResponse.json(
     { items, count: items.length },

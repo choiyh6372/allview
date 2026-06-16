@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
   const raw = await fetchOffiTradeData(lawdCd, months);
   const items = raw.map((i) => ({ ...i, aptNm: i.aptNm ?? i.offiNm }));
-  saveTradeCache("offi-trade", items).catch(() => {});
+  if (items.length > 0) saveTradeCache("offi-trade", items).catch(() => {});
 
   return NextResponse.json(
     { items, count: items.length },

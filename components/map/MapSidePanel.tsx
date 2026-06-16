@@ -663,28 +663,38 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             <div className="p-4 space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
-                <div className="flex items-center gap-2">
-                  {vrEntry && (
-                    <button
-                      onClick={() => setShowVrNoData(true)}
-                      className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 text-xs font-semibold rounded-lg transition-colors"
-                    >
-                      <Eye size={13} />
-                      VR 보기
-                    </button>
-                  )}
-                  {aptNaverUrl && (
-                    <a
-                      href={aptNaverUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
-                    >
-                      네이버 부동산
-                    </a>
-                  )}
-                </div>
+                {vrEntry && (
+                  <button
+                    onClick={() => setShowVrNoData(true)}
+                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 text-xs font-semibold rounded-lg transition-colors"
+                  >
+                    <Eye size={13} />
+                    VR 보기
+                  </button>
+                )}
               </div>
+              {onToggleTxPanel && (
+                <button
+                  onClick={onToggleTxPanel}
+                  className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-base font-semibold border transition-colors ${
+                    txPanelOpen
+                      ? "bg-blue-700 text-white border-blue-700"
+                      : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700"
+                  }`}
+                >
+                  {txPanelOpen ? "거래내역 닫기" : "매매 · 전월세 거래내역"}
+                </button>
+              )}
+              {aptNaverUrl && (
+                <a
+                  href={aptNaverUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-base font-semibold rounded-lg transition-colors"
+                >
+                  네이버 부동산 보기
+                </a>
+              )}
               <AptInfoCard apt={selectedApt} />
               <p className="text-xs text-gray-400 text-center">실거래가 데이터가 없습니다</p>
               {showVrNoData && vrEntry && (

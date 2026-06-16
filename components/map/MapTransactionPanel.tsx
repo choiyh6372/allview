@@ -157,7 +157,9 @@ export default function MapTransactionPanel({ selectedApt, selectedProperty, isO
 
   // 활성 단지
   const complex = selectedApt ? aptMergedComplex : propertyComplex;
-  const activeName = selectedApt ? (aptName ?? "") : (selectedProperty?.name ?? "");
+  const activeName = selectedApt
+    ? (selectedApt.apiName ?? selectedApt.silvApiNames?.[0] ?? selectedApt.name)
+    : (selectedProperty?.name ?? "");
   const activeRentItems = selectedApt
     ? (data?.rentItems ?? [])
     : propertyRentItems.filter((i) => i.aptNm?.trim() === propertyComplex?.name);

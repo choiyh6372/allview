@@ -96,6 +96,25 @@ const OFFI_POS_OVERRIDES: Record<string, { lat: number; lng: number }> = {
 
 const ZOOM_THRESHOLD = 6;
 
+type MapRegion = "ocean" | "kukje" | "ecodelta" | "sinho" | "other";
+
+const REGION_CENTERS_FOR_DETECTION: Array<{ region: MapRegion; lat: number; lng: number }> = [
+  { region: "ocean",    lat: 35.0848, lng: 128.9009 },
+  { region: "kukje",   lat: 35.1013, lng: 128.9159 },
+  { region: "ecodelta", lat: 35.1488, lng: 128.9154 },
+  { region: "sinho",   lat: 35.0860, lng: 128.8770 },
+];
+
+function detectRegion(lat: number, lng: number): MapRegion {
+  let nearest: MapRegion = "other";
+  let minDist = Infinity;
+  for (const rc of REGION_CENTERS_FOR_DETECTION) {
+    const d = (rc.lat - lat) ** 2 + (rc.lng - lng) ** 2;
+    if (d < minDist) { minDist = d; nearest = rc.region; }
+  }
+  return nearest;
+}
+
 const JEONGBI_POLY_COLOR: Record<string, string> = {
   "재개발":       "#ef4444",
   "재건축":       "#f97316",
@@ -156,6 +175,15 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
   const [txPanelOpen, setTxPanelOpen] = useState(false);
   const [sharedArea, setSharedArea] = useState("");
   const [showMobileFavorites, setShowMobileFavorites] = useState(false);
+  const [mapRegion, setMapRegion] = useState<MapRegion>(() => {
+    if (typeof window === "undefined") return "kukje";
+    try {
+      const raw = localStorage.getItem("mapLastPos");
+      if (!raw) return "kukje";
+      const pos = JSON.parse(raw) as { lat: number; lng: number };
+      return detectRegion(pos.lat, pos.lng);
+    } catch { return "kukje"; }
+  });
   const setSelectedSubscriptionRef = useRef<((s: SubscriptionItem | null) => void) | null>(null);
   const setSelectedPropertyRef = useRef<((p: SelectedProperty | null) => void) | null>(null);
   const setSelectedJeongbiRef = useRef<((j: JeongbiProject | null) => void) | null>(null);
@@ -1307,7 +1335,10 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
     const saveMapPos = () => {
       try {
         const c = map.getCenter();
-        localStorage.setItem("mapLastPos", JSON.stringify({ lat: c.getLat(), lng: c.getLng(), level: map.getLevel() }));
+        const lat = c.getLat();
+        const lng = c.getLng();
+        localStorage.setItem("mapLastPos", JSON.stringify({ lat, lng, level: map.getLevel() }));
+        setMapRegion(detectRegion(lat, lng));
       } catch {}
     };
     kakao.maps.event.addListener(map, "dragend", saveMapPos);
@@ -1538,6 +1569,7 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
         selectedJeongbi={selectedJeongbi}
         onClose={closePopup}
         latestPriceMap={latestTradeMap}
+        mapRegion={mapRegion}
         onAptSelect={(apt) => {
           setSelectedApt(apt);
           if (mapRef.current) {

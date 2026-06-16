@@ -197,6 +197,7 @@ interface Props {
   onSharedAreaChange?: (area: string) => void;
   areaTypeMap?: Record<string, Record<string, string>>;
   latestPriceMap?: Map<string, { price: number; area: number; date: string }>;
+  mapRegion?: RegionKey;
 }
 
 function fmtListPrice(price: number, area: number): string {
@@ -204,7 +205,7 @@ function fmtListPrice(price: number, area: number): string {
   return `${Math.round(area)}㎡ · ${priceStr}`;
 }
 
-export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, onAptSelect, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange, areaTypeMap = {}, latestPriceMap }: Props) {
+export default function MapSidePanel({ selectedApt, selectedStore, selectedSubscription, selectedProperty, selectedJeongbi, onClose, onAptSelect, txPanelOpen, onToggleTxPanel, sharedArea, onSharedAreaChange, areaTypeMap = {}, latestPriceMap, mapRegion }: Props) {
   const { data, isLoading } = useSWR<MapEstateData>("map-estate-data", fetchData, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -236,6 +237,13 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
     });
   };
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mapRegion) {
+      setShowFavorites(false);
+      setListRegion(mapRegion);
+    }
+  }, [mapRegion]);
 
   const aptName = selectedApt ? (selectedApt.apiName ?? selectedApt.name) : null;
   const aptComplex = aptName ? (data?.aptComplexes.find((c) => c.name === aptName) ?? null) : null;

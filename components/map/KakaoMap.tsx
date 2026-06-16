@@ -276,6 +276,15 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
   }, [searchParams]);
 
   useEffect(() => {
+    const aptId = searchParams.get("aptId");
+    const storeId = searchParams.get("storeId");
+    if (!aptId || storeId) return;
+    const apt = APT_COMPLEXES.find((c) => c.id === aptId);
+    if (apt) setSelectedAptRef.current?.(apt);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
     const scriptId = "kakao-map-sdk";
     if (!apiKey) return;
 

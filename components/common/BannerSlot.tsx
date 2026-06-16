@@ -16,9 +16,10 @@ interface Props {
   position: "real-estate" | "map";
   slot: 1 | 2;
   compact?: boolean;
+  returnUrl?: string;
 }
 
-export default function BannerSlot({ position, slot, compact }: Props) {
+export default function BannerSlot({ position, slot, compact, returnUrl }: Props) {
   const { data } = useSWR<BannerData[]>(
     `/api/banners?position=${position}`,
     fetcher,
@@ -26,5 +27,5 @@ export default function BannerSlot({ position, slot, compact }: Props) {
   );
   const banner = data?.find((b) => b.slot === slot);
   if (!banner) return null;
-  return <AdBanner imageUrl={banner.imageUrl} storeId={banner.storeId} compact={compact} />;
+  return <AdBanner imageUrl={banner.imageUrl} storeId={banner.storeId} compact={compact} returnUrl={returnUrl} />;
 }

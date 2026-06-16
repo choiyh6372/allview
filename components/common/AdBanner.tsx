@@ -9,16 +9,22 @@ interface AdBannerProps {
   storeId: string;
   alt?: string;
   compact?: boolean;
+  returnUrl?: string;
 }
 
-export default function AdBanner({ imageUrl, storeId, alt = "광고", compact }: AdBannerProps) {
+export default function AdBanner({ imageUrl, storeId, alt = "광고", compact, returnUrl }: AdBannerProps) {
   const [imgError, setImgError] = useState(false);
   const router = useRouter();
 
+  function handleClick() {
+    if (returnUrl) window.history.replaceState(null, "", returnUrl);
+    router.push(`/map?storeId=${storeId}`);
+  }
+
   return (
     <button
-      onClick={() => router.push(`/map?storeId=${storeId}`)}
-      className={`relative block w-full overflow-hidden rounded-xl border border-gray-200 hover:opacity-90 transition-opacity text-left${compact ? "" : ""}`}
+      onClick={handleClick}
+      className={`relative block w-full overflow-hidden hover:opacity-90 transition-opacity text-left ${compact ? "" : "rounded-xl border border-gray-200"}`}
     >
       {imgError ? (
         <div className={`w-full flex items-center justify-center bg-gradient-to-r from-indigo-600 to-blue-500 text-white ${compact ? "h-16" : "h-24"}`}>
@@ -29,7 +35,7 @@ export default function AdBanner({ imageUrl, storeId, alt = "광고", compact }:
           <img
             src={imageUrl}
             alt={alt}
-            className="w-full h-full object-cover"
+            className={`w-full h-full ${compact ? "object-contain" : "object-cover"}`}
             draggable={false}
             onError={() => setImgError(true)}
           />

@@ -425,7 +425,7 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
       {/* 바텀 시트 */}
       <div
         ref={sheetRef}
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl transition-transform duration-300 ${
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl overflow-hidden shadow-2xl transition-transform duration-300 ${
           isVisible ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ height: "88vh" }}
@@ -802,8 +802,8 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
 
           {/* 광고 배너 */}
           <div className="px-4 pt-4 pb-2 flex flex-col gap-3">
-            <BannerSlot position="map" slot={1} compact />
-            <BannerSlot position="map" slot={2} compact />
+            <BannerSlot position="map" slot={1} compact returnUrl={selectedApt ? `/map?aptId=${selectedApt.id}` : undefined} />
+            <BannerSlot position="map" slot={2} compact returnUrl={selectedApt ? `/map?aptId=${selectedApt.id}` : undefined} />
           </div>
         </div>
       </div>

@@ -18,6 +18,7 @@ const EMPTY: Omit<PromotionStore, "createdAt" | "updatedAt"> = {
   address: "",
   phone: "",
   naverUrl: "",
+  description: "",
   category: STORE_CATEGORIES[0],
   region: STORE_REGIONS[0],
   photos: [],
@@ -568,6 +569,17 @@ export default function StoreFormModal({ initial, onSave, onClose }: Props) {
                 onChange={(e) => setForm((p) => ({ ...p, naverUrl: e.target.value }))}
                 placeholder="https://place.naver.com/..."
                 className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-muted mb-1.5">가게 설명</label>
+              <textarea
+                value={form.description ?? ""}
+                onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                placeholder="가게 소개, 영업시간, 특징 등을 입력하세요"
+                rows={3}
+                className="w-full px-3 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder-muted focus:outline-none focus:border-accent/50 transition-colors resize-none"
               />
             </div>
           </div>

@@ -636,13 +636,6 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                     </a>
                   </div>
                 )}
-                {selectedStore.naverUrl && (
-                  <a href={selectedStore.naverUrl} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
-                  >
-                    네이버 플레이스 보기
-                  </a>
-                )}
               </div>
 
               {photos.length > 0 && (
@@ -686,6 +679,20 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                     />
                   ))}
                 </div>
+              )}
+
+              {/* 설명 */}
+              {selectedStore.description && (
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{selectedStore.description}</p>
+              )}
+
+              {/* 네이버 플레이스 */}
+              {selectedStore.naverUrl && (
+                <a href={selectedStore.naverUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2 bg-[#03C75A] hover:bg-[#02b350] text-white text-xs font-semibold rounded-lg transition-colors"
+                >
+                  네이버 플레이스 보기
+                </a>
               )}
             </div>
           )}

@@ -14,6 +14,7 @@ export interface PromotionStore {
   address: string;
   phone: string;
   naverUrl: string;
+  description?: string;
   category: string;
   region: string;
   photos: string[];

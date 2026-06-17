@@ -259,9 +259,12 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
       }, null)
     : null;
 
+  const rhFallbackComplex = (!aptComplex && !silvComplex && aptName)
+    ? (data?.rhComplexes ?? []).find((c) => c.name === aptName) ?? null
+    : null;
   const complex =
     aptComplex && silvComplex ? mergeComplexes(aptComplex, silvComplex)
-    : aptComplex ?? silvComplex ?? null;
+    : aptComplex ?? silvComplex ?? rhFallbackComplex ?? null;
 
   const aptNaverUrl = selectedApt
     ? (selectedApt.naverUrl ?? PROPERTY_NAVER_URLS[selectedApt.name] ?? null)

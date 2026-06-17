@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
-import { fetchRHTradeData } from "@/lib/molitApi";
+import { fetchRHTradeData, type RawItem } from "@/lib/molitApi";
+import { getTradeCache } from "@/lib/tradeCache";
 
 const EXCLUDE_UMD = new Set(["대항동", "동선동", "성북동", "송정동", "천성동", "눌차동"]);
 
 export const revalidate = 3600;
 
 export async function GET() {
-  const items = await fetchRHTradeData("26440", 6);
+  const cached = await getTradeCache<RawItem>("rh-trade");
+  const items: RawItem[] = cached && cached.length > 0
+    ? cached
+    : await fetchRHTradeData("26440", 6);
 
   const countMap = new Map<string, { umdNm: string; count: number }>();
   for (const item of items) {

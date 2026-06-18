@@ -59,7 +59,7 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden border-t border-border bg-bg">
+        <div className="md:hidden border-t border-border bg-indigo-50 shadow-lg">
           {links.map((l) => (
             <Link
               key={l.href}

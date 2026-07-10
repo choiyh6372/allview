@@ -59,10 +59,11 @@ export default function AboutSection() {
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden border border-border shadow-sm">
+        <div className="max-w-5xl mx-auto rounded-2xl overflow-hidden border border-border shadow-sm">
           <iframe
             src={vrUrl}
             className="w-full aspect-video"
+            style={{ minHeight: 440 }}
             allowFullScreen
             allow="xr-spatial-tracking"
             title="포스코 2단지 32A VR 투어 샘플"

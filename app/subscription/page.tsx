@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Home, Loader2, ExternalLink, Calendar, Users, MapPin, Building2 } from "lucide-react";
-import StoreBanner from "@/components/home/StoreBanner";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
 
 type Status = "all" | "active" | "upcoming" | "closed" | "munorwi";
@@ -160,7 +159,6 @@ export default function SubscriptionPage() {
           </div>
         )}
       </div>
-      <StoreBanner />
     </>
   );
 }

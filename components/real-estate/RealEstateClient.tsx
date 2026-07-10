@@ -6,7 +6,6 @@ import useSWR from "swr";
 import ComplexList from "@/components/real-estate/ComplexList";
 import PriceChart from "@/components/real-estate/PriceChart";
 import TransactionTable from "@/components/real-estate/TransactionTable";
-import StoreBanner from "@/components/home/StoreBanner";
 import BannerSlot from "@/components/common/BannerSlot";
 import { type Complex } from "@/lib/realEstateData";
 import { buildComplexList, buildRentTransactions, buildRentOnlyComplexes, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
@@ -417,8 +416,6 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
           </div>
         </div>
       </div>
-
-      <StoreBanner />
 
       {/* 모바일 거래내역 바텀시트 */}
       {complex && (() => {

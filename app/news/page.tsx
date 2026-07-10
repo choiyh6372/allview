@@ -1,7 +1,6 @@
 ﻿import Link from "next/link";
 import { Newspaper, ExternalLink, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import type { NaverNewsItem } from "@/app/api/news/route";
-import StoreBanner from "@/components/home/StoreBanner";
 
 const PER_PAGE = 10;
 
@@ -205,8 +204,6 @@ export default async function NewsPage({
         </>
       )}
     </div>
-
-    <StoreBanner />
     </>
   );
 }

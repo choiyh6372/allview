@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { complexData } from "@/lib/vrData";
 import FloorPlanView from "@/components/vr/FloorPlanView";
-import StoreBanner from "@/components/home/StoreBanner";
 
 export default function VRComplexPage({ params }: { params: { regionId: string; slug: string } }) {
   const { regionId, slug } = params;
@@ -24,7 +23,6 @@ export default function VRComplexPage({ params }: { params: { regionId: string; 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <FloorPlanView complex={complex} onBack={() => router.push(`/vr-tour?region=${encodeURIComponent(complex.regionName)}`)} />
       </div>
-      <StoreBanner />
     </>
   );
 }

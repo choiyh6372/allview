@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { complexData, VRComplex } from "@/lib/vrData";
-import StoreBanner from "@/components/home/StoreBanner";
 import { Building2 } from "lucide-react";
 import { FLOOR_PLAN_DATA } from "@/components/vr/FloorPlanView";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -98,7 +97,6 @@ function VRTourContent() {
           ))}
         </div>
       </div>
-      <StoreBanner />
     </>
   );
 }

@@ -5,7 +5,6 @@ import useSWR from "swr";
 import { MapPin, Phone, Navigation, ChevronLeft, Eye, X } from "lucide-react";
 import PriceChart from "@/components/real-estate/PriceChart";
 import VRModal from "@/components/vr-tour/VRModal";
-import StoreBanner from "@/components/home/StoreBanner";
 import BannerSlot from "@/components/common/BannerSlot";
 import { buildComplexList, buildRentOnlyComplexes, buildRentOnlyDynamic } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
@@ -768,11 +767,6 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
         <div className="px-4 pt-4 pb-2 border-t border-gray-200 flex flex-col gap-3">
           <BannerSlot position="map" slot={1} compact />
           <BannerSlot position="map" slot={2} compact />
-        </div>
-
-        {/* 가게 홍보 슬라이드 */}
-        <div className="border-t border-gray-200 bg-white pb-10">
-          <StoreBanner compact />
         </div>
       </div>
     </div>

@@ -80,6 +80,15 @@ export default function RegionIndexChart({ level, code, name, onClose }: Props) 
   const [indexData, setIndexData] = useState<IndexApiResponse | null>(null);
   const [ratioData, setRatioData] = useState<RatioApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -132,7 +141,7 @@ export default function RegionIndexChart({ level, code, name, onClose }: Props) 
   })();
 
   return (
-    <div className="h-[80vh] flex flex-col bg-bg-card border border-border rounded-2xl p-6">
+    <div className="h-[90vh] sm:h-[80vh] flex flex-col bg-bg-card border border-border rounded-2xl p-6">
       <div className="flex items-center justify-between mb-4 shrink-0">
         <h3 className="text-lg font-bold text-gray-900">{name}</h3>
         <button
@@ -156,9 +165,17 @@ export default function RegionIndexChart({ level, code, name, onClose }: Props) 
               <>
                 <div className="flex-1 min-h-0">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={indexChartData} margin={{ top: 5, right: 10, left: 0, bottom: 10 }}>
+                    <LineChart data={indexChartData} margin={{ top: 5, right: 10, left: 0, bottom: isMobile ? 25 : 10 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                      <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 10 }} tickLine={false} axisLine={false} interval={50} />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fill: "#6b7280", fontSize: 10, ...(isMobile ? { textAnchor: "end" } : {}) }}
+                        tickLine={false}
+                        axisLine={false}
+                        interval={50}
+                        angle={isMobile ? -45 : 0}
+                        height={isMobile ? 45 : 30}
+                      />
                       <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} tickLine={false} axisLine={false} width={45} domain={["auto", "auto"]} />
                       <Tooltip content={<IndexTooltip />} />
                       <Line type="monotone" dataKey="saleNational" stroke="#a5b4fc" strokeWidth={1.5} strokeDasharray="4 3" dot={false} connectNulls />
@@ -199,9 +216,17 @@ export default function RegionIndexChart({ level, code, name, onClose }: Props) 
               <>
                 <div className="flex-1 min-h-0">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={ratioChartData} margin={{ top: 5, right: 10, left: 0, bottom: 10 }}>
+                    <LineChart data={ratioChartData} margin={{ top: 5, right: 10, left: 0, bottom: isMobile ? 25 : 10 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                      <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 10 }} tickLine={false} axisLine={false} interval={10} />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fill: "#6b7280", fontSize: 10, ...(isMobile ? { textAnchor: "end" } : {}) }}
+                        tickLine={false}
+                        axisLine={false}
+                        interval={10}
+                        angle={isMobile ? -45 : 0}
+                        height={isMobile ? 45 : 30}
+                      />
                       <YAxis
                         tick={{ fill: "#6b7280", fontSize: 10 }}
                         tickLine={false}

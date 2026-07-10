@@ -118,8 +118,15 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
     const scriptId = "kakao-map-sdk";
     const scriptReady = new Promise<void>((resolve) => {
-      if (document.getElementById(scriptId)) {
-        resolve();
+      const existing = document.getElementById(scriptId);
+      if (existing) {
+        // 다른 페이지(예: /map)에서 이미 같은 스크립트를 넣어둔 경우.
+        // SDK 로딩이 실제로 끝났는지 확인하지 않으면 아직 로딩 중일 때 초기화가 조용히 실패할 수 있음.
+        if ((window as unknown as { kakao?: { maps?: unknown } }).kakao?.maps) {
+          resolve();
+        } else {
+          existing.addEventListener("load", () => resolve());
+        }
         return;
       }
       const script = document.createElement("script");

@@ -11,6 +11,7 @@ interface KakaoMapInstance {
   setDraggable: (draggable: boolean) => void;
   getCenter: () => KakaoLatLng;
   setCenter: (latlng: KakaoLatLng) => void;
+  panBy: (dx: number, dy: number) => void;
 }
 interface KakaoCustomOverlay { setMap: (map: KakaoMapInstance | null) => void; }
 interface KakaoPolygon {
@@ -96,6 +97,7 @@ function fmtPercent(value: number | null): string {
 
 export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchOverlayRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
   const kakaoMapsRef = useRef<KakaoMaps | null>(null);
 
@@ -115,11 +117,101 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   const [metric, setMetric] = useState<Metric>("saleChange");
   const [hovered, setHovered] = useState<RegionEntry | null>(null);
   const [selected, setSelected] = useState<{ level: "sido" | "sgg"; code: string; name: string } | null>(null);
-  const [mapLocked, setMapLocked] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [sidoSel, setSidoSel] = useState("");
   const [sggSel, setSggSel] = useState("");
   const metricRef = useRef(metric);
   metricRef.current = metric;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // 모바일: 지도 위에서 한 손가락 스와이프는 페이지 스크롤로 두고,
+  // 두 손가락 드래그일 때만 지도를 이동시킨다 (카카오맵 내부 터치 핸들러가
+  // touch-action:none을 걸어 한 손가락 스와이프까지 막아버리는 문제를 우회)
+  useEffect(() => {
+    const el = touchOverlayRef.current;
+    if (!el || !isMobile) return;
+
+    let lastMid: { x: number; y: number } | null = null;
+    let tapStart: { x: number; y: number; time: number } | null = null;
+    let wasMultiTouch = false;
+
+    const midpoint = (touches: TouchList) => ({
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2,
+    });
+
+    const clampLat = () => {
+      const map = mapRef.current;
+      const kakaoMaps = kakaoMapsRef.current;
+      if (!map || !kakaoMaps) return;
+      const center = map.getCenter();
+      const lat = center.getLat();
+      const clampedLat = Math.min(LAT_MAX, Math.max(LAT_MIN, lat));
+      if (clampedLat !== lat) map.setCenter(new kakaoMaps.LatLng(clampedLat, center.getLng()));
+    };
+
+    // 오버레이가 지도 위를 덮고 있어서 탭이 폴리곤 클릭으로 전달되지 않으므로,
+    // 손가락이 거의 움직이지 않은 '탭'일 때만 아래 요소로 클릭을 대신 전달해준다.
+    const forwardTap = (x: number, y: number) => {
+      el.style.pointerEvents = "none";
+      const target = document.elementFromPoint(x, y);
+      el.style.pointerEvents = "";
+      target?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        lastMid = midpoint(e.touches);
+        wasMultiTouch = true;
+        tapStart = null;
+      } else if (e.touches.length === 1) {
+        tapStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now() };
+        wasMultiTouch = false;
+      }
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 2) return;
+      e.preventDefault();
+      const mid = midpoint(e.touches);
+      if (lastMid && mapRef.current) {
+        mapRef.current.panBy(-(mid.x - lastMid.x), -(mid.y - lastMid.y));
+      }
+      lastMid = mid;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        if (lastMid) clampLat();
+        lastMid = null;
+      }
+      if (!wasMultiTouch && tapStart && e.changedTouches.length === 1) {
+        const t = e.changedTouches[0];
+        const dx = Math.abs(t.clientX - tapStart.x);
+        const dy = Math.abs(t.clientY - tapStart.y);
+        const dt = Date.now() - tapStart.time;
+        if (dx < 10 && dy < 10 && dt < 500) forwardTap(t.clientX, t.clientY);
+      }
+      tapStart = null;
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd, { passive: false });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [isMobile]);
 
   useEffect(() => {
     if (!apiKey) return;
@@ -312,12 +404,10 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     });
     mapRef.current = map;
 
-    // 모바일에서는 페이지를 위아래로 스와이프할 때 지도가 드래그로 가로채서
-    // 스크롤이 막히는 문제가 있어, 탭으로 활성화하기 전까지는 드래그를 꺼둔다.
-    const isMobile = window.matchMedia("(max-width: 640px)").matches;
-    if (isMobile) {
+    // 모바일에서는 한 손가락 드래그를 페이지 스크롤에 양보하고, 지도 이동은
+    // touchOverlayRef의 두 손가락 제스처로만 처리한다 (아래 useEffect 참고).
+    if (window.matchMedia("(max-width: 640px)").matches) {
       map.setDraggable(false);
-      setMapLocked(true);
     }
 
     const [sidoRes, sggRes] = await Promise.all([
@@ -364,12 +454,6 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       const clampedLat = Math.min(LAT_MAX, Math.max(LAT_MIN, lat));
       if (clampedLat !== lat) {
         map.setCenter(new kakaoMaps.LatLng(clampedLat, center.getLng()));
-      }
-      // 모바일에서는 드래그가 끝날 때마다 다시 잠가서, 이어지는 스와이프는
-      // 지도 이동이 아니라 페이지 스크롤로 이어지게 한다 (다시 움직이려면 한 번 더 터치)
-      if (isMobile) {
-        map.setDraggable(false);
-        setMapLocked(true);
       }
     });
     map.setBounds(bounds);
@@ -531,18 +615,8 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
             </div>
           )}
 
-          {mapLocked && (
-            <div
-              onClick={() => {
-                mapRef.current?.setDraggable(true);
-                setMapLocked(false);
-              }}
-              className="absolute inset-0 z-20 flex items-end justify-center pb-6 rounded-2xl cursor-pointer"
-            >
-              <span className="px-4 py-2 bg-black/60 text-white text-xs rounded-full">
-                지도를 터치하면 움직일 수 있어요
-              </span>
-            </div>
+          {isMobile && (
+            <div ref={touchOverlayRef} className="absolute inset-0 z-20 rounded-2xl" />
           )}
 
           {hovered && (

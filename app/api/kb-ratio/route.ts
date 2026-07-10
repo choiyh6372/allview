@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import ratioSido from "@/lib/data/kb-ratio-sido.json";
-import ratioSgg from "@/lib/data/kb-ratio-sigungu.json";
+import { loadKbData } from "@/lib/kbData";
+
+export const runtime = "nodejs";
 
 interface RegionRatioEntry {
   code: string;
@@ -14,9 +15,6 @@ interface RatioSet {
   regions: RegionRatioEntry[];
 }
 
-const sidoData = ratioSido as unknown as { ratio: RatioSet };
-const sggData = ratioSgg as unknown as { ratio: RatioSet };
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const level = searchParams.get("level");
@@ -26,7 +24,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "invalid params" }, { status: 400 });
   }
 
-  const source = level === "sido" ? sidoData : sggData;
+  const sidoData = await loadKbData<{ ratio: RatioSet }>("kb-ratio-sido.json");
+  const source = level === "sido" ? sidoData : await loadKbData<{ ratio: RatioSet }>("kb-ratio-sigungu.json");
   const region = source.ratio.regions.find((r) => r.code === code);
 
   if (!region) {

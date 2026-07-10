@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import indexSido from "@/lib/data/kb-index-sido.json";
-import indexSgg from "@/lib/data/kb-index-sigungu.json";
+import { loadKbData } from "@/lib/kbData";
+
+export const runtime = "nodejs";
 
 interface RegionIndexEntry {
   code: string;
@@ -14,9 +15,6 @@ interface IndexSet {
   regions: RegionIndexEntry[];
 }
 
-const sidoData = indexSido as unknown as { saleIndex: IndexSet; jeonseIndex: IndexSet };
-const sggData = indexSgg as unknown as { saleIndex: IndexSet; jeonseIndex: IndexSet };
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const level = searchParams.get("level");
@@ -26,7 +24,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "invalid params" }, { status: 400 });
   }
 
-  const source = level === "sido" ? sidoData : sggData;
+  const sidoData = await loadKbData<{ saleIndex: IndexSet; jeonseIndex: IndexSet }>("kb-index-sido.json");
+  const source =
+    level === "sido"
+      ? sidoData
+      : await loadKbData<{ saleIndex: IndexSet; jeonseIndex: IndexSet }>("kb-index-sigungu.json");
+
   const saleRegion = source.saleIndex.regions.find((r) => r.code === code);
   const jeonseRegion = source.jeonseIndex.regions.find((r) => r.code === code);
 

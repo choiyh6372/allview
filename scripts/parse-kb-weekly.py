@@ -4,13 +4,27 @@
 2) 시/군/구 단위 최신 데이터 (시/도별로 그룹핑, geojson 코드에 매핑)
 를 JSON으로 추출. 1회성 데이터 생성 스크립트 (커밋 대상 아님, 결과 JSON만 커밋).
 """
+import glob
 import json
 import re
 import openpyxl
 from datetime import datetime
 
-SRC = "kb_data/20260706_주간시계열.xlsx"
-SRC_MONTHLY = "kb_data/202606_월간 주택 시계열.xlsx"
+
+def find_latest(pattern):
+    """kb_data/ 안에서 패턴에 맞는 파일 중 파일명이 가장 최근(날짜 접두어 기준)인 것을 선택.
+    엑셀을 열어둘 때 생기는 ~$ 임시 잠금 파일은 제외."""
+    matches = sorted(
+        f for f in glob.glob(f"kb_data/{pattern}")
+        if not f.split("\\")[-1].split("/")[-1].startswith("~$")
+    )
+    if not matches:
+        raise FileNotFoundError(f"kb_data/{pattern} 에 해당하는 파일을 찾을 수 없습니다. KB부동산 데이터허브에서 새로 받은 파일을 kb_data/ 폴더에 넣어주세요.")
+    return matches[-1]
+
+
+SRC = find_latest("*주간시계열*.xlsx")
+SRC_MONTHLY = find_latest("*월간*주택*시계열*.xlsx")
 OUT_SIDO = "lib/data/kb-weekly-sido.json"
 OUT_SGG = "lib/data/kb-weekly-sigungu.json"
 OUT_INDEX_SIDO = "lib/data/kb-index-sido.json"
@@ -224,6 +238,8 @@ def extract_sigungu(header, data_rows, geo_names_by_prefix, n=12, monthly=False,
 
 
 def main():
+    print("주간 파일:", SRC)
+    print("월간 파일:", SRC_MONTHLY)
     wb = openpyxl.load_workbook(SRC, read_only=True, data_only=True)
 
     # --- 시/도 ---

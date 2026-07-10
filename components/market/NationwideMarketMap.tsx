@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import sidoData from "@/lib/data/kb-weekly-sido.json";
-import sggData from "@/lib/data/kb-weekly-sigungu.json";
 import RegionIndexChart from "@/components/market/RegionIndexChart";
 
 interface KakaoLatLng { getLat: () => number; getLng: () => number; }
@@ -52,6 +50,11 @@ interface GeoFeature {
   geometry: { type: string; coordinates: unknown };
 }
 
+interface WeeklyData {
+  sido: Record<Metric, { updatedAt: string; nationwide: { latest: number }; regions: RegionEntry[] }>;
+  sgg: Record<Metric, { updatedAt: string; regions: RegionEntry[] }>;
+}
+
 const METRIC_LABEL: Record<Metric, string> = {
   saleChange: "매매가격 증감률",
   jeonseChange: "전세가격 증감률",
@@ -83,9 +86,6 @@ function fmtPercent(value: number | null): string {
   return `${value >= 0 ? "+" : ""}${value}%`;
 }
 
-const sidoByMetric = sidoData as Record<Metric, { updatedAt: string; nationwide: { latest: number }; regions: RegionEntry[] }>;
-const sggByMetric = sggData as Record<Metric, { updatedAt: string; regions: RegionEntry[] }>;
-
 export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
@@ -101,7 +101,9 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   const sggVisibleRef = useRef(false);
   const sidoGeoRef = useRef<GeoFeature[]>([]);
   const sggGeoRef = useRef<GeoFeature[]>([]);
+  const weeklyDataRef = useRef<WeeklyData | null>(null);
 
+  const [weeklyData, setWeeklyData] = useState<WeeklyData | null>(null);
   const [metric, setMetric] = useState<Metric>("saleChange");
   const [hovered, setHovered] = useState<RegionEntry | null>(null);
   const [selected, setSelected] = useState<{ level: "sido" | "sgg"; code: string; name: string } | null>(null);
@@ -111,22 +113,38 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   metricRef.current = metric;
 
   useEffect(() => {
-    const scriptId = "kakao-map-sdk";
     if (!apiKey) return;
+    let cancelled = false;
 
-    function boot() {
+    const scriptId = "kakao-map-sdk";
+    const scriptReady = new Promise<void>((resolve) => {
+      if (document.getElementById(scriptId)) {
+        resolve();
+        return;
+      }
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
+      script.onload = () => resolve();
+      document.head.appendChild(script);
+    });
+
+    const dataReady = fetch("/api/kb-weekly")
+      .then((r) => r.json())
+      .then((d: WeeklyData) => {
+        if (cancelled) return;
+        weeklyDataRef.current = d;
+        setWeeklyData(d);
+      });
+
+    Promise.all([scriptReady, dataReady]).then(() => {
+      if (cancelled) return;
       getKakaoMaps().load(initMap);
-    }
+    });
 
-    if (document.getElementById(scriptId)) {
-      if ((window as unknown as { kakao?: { maps?: unknown } }).kakao?.maps) boot();
-      return;
-    }
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
-    script.onload = boot;
-    document.head.appendChild(script);
+    return () => {
+      cancelled = true;
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -266,8 +284,9 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
   async function initMap() {
     const kakaoMaps = getKakaoMaps();
+    const data = weeklyDataRef.current;
     kakaoMapsRef.current = kakaoMaps;
-    if (!containerRef.current) return;
+    if (!containerRef.current || !data) return;
 
     const map = new kakaoMaps.Map(containerRef.current, {
       center: new kakaoMaps.LatLng(36.4, 127.9),
@@ -287,7 +306,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     sggGeoRef.current = sggGeo.features;
 
     const bounds = new kakaoMaps.LatLngBounds();
-    const sidoRegionByCode = new Map(sidoByMetric[metricRef.current].regions.map((r) => [r.code, r]));
+    const sidoRegionByCode = new Map(data.sido[metricRef.current].regions.map((r) => [r.code, r]));
 
     for (const feature of sidoGeo.features as GeoFeature[]) {
       const region = sidoRegionByCode.get(feature.properties.code);
@@ -302,7 +321,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       sidoBoundaryPolygonsRef.current.push(...boundaryPolygons);
     }
 
-    const sggRegionByCode = new Map(sggByMetric[metricRef.current].regions.map((r) => [r.code, r]));
+    const sggRegionByCode = new Map(data.sgg[metricRef.current].regions.map((r) => [r.code, r]));
     for (const feature of sggGeo.features as GeoFeature[]) {
       const region = sggRegionByCode.get(feature.properties.code);
       if (!region) continue; // 매칭 데이터 없는 지역은 렌더링하지 않음
@@ -320,7 +339,10 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
   // 매매/전세 토글 시 색상·라벨 갱신
   useEffect(() => {
-    const sidoByCode = new Map(sidoByMetric[metric].regions.map((r) => [r.code, r]));
+    const data = weeklyDataRef.current;
+    if (!data) return;
+
+    const sidoByCode = new Map(data.sido[metric].regions.map((r) => [r.code, r]));
     sidoPolygonsRef.current.forEach((polys, code) => {
       polys.forEach((p) => p.setOptions({ fillColor: colorFor(sidoByCode.get(code)?.latest ?? null) }));
     });
@@ -328,15 +350,14 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       setValueElText(valueEl, sidoByCode.get(code)?.latest ?? null);
     });
 
-    const sggByCode = new Map(sggByMetric[metric].regions.map((r) => [r.code, r]));
+    const sggByCode = new Map(data.sgg[metric].regions.map((r) => [r.code, r]));
     sggPolygonsRef.current.forEach((polys, code) => {
       polys.forEach((p) => p.setOptions({ fillColor: colorFor(sggByCode.get(code)?.latest ?? null) }));
     });
     sggValueElsRef.current.forEach((valueEl, code) => {
       setValueElText(valueEl, sggByCode.get(code)?.latest ?? null);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [metric]);
+  }, [metric, weeklyData]);
 
   // 지도 클릭으로 선택된 지역과 드롭다운 동기화
   useEffect(() => {
@@ -351,9 +372,6 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       setSggSel(selected.code);
     }
   }, [selected]);
-
-  const activeSido = sidoByMetric[metric];
-  const sggOptions = sidoSel ? sggByMetric[metric].regions.filter((r) => r.code.startsWith(sidoSel)) : [];
 
   function zoomToRegion(level: "sido" | "sgg", code: string) {
     const kakaoMaps = kakaoMapsRef.current;
@@ -374,7 +392,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       setSelected(null);
       return;
     }
-    const region = sidoByMetric[metric].regions.find((r) => r.code === code);
+    const region = weeklyData?.sido[metric].regions.find((r) => r.code === code);
     if (region) setSelected({ level: "sido", code: region.code, name: region.name });
     zoomToRegion("sido", code);
   }
@@ -385,10 +403,21 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       if (sidoSel) handleSidoSelect(sidoSel);
       return;
     }
-    const region = sggByMetric[metric].regions.find((r) => r.code === code);
+    const region = weeklyData?.sgg[metric].regions.find((r) => r.code === code);
     if (region) setSelected({ level: "sgg", code: region.code, name: region.name });
     zoomToRegion("sgg", code);
   }
+
+  if (!weeklyData) {
+    return (
+      <div className="w-full h-[80vh] flex items-center justify-center rounded-2xl border border-border bg-bg-card text-sm text-muted">
+        데이터 불러오는 중...
+      </div>
+    );
+  }
+
+  const activeSido = weeklyData.sido[metric];
+  const sggOptions = sidoSel ? weeklyData.sgg[metric].regions.filter((r) => r.code.startsWith(sidoSel)) : [];
 
   return (
     <div className="relative w-full">
@@ -400,7 +429,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
             className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700"
           >
             <option value="">시/도 선택</option>
-            {sidoByMetric[metric].regions.map((r) => (
+            {weeklyData.sido[metric].regions.map((r) => (
               <option key={r.code} value={r.code}>{r.name}</option>
             ))}
           </select>

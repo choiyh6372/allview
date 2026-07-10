@@ -415,60 +415,58 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     zoomToRegion("sgg", code);
   }
 
-  if (!weeklyData) {
-    return (
-      <div className="w-full h-[80vh] flex items-center justify-center rounded-2xl border border-border bg-bg-card text-sm text-muted">
-        데이터 불러오는 중...
-      </div>
-    );
-  }
-
-  const activeSido = weeklyData.sido[metric];
-  const sggOptions = sidoSel ? weeklyData.sgg[metric].regions.filter((r) => r.code.startsWith(sidoSel)) : [];
+  const activeSido = weeklyData?.sido[metric];
+  const sggOptions = weeklyData && sidoSel ? weeklyData.sgg[metric].regions.filter((r) => r.code.startsWith(sidoSel)) : [];
 
   return (
     <div className="relative w-full">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <select
-            value={sidoSel}
-            onChange={(e) => handleSidoSelect(e.target.value)}
-            className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700"
-          >
-            <option value="">시/도 선택</option>
-            {weeklyData.sido[metric].regions.map((r) => (
-              <option key={r.code} value={r.code}>{r.name}</option>
-            ))}
-          </select>
-          <select
-            value={sggSel}
-            onChange={(e) => handleSggSelect(e.target.value)}
-            disabled={!sidoSel}
-            className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700 disabled:opacity-50"
-          >
-            <option value="">시/군/구 전체</option>
-            {sggOptions.map((r) => (
-              <option key={r.code} value={r.code}>{shortLabel(r.name)}</option>
-            ))}
-          </select>
-          {(["saleChange", "jeonseChange"] as Metric[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMetric(m)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                metric === m ? "bg-accent text-white" : "bg-bg-card border border-border text-gray-700 hover:text-gray-900"
-              }`}
+        {weeklyData ? (
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={sidoSel}
+              onChange={(e) => handleSidoSelect(e.target.value)}
+              className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700"
             >
-              {METRIC_LABEL[m]}
-            </button>
-          ))}
-        </div>
-        <div className="text-sm text-gray-600">
-          {activeSido.updatedAt} 기준 · 전국 평균{" "}
-          <span className={activeSido.nationwide.latest >= 0 ? "text-red-500 font-semibold" : "text-blue-500 font-semibold"}>
-            {fmtPercent(activeSido.nationwide.latest)}
-          </span>
-        </div>
+              <option value="">시/도 선택</option>
+              {weeklyData.sido[metric].regions.map((r) => (
+                <option key={r.code} value={r.code}>{r.name}</option>
+              ))}
+            </select>
+            <select
+              value={sggSel}
+              onChange={(e) => handleSggSelect(e.target.value)}
+              disabled={!sidoSel}
+              className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700 disabled:opacity-50"
+            >
+              <option value="">시/군/구 전체</option>
+              {sggOptions.map((r) => (
+                <option key={r.code} value={r.code}>{shortLabel(r.name)}</option>
+              ))}
+            </select>
+            {(["saleChange", "jeonseChange"] as Metric[]).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMetric(m)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  metric === m ? "bg-accent text-white" : "bg-bg-card border border-border text-gray-700 hover:text-gray-900"
+                }`}
+              >
+                {METRIC_LABEL[m]}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div />
+        )}
+        {activeSido && (
+          <div className="text-sm text-gray-600">
+            {activeSido.updatedAt} 기준 · 전국 평균{" "}
+            <span className={activeSido.nationwide.latest >= 0 ? "text-red-500 font-semibold" : "text-blue-500 font-semibold"}>
+              {fmtPercent(activeSido.nationwide.latest)}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
@@ -491,8 +489,16 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
           )}
         </div>
 
+        {/* containerRef는 항상 마운트돼 있어야 함: weeklyData 로딩 완료 시점에 initMap이
+            한 번만 호출되는데, 그때 이 div가 아직 DOM에 없으면 지도가 영영 초기화되지 않음 */}
         <div className="order-1 lg:order-2 lg:col-span-5 relative">
           <div ref={containerRef} className="w-full h-[80vh] rounded-2xl border border-border overflow-hidden" />
+
+          {!weeklyData && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-border bg-bg-card text-sm text-muted">
+              데이터 불러오는 중...
+            </div>
+          )}
 
           {hovered && (
             <div className="absolute top-4 right-4 bg-bg-card border border-border rounded-xl shadow-lg p-4 min-w-[180px] pointer-events-none">

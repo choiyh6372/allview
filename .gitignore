@@ -28,3 +28,6 @@ prompt.txt
 
 # 쉐이프파일 원시 데이터
 LSMD_CONT_UD602_부산/
+
+# KB부동산 원본 엑셀 (추출된 lib/data/*.json만 커밋)
+kb_data/

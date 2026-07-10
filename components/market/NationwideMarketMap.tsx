@@ -8,6 +8,7 @@ interface KakaoLatLngBounds { extend: (latlng: KakaoLatLng) => void; }
 interface KakaoMapInstance {
   setBounds: (bounds: KakaoLatLngBounds) => void;
   getLevel: () => number;
+  setDraggable: (draggable: boolean) => void;
 }
 interface KakaoCustomOverlay { setMap: (map: KakaoMapInstance | null) => void; }
 interface KakaoPolygon {
@@ -107,6 +108,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   const [metric, setMetric] = useState<Metric>("saleChange");
   const [hovered, setHovered] = useState<RegionEntry | null>(null);
   const [selected, setSelected] = useState<{ level: "sido" | "sgg"; code: string; name: string } | null>(null);
+  const [mapLocked, setMapLocked] = useState(false);
   const [sidoSel, setSidoSel] = useState("");
   const [sggSel, setSggSel] = useState("");
   const metricRef = useRef(metric);
@@ -303,6 +305,14 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     });
     mapRef.current = map;
 
+    // 모바일에서는 페이지를 위아래로 스와이프할 때 지도가 드래그로 가로채서
+    // 스크롤이 막히는 문제가 있어, 탭으로 활성화하기 전까지는 드래그를 꺼둔다.
+    const isMobile = window.matchMedia("(max-width: 640px)").matches;
+    if (isMobile) {
+      map.setDraggable(false);
+      setMapLocked(true);
+    }
+
     const [sidoRes, sggRes] = await Promise.all([
       fetch("/skorea-provinces.geojson"),
       fetch("/skorea-municipalities.geojson"),
@@ -497,6 +507,20 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
           {!weeklyData && (
             <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-border bg-bg-card text-sm text-muted">
               데이터 불러오는 중...
+            </div>
+          )}
+
+          {mapLocked && (
+            <div
+              onClick={() => {
+                mapRef.current?.setDraggable(true);
+                setMapLocked(false);
+              }}
+              className="absolute inset-0 z-20 flex items-end justify-center pb-6 rounded-2xl cursor-pointer"
+            >
+              <span className="px-4 py-2 bg-black/60 text-white text-xs rounded-full">
+                지도를 터치하면 움직일 수 있어요
+              </span>
             </div>
           )}
 

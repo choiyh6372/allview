@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
 import StatsSection from "@/components/home/StatsSection";
+import AboutSection from "@/components/home/AboutSection";
 import ServiceCards from "@/components/home/ServiceCards";
 import NewsSection from "@/components/home/NewsSection";
 
@@ -28,6 +29,7 @@ export default function HomePage() {
       <HeroSection />
       <StatsSection />
       <ServiceCards />
+      <AboutSection />
       <NewsSection />
     </>
   );

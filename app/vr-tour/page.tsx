@@ -15,7 +15,7 @@ function ComplexCard({ complex, vrCount, onSelect }: { complex: VRComplex; vrCou
 
   return (
     <div className="group bg-bg-card border border-border rounded-2xl overflow-hidden hover:border-accent/40 transition-all duration-300 hover:-translate-y-1">
-      <div className="relative h-36 bg-gradient-to-br from-bg-hover to-bg flex items-center justify-center">
+      <div className="relative h-44 bg-gradient-to-br from-bg-hover to-bg flex items-center justify-center">
         {imgError ? (
           <Building2 size={40} className="text-border" />
         ) : (

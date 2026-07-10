@@ -512,7 +512,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-4">
+      <div className="hidden sm:flex items-center justify-between mt-4">
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ background: colorFor(0.15) }} />상승</span>
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ background: colorFor(0) }} />보합</span>

@@ -764,7 +764,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
         )}
 
         {/* 광고 배너 */}
-        <div className="px-4 pt-4 pb-2 border-t border-gray-200 flex flex-col gap-3">
+        <div className="px-4 pt-4 pb-8 border-t border-gray-200 flex flex-col gap-3">
           <BannerSlot position="map" slot={1} compact />
           <BannerSlot position="map" slot={2} compact />
         </div>

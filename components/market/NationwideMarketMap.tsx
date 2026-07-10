@@ -8,6 +8,7 @@ interface KakaoLatLngBounds { extend: (latlng: KakaoLatLng) => void; }
 interface KakaoMapInstance {
   setBounds: (bounds: KakaoLatLngBounds) => void;
   getLevel: () => number;
+  setLevel: (level: number) => void;
   setDraggable: (draggable: boolean) => void;
   getCenter: () => KakaoLatLng;
   setCenter: (latlng: KakaoLatLng) => void;
@@ -131,14 +132,15 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // 모바일: 지도 위에서 한 손가락 스와이프는 페이지 스크롤로 두고,
-  // 두 손가락 드래그일 때만 지도를 이동시킨다 (카카오맵 내부 터치 핸들러가
-  // touch-action:none을 걸어 한 손가락 스와이프까지 막아버리는 문제를 우회)
+  // 모바일: 한 손가락 스와이프는 페이지 스크롤에 양보하고, 두 손가락일 때만
+  // 지도를 이동·확대/축소한다. touch-action: pan-y로 브라우저가 두 손가락
+  // 제스처(핀치줌 등)를 기본 동작으로 먼저 가로채지 않도록 선언해둔다.
   useEffect(() => {
     const el = touchOverlayRef.current;
     if (!el || !isMobile) return;
 
     let lastMid: { x: number; y: number } | null = null;
+    let lastDist: number | null = null;
     let tapStart: { x: number; y: number; time: number } | null = null;
     let wasMultiTouch = false;
 
@@ -146,6 +148,11 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       x: (touches[0].clientX + touches[1].clientX) / 2,
       y: (touches[0].clientY + touches[1].clientY) / 2,
     });
+    const distance = (touches: TouchList) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    };
 
     const clampLat = () => {
       const map = mapRef.current;
@@ -157,7 +164,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       if (clampedLat !== lat) map.setCenter(new kakaoMaps.LatLng(clampedLat, center.getLng()));
     };
 
-    // 오버레이가 지도 위를 덮고 있어서 탭이 폴리곤 클릭으로 전달되지 않으므로,
+    // 오버레이가 지도를 덮고 있어 탭이 폴리곤 클릭으로 전달되지 않으므로,
     // 손가락이 거의 움직이지 않은 '탭'일 때만 아래 요소로 클릭을 대신 전달해준다.
     const forwardTap = (x: number, y: number) => {
       el.style.pointerEvents = "none";
@@ -170,6 +177,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       if (e.touches.length === 2) {
         e.preventDefault();
         lastMid = midpoint(e.touches);
+        lastDist = distance(e.touches);
         wasMultiTouch = true;
         tapStart = null;
       } else if (e.touches.length === 1) {
@@ -180,16 +188,31 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length !== 2) return;
       e.preventDefault();
+      const map = mapRef.current;
+      if (!map) return;
+
       const mid = midpoint(e.touches);
-      if (lastMid && mapRef.current) {
-        mapRef.current.panBy(-(mid.x - lastMid.x), -(mid.y - lastMid.y));
-      }
+      if (lastMid) map.panBy(-(mid.x - lastMid.x), -(mid.y - lastMid.y));
       lastMid = mid;
+
+      const dist = distance(e.touches);
+      if (lastDist) {
+        const ratio = dist / lastDist;
+        // 손가락 사이 거리가 충분히 달라졌을 때만 레벨을 한 단계 바꾼다 (카카오 줌은 정수 단계)
+        if (ratio > 1.15) {
+          map.setLevel(map.getLevel() - 1);
+          lastDist = dist;
+        } else if (ratio < 0.87) {
+          map.setLevel(map.getLevel() + 1);
+          lastDist = dist;
+        }
+      }
     };
     const onTouchEnd = (e: TouchEvent) => {
       if (e.touches.length < 2) {
         if (lastMid) clampLat();
         lastMid = null;
+        lastDist = null;
       }
       if (!wasMultiTouch && tapStart && e.changedTouches.length === 1) {
         const t = e.changedTouches[0];
@@ -200,16 +223,23 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       }
       tapStart = null;
     };
+    // iOS Safari는 핀치 제스처를 touch 이벤트와 별개로 gesturestart/change로도 감지해
+    // 페이지 전체를 확대시킬 수 있어, 이것도 함께 막아준다.
+    const onGesture = (e: Event) => e.preventDefault();
 
     el.addEventListener("touchstart", onTouchStart, { passive: false });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd, { passive: false });
     el.addEventListener("touchcancel", onTouchEnd, { passive: false });
+    el.addEventListener("gesturestart", onGesture as EventListener);
+    el.addEventListener("gesturechange", onGesture as EventListener);
     return () => {
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
       el.removeEventListener("touchcancel", onTouchEnd);
+      el.removeEventListener("gesturestart", onGesture as EventListener);
+      el.removeEventListener("gesturechange", onGesture as EventListener);
     };
   }, [isMobile]);
 
@@ -404,8 +434,8 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     });
     mapRef.current = map;
 
-    // 모바일에서는 한 손가락 드래그를 페이지 스크롤에 양보하고, 지도 이동은
-    // touchOverlayRef의 두 손가락 제스처로만 처리한다 (아래 useEffect 참고).
+    // 모바일에서는 한 손가락 드래그를 페이지 스크롤에 양보하고, 지도 이동/확대는
+    // touchOverlayRef의 두 손가락 제스처로만 처리한다 (위쪽 useEffect 참고).
     if (window.matchMedia("(max-width: 640px)").matches) {
       map.setDraggable(false);
     }
@@ -616,7 +646,14 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
           )}
 
           {isMobile && (
-            <div ref={touchOverlayRef} className="absolute inset-0 z-20 rounded-2xl" />
+            <>
+              <div ref={touchOverlayRef} className="absolute inset-0 z-20 touch-pan-y rounded-2xl" />
+              <div className="absolute inset-x-0 bottom-4 z-20 flex justify-center pointer-events-none">
+                <span className="px-3 py-1.5 bg-black/60 text-white text-xs rounded-full">
+                  지도 이동 및 확대는 두 손으로 하시면 됩니다
+                </span>
+              </div>
+            </>
           )}
 
           {hovered && (

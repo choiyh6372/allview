@@ -8,11 +8,6 @@ interface KakaoLatLngBounds { extend: (latlng: KakaoLatLng) => void; }
 interface KakaoMapInstance {
   setBounds: (bounds: KakaoLatLngBounds) => void;
   getLevel: () => number;
-  setLevel: (level: number) => void;
-  setDraggable: (draggable: boolean) => void;
-  getCenter: () => KakaoLatLng;
-  setCenter: (latlng: KakaoLatLng) => void;
-  panBy: (dx: number, dy: number) => void;
 }
 interface KakaoCustomOverlay { setMap: (map: KakaoMapInstance | null) => void; }
 interface KakaoPolygon {
@@ -68,11 +63,6 @@ const METRIC_LABEL: Record<Metric, string> = {
 // 이 레벨보다 확대(숫자가 작아짐)하면 시/군/구, 아니면 시/도
 const ZOOM_THRESHOLD = 10;
 
-// 지도를 위/아래로 너무 멀리 드래그해 한반도 밖으로 벗어나지 않도록 위도 범위를 제한
-// (위쪽은 강원도까지만, 북한 지역은 보이지 않게)
-const LAT_MIN = 32.8;
-const LAT_MAX = 38.6;
-
 function colorFor(value: number | null): string {
   if (value === null) return "#9ca3af";
   const clamped = Math.max(-0.2, Math.min(0.2, value));
@@ -98,7 +88,6 @@ function fmtPercent(value: number | null): string {
 
 export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchOverlayRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
   const kakaoMapsRef = useRef<KakaoMaps | null>(null);
 
@@ -118,130 +107,10 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
   const [metric, setMetric] = useState<Metric>("saleChange");
   const [hovered, setHovered] = useState<RegionEntry | null>(null);
   const [selected, setSelected] = useState<{ level: "sido" | "sgg"; code: string; name: string } | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
   const [sidoSel, setSidoSel] = useState("");
   const [sggSel, setSggSel] = useState("");
   const metricRef = useRef(metric);
   metricRef.current = metric;
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  // 모바일: 한 손가락 스와이프는 페이지 스크롤에 양보하고, 두 손가락일 때만
-  // 지도를 이동·확대/축소한다. touch-action: pan-y로 브라우저가 두 손가락
-  // 제스처(핀치줌 등)를 기본 동작으로 먼저 가로채지 않도록 선언해둔다.
-  useEffect(() => {
-    const el = touchOverlayRef.current;
-    if (!el || !isMobile) return;
-
-    let lastMid: { x: number; y: number } | null = null;
-    let lastDist: number | null = null;
-    let tapStart: { x: number; y: number; time: number } | null = null;
-    let wasMultiTouch = false;
-
-    const midpoint = (touches: TouchList) => ({
-      x: (touches[0].clientX + touches[1].clientX) / 2,
-      y: (touches[0].clientY + touches[1].clientY) / 2,
-    });
-    const distance = (touches: TouchList) => {
-      const dx = touches[0].clientX - touches[1].clientX;
-      const dy = touches[0].clientY - touches[1].clientY;
-      return Math.hypot(dx, dy);
-    };
-
-    const clampLat = () => {
-      const map = mapRef.current;
-      const kakaoMaps = kakaoMapsRef.current;
-      if (!map || !kakaoMaps) return;
-      const center = map.getCenter();
-      const lat = center.getLat();
-      const clampedLat = Math.min(LAT_MAX, Math.max(LAT_MIN, lat));
-      if (clampedLat !== lat) map.setCenter(new kakaoMaps.LatLng(clampedLat, center.getLng()));
-    };
-
-    // 오버레이가 지도를 덮고 있어 탭이 폴리곤 클릭으로 전달되지 않으므로,
-    // 손가락이 거의 움직이지 않은 '탭'일 때만 아래 요소로 클릭을 대신 전달해준다.
-    const forwardTap = (x: number, y: number) => {
-      el.style.pointerEvents = "none";
-      const target = document.elementFromPoint(x, y);
-      el.style.pointerEvents = "";
-      target?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-        lastMid = midpoint(e.touches);
-        lastDist = distance(e.touches);
-        wasMultiTouch = true;
-        tapStart = null;
-      } else if (e.touches.length === 1) {
-        tapStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now() };
-        wasMultiTouch = false;
-      }
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length !== 2) return;
-      e.preventDefault();
-      const map = mapRef.current;
-      if (!map) return;
-
-      const mid = midpoint(e.touches);
-      if (lastMid) map.panBy(-(mid.x - lastMid.x), -(mid.y - lastMid.y));
-      lastMid = mid;
-
-      const dist = distance(e.touches);
-      if (lastDist) {
-        const ratio = dist / lastDist;
-        // 손가락 사이 거리가 충분히 달라졌을 때만 레벨을 한 단계 바꾼다 (카카오 줌은 정수 단계)
-        if (ratio > 1.15) {
-          map.setLevel(map.getLevel() - 1);
-          lastDist = dist;
-        } else if (ratio < 0.87) {
-          map.setLevel(map.getLevel() + 1);
-          lastDist = dist;
-        }
-      }
-    };
-    const onTouchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2) {
-        if (lastMid) clampLat();
-        lastMid = null;
-        lastDist = null;
-      }
-      if (!wasMultiTouch && tapStart && e.changedTouches.length === 1) {
-        const t = e.changedTouches[0];
-        const dx = Math.abs(t.clientX - tapStart.x);
-        const dy = Math.abs(t.clientY - tapStart.y);
-        const dt = Date.now() - tapStart.time;
-        if (dx < 10 && dy < 10 && dt < 500) forwardTap(t.clientX, t.clientY);
-      }
-      tapStart = null;
-    };
-    // iOS Safari는 핀치 제스처를 touch 이벤트와 별개로 gesturestart/change로도 감지해
-    // 페이지 전체를 확대시킬 수 있어, 이것도 함께 막아준다.
-    const onGesture = (e: Event) => e.preventDefault();
-
-    el.addEventListener("touchstart", onTouchStart, { passive: false });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
-    el.addEventListener("touchend", onTouchEnd, { passive: false });
-    el.addEventListener("touchcancel", onTouchEnd, { passive: false });
-    el.addEventListener("gesturestart", onGesture as EventListener);
-    el.addEventListener("gesturechange", onGesture as EventListener);
-    return () => {
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-      el.removeEventListener("touchend", onTouchEnd);
-      el.removeEventListener("touchcancel", onTouchEnd);
-      el.removeEventListener("gesturestart", onGesture as EventListener);
-      el.removeEventListener("gesturechange", onGesture as EventListener);
-    };
-  }, [isMobile]);
 
   useEffect(() => {
     if (!apiKey) return;
@@ -434,12 +303,6 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     });
     mapRef.current = map;
 
-    // 모바일에서는 한 손가락 드래그를 페이지 스크롤에 양보하고, 지도 이동/확대는
-    // touchOverlayRef의 두 손가락 제스처로만 처리한다 (위쪽 useEffect 참고).
-    if (window.matchMedia("(max-width: 640px)").matches) {
-      map.setDraggable(false);
-    }
-
     const [sidoRes, sggRes] = await Promise.all([
       fetch("/skorea-provinces.geojson"),
       fetch("/skorea-municipalities.geojson"),
@@ -478,14 +341,6 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
     sggVisibleRef.current = false;
     kakaoMaps.event.addListener(map, "zoom_changed", applyZoomVisibility);
-    kakaoMaps.event.addListener(map, "dragend", () => {
-      const center = map.getCenter();
-      const lat = center.getLat();
-      const clampedLat = Math.min(LAT_MAX, Math.max(LAT_MIN, lat));
-      if (clampedLat !== lat) {
-        map.setCenter(new kakaoMaps.LatLng(clampedLat, center.getLng()));
-      }
-    });
     map.setBounds(bounds);
   }
 
@@ -643,17 +498,6 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
             <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-border bg-bg-card text-sm text-muted">
               데이터 불러오는 중...
             </div>
-          )}
-
-          {isMobile && (
-            <>
-              <div ref={touchOverlayRef} className="absolute inset-0 z-20 touch-pan-y rounded-2xl" />
-              <div className="absolute inset-x-0 bottom-4 z-20 flex justify-center pointer-events-none">
-                <span className="px-3 py-1.5 bg-black/60 text-white text-xs rounded-full">
-                  지도 이동 및 확대는 두 손으로 하시면 됩니다
-                </span>
-              </div>
-            </>
           )}
 
           {hovered && (

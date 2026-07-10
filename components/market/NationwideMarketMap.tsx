@@ -9,6 +9,8 @@ interface KakaoMapInstance {
   setBounds: (bounds: KakaoLatLngBounds) => void;
   getLevel: () => number;
   setDraggable: (draggable: boolean) => void;
+  getCenter: () => KakaoLatLng;
+  setCenter: (latlng: KakaoLatLng) => void;
 }
 interface KakaoCustomOverlay { setMap: (map: KakaoMapInstance | null) => void; }
 interface KakaoPolygon {
@@ -63,6 +65,11 @@ const METRIC_LABEL: Record<Metric, string> = {
 
 // 이 레벨보다 확대(숫자가 작아짐)하면 시/군/구, 아니면 시/도
 const ZOOM_THRESHOLD = 10;
+
+// 지도를 위/아래로 너무 멀리 드래그해 한반도 밖으로 벗어나지 않도록 위도 범위를 제한
+// (위쪽은 강원도까지만, 북한 지역은 보이지 않게)
+const LAT_MIN = 32.8;
+const LAT_MAX = 38.6;
 
 function colorFor(value: number | null): string {
   if (value === null) return "#9ca3af";
@@ -351,6 +358,20 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
     sggVisibleRef.current = false;
     kakaoMaps.event.addListener(map, "zoom_changed", applyZoomVisibility);
+    kakaoMaps.event.addListener(map, "dragend", () => {
+      const center = map.getCenter();
+      const lat = center.getLat();
+      const clampedLat = Math.min(LAT_MAX, Math.max(LAT_MIN, lat));
+      if (clampedLat !== lat) {
+        map.setCenter(new kakaoMaps.LatLng(clampedLat, center.getLng()));
+      }
+      // 모바일에서는 드래그가 끝날 때마다 다시 잠가서, 이어지는 스와이프는
+      // 지도 이동이 아니라 페이지 스크롤로 이어지게 한다 (다시 움직이려면 한 번 더 터치)
+      if (isMobile) {
+        map.setDraggable(false);
+        setMapLocked(true);
+      }
+    });
     map.setBounds(bounds);
   }
 

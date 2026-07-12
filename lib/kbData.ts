@@ -5,6 +5,7 @@ import localIndexSido from "@/lib/data/kb-index-sido.json";
 import localIndexSgg from "@/lib/data/kb-index-sigungu.json";
 import localRatioSido from "@/lib/data/kb-ratio-sido.json";
 import localRatioSgg from "@/lib/data/kb-ratio-sigungu.json";
+import localSupplySido from "@/lib/data/kb-supply-sido.json";
 
 const LOCAL_FALLBACK: Record<string, unknown> = {
   "kb-weekly-sido.json": localWeeklySido,
@@ -13,6 +14,7 @@ const LOCAL_FALLBACK: Record<string, unknown> = {
   "kb-index-sigungu.json": localIndexSgg,
   "kb-ratio-sido.json": localRatioSido,
   "kb-ratio-sigungu.json": localRatioSgg,
+  "kb-supply-sido.json": localSupplySido,
 };
 
 // 관리자 페이지에서 새 엑셀을 업로드하면 R2의 데이터가 최신이 됨.

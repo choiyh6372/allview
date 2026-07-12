@@ -74,6 +74,15 @@ function loadSheetRows(ws: XLSX.WorkSheet): { header: Row; dataRows: Row[] } {
   return { header, dataRows };
 }
 
+// 매수우위/전세수급 시트: 지역 하나당 3개 컬럼(매도자많음/매수자많음/지수) 묶음이고,
+// 지역명 헤더 다음에 한글 서브헤더 + 영문 헤더까지 2개 행이 더 있어 데이터가 한 행 늦게 시작함
+function loadGroupedSheetRows(ws: XLSX.WorkSheet): { header: Row; dataRows: Row[] } {
+  const rows = XLSX.utils.sheet_to_json<Row>(ws, { header: 1, range: 1, defval: null });
+  const header = rows[0];
+  const dataRows = rows.slice(3).filter((r) => r[0] !== null && r[0] !== undefined);
+  return { header, dataRows };
+}
+
 const DATE_STR_RE = /^'?\s*(\d{1,2})\s*\.\s*(\d{1,2})$/;
 
 function parseMonthlyDates(rawCol: (string | number | Date | null)[]): (string | null)[] {
@@ -164,6 +173,38 @@ function extractSido(
       name: CODE_TO_DISPLAY_NAME[code],
       latest: typeof latestVal === "number" ? round3(latestVal) : null,
       series: seriesFor(dataRows, idx, n, monthly),
+    });
+  }
+
+  return {
+    updatedAt: latestDate,
+    nationwide: { latest: nationwideLatest, series: nationwideSeries },
+    regions,
+  };
+}
+
+// 매수우위/전세수급 시트는 시/도 단위만 제공되고, 지역당 3컬럼 묶음의 3번째(지수) 컬럼만 필요
+function extractSidoGrouped(header: Row, dataRows: Row[], n: number): RegionSet {
+  const groupStart: Record<string, number> = {};
+  for (const name of [...Object.values(CODE_TO_KB_NAME), "전국"]) groupStart[name] = findCol(header, name);
+
+  const latestRow = dataRows[dataRows.length - 1];
+  const latestDate = formatLocalDate(latestRow[0] as Date);
+
+  const nationwideIdx = groupStart["전국"] + 2;
+  const nationwideRaw = latestRow[nationwideIdx];
+  const nationwideLatest = typeof nationwideRaw === "number" ? round3(nationwideRaw) : null;
+  const nationwideSeries = seriesFor(dataRows, nationwideIdx, n, false);
+
+  const regions: RegionEntry[] = [];
+  for (const [code, kbName] of Object.entries(CODE_TO_KB_NAME)) {
+    const idx = groupStart[kbName] + 2;
+    const latestVal = latestRow[idx];
+    regions.push({
+      code,
+      name: CODE_TO_DISPLAY_NAME[code],
+      latest: typeof latestVal === "number" ? round3(latestVal) : null,
+      series: seriesFor(dataRows, idx, n, false),
     });
   }
 
@@ -304,7 +345,15 @@ export function parseWeeklyWorkbook(
     jeonseIndex: extractSigungu(h4, d4, geoNamesByPrefix, WEEKS_10Y, false),
   };
 
-  return { weeklySido, weeklySgg, indexSido, indexSgg };
+  // 매수우위지수/전세수급지수: 시/도 단위만 제공됨 (구/군/시 세부 데이터 없음)
+  const { header: h5, dataRows: d5 } = loadGroupedSheetRows(wb.Sheets["5.매수우위"]);
+  const { header: h7, dataRows: d7 } = loadGroupedSheetRows(wb.Sheets["7.전세수급"]);
+  const supplySido = {
+    buyIndex: extractSidoGrouped(h5, d5, WEEKS_10Y),
+    jeonseSupplyIndex: extractSidoGrouped(h7, d7, WEEKS_10Y),
+  };
+
+  return { weeklySido, weeklySgg, indexSido, indexSgg, supplySido };
 }
 
 export function parseMonthlyWorkbook(

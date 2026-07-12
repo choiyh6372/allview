@@ -45,12 +45,13 @@ export async function POST(req: NextRequest) {
     const geoNamesByPrefix = loadGeoNamesByPrefix();
 
     if (type === "weekly") {
-      const { weeklySido, weeklySgg, indexSido, indexSgg } = parseWeeklyWorkbook(buffer, geoNamesByPrefix);
+      const { weeklySido, weeklySgg, indexSido, indexSgg, supplySido } = parseWeeklyWorkbook(buffer, geoNamesByPrefix);
       await Promise.all([
         putJson("kb-data/kb-weekly-sido.json", weeklySido),
         putJson("kb-data/kb-weekly-sigungu.json", weeklySgg),
         putJson("kb-data/kb-index-sido.json", indexSido),
         putJson("kb-data/kb-index-sigungu.json", indexSgg),
+        putJson("kb-data/kb-supply-sido.json", supplySido),
       ]);
       return NextResponse.json({
         ok: true,

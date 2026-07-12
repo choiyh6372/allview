@@ -11,7 +11,7 @@ const NationwideMarketMap = dynamic(() => import("@/components/market/Nationwide
 export default function MarketPage() {
   const apiKey = process.env.KAKAO_MAP_KEY ?? "";
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
         <h1 className="text-3xl font-black text-gray-900 mb-2">전국 시장동향</h1>
       </div>

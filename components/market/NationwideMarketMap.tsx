@@ -75,9 +75,25 @@ function colorFor(value: number | null): string {
   return `hsl(214, 80%, ${light}%)`;
 }
 
-function shortLabel(name: string): string {
+const SIDO_CODE_TO_NAME: Record<string, string> = {
+  "11": "서울", "21": "부산", "22": "대구", "23": "인천", "24": "광주",
+  "25": "대전", "26": "울산", "29": "세종", "31": "경기", "32": "강원",
+  "33": "충북", "34": "충남", "35": "전북", "36": "전남", "37": "경북",
+  "38": "경남", "39": "제주",
+};
+
+// 시/군/구 이름만으로는 어느 시/도 소속인지 알 수 없는 경우(예: "중구"는 서울·부산·대구 등에 모두 있음)를 보완해서 표시
+function shortLabel(code: string, name: string): string {
   const idx = name.lastIndexOf("시");
-  if (idx > 0 && idx < name.length - 1) return name.slice(idx + 1);
+  if (idx > 0 && idx < name.length - 1) {
+    // 예: 창원시진해구 → 창원시 진해구 (시 이름까지 그대로 보여줌)
+    return `${name.slice(0, idx + 1)} ${name.slice(idx + 1)}`;
+  }
+  if (name.endsWith("구") || name.endsWith("군")) {
+    // 예: 중구, 동구 등 광역시 직속 구/군 → 어느 시/도인지 코드로 판별해 앞에 표시
+    const sidoName = SIDO_CODE_TO_NAME[code.slice(0, 2)];
+    if (sidoName) return `${sidoName} ${name}`;
+  }
   return name;
 }
 
@@ -249,7 +265,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     let label: KakaoCustomOverlay | null = null;
     let valueEl: HTMLElement | null = null;
     if (region) {
-      const made = makeLabel(kakaoMaps, centroid.lat, centroid.lng, shortLabel(region.name), region.latest, big, () =>
+      const made = makeLabel(kakaoMaps, centroid.lat, centroid.lng, shortLabel(region.code, region.name), region.latest, big, () =>
         setSelected({ level, code: region.code, name: region.name })
       );
       label = made.overlay;
@@ -420,62 +436,60 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
   return (
     <div className="relative w-full">
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        {weeklyData ? (
-          <div className="flex items-center gap-2 flex-wrap">
-            <select
-              value={sidoSel}
-              onChange={(e) => handleSidoSelect(e.target.value)}
-              className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700"
-            >
-              <option value="">시/도 선택</option>
-              {weeklyData.sido[metric].regions.map((r) => (
-                <option key={r.code} value={r.code}>{r.name}</option>
-              ))}
-            </select>
-            <select
-              value={sggSel}
-              onChange={(e) => handleSggSelect(e.target.value)}
-              disabled={!sidoSel}
-              className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700 disabled:opacity-50"
-            >
-              <option value="">시/군/구 전체</option>
-              {sggOptions.map((r) => (
-                <option key={r.code} value={r.code}>{shortLabel(r.name)}</option>
-              ))}
-            </select>
-            {(["saleChange", "jeonseChange"] as Metric[]).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMetric(m)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  metric === m ? "bg-accent text-white" : "bg-bg-card border border-border text-gray-700 hover:text-gray-900"
-                }`}
-              >
-                {METRIC_LABEL[m]}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div />
-        )}
-        {activeSido && (
+      {activeSido && (
+        <div className="flex justify-end mb-4">
           <div className="text-sm text-gray-600">
             {activeSido.updatedAt} 기준 · 전국 평균{" "}
             <span className={activeSido.nationwide.latest >= 0 ? "text-red-500 font-semibold" : "text-blue-500 font-semibold"}>
               {fmtPercent(activeSido.nationwide.latest)}
             </span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        <div className="order-2 lg:order-1 lg:col-span-7">
+        <div className="order-2 lg:order-2 lg:col-span-8">
+          {weeklyData && (
+            <div className="flex items-center gap-2 flex-wrap mb-4">
+              <select
+                value={sidoSel}
+                onChange={(e) => handleSidoSelect(e.target.value)}
+                className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700"
+              >
+                <option value="">시/도 선택</option>
+                {weeklyData.sido[metric].regions.map((r) => (
+                  <option key={r.code} value={r.code}>{r.name}</option>
+                ))}
+              </select>
+              <select
+                value={sggSel}
+                onChange={(e) => handleSggSelect(e.target.value)}
+                disabled={!sidoSel}
+                className="px-3 py-2 rounded-lg text-sm font-medium bg-bg-card border border-border text-gray-700 disabled:opacity-50"
+              >
+                <option value="">시/군/구 전체</option>
+                {sggOptions.map((r) => (
+                  <option key={r.code} value={r.code}>{shortLabel(r.code, r.name)}</option>
+                ))}
+              </select>
+              {(["saleChange", "jeonseChange"] as Metric[]).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMetric(m)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    metric === m ? "bg-accent text-white" : "bg-bg-card border border-border text-gray-700 hover:text-gray-900"
+                  }`}
+                >
+                  {METRIC_LABEL[m]}
+                </button>
+              ))}
+            </div>
+          )}
           {selected ? (
             <RegionIndexChart
               level={selected.level}
               code={selected.code}
-              name={shortLabel(selected.name)}
+              name={shortLabel(selected.code, selected.name)}
               onClose={() => setSelected(null)}
             />
           ) : (
@@ -491,7 +505,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
         {/* containerRef는 항상 마운트돼 있어야 함: weeklyData 로딩 완료 시점에 initMap이
             한 번만 호출되는데, 그때 이 div가 아직 DOM에 없으면 지도가 영영 초기화되지 않음 */}
-        <div className="order-1 lg:order-2 lg:col-span-5 relative">
+        <div className="order-1 lg:order-1 lg:col-span-4 relative">
           <div ref={containerRef} className="w-full h-[80vh] rounded-2xl border border-border overflow-hidden" />
 
           {!weeklyData && (
@@ -502,7 +516,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
 
           {hovered && (
             <div className="absolute top-4 right-4 bg-bg-card border border-border rounded-xl shadow-lg p-4 min-w-[180px] pointer-events-none">
-              <div className="text-sm font-bold text-gray-900 mb-1">{shortLabel(hovered.name)}</div>
+              <div className="text-sm font-bold text-gray-900 mb-1">{shortLabel(hovered.code, hovered.name)}</div>
               <div className={`text-lg font-black ${(hovered.latest ?? 0) >= 0 ? "text-red-500" : "text-blue-500"}`}>
                 {fmtPercent(hovered.latest)}
               </div>
@@ -510,15 +524,6 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
             </div>
           )}
         </div>
-      </div>
-
-      <div className="hidden sm:flex items-center justify-between mt-4">
-        <div className="flex items-center gap-4 text-xs text-gray-500">
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ background: colorFor(0.15) }} />상승</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ background: colorFor(0) }} />보합</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded" style={{ background: colorFor(-0.15) }} />하락</span>
-        </div>
-        <span className="text-xs text-muted">확대하면 시/군/구로 전환 · 지역 클릭 시 10년 지수 그래프</span>
       </div>
     </div>
   );

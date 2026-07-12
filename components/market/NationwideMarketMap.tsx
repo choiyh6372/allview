@@ -83,7 +83,10 @@ const SIDO_CODE_TO_NAME: Record<string, string> = {
 };
 
 // 시/군/구 이름만으로는 어느 시/도 소속인지 알 수 없는 경우(예: "중구"는 서울·부산·대구 등에 모두 있음)를 보완해서 표시
+// 시/도 자체의 코드(2자리, 예: 대구="22")는 이름이 이미 완전하므로 그대로 반환 —
+// 그렇지 않으면 "대구"처럼 이름이 "구"로 끝나는 시/도가 자기 자신을 접두어로 잘못 붙여 "대구 대구"가 됨
 function shortLabel(code: string, name: string): string {
+  if (code.length <= 2) return name;
   const idx = name.lastIndexOf("시");
   if (idx > 0 && idx < name.length - 1) {
     // 예: 창원시진해구 → 창원시 진해구 (시 이름까지 그대로 보여줌)

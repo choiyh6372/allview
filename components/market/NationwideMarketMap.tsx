@@ -147,7 +147,7 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
       }
       const script = document.createElement("script");
       script.id = scriptId;
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
       script.onload = () => resolve();
       document.head.appendChild(script);
     });

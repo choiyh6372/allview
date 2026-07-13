@@ -290,13 +290,13 @@ export default function RegionIndexChart({ level, code, name, onClose }: Props) 
                 <>
                   <div className="h-72 sm:h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={saleRanking} layout="vertical" margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
-                        <XAxis type="number" tick={{ fill: "#6b7280", fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v}%`} />
-                        <YAxis type="category" dataKey="name" tick={{ fill: "#6b7280", fontSize: 9 }} tickLine={false} axisLine={false} width={44} interval={0} />
+                      <BarChart data={saleRanking} margin={{ top: 5, right: 10, left: 4, bottom: 36 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                        <XAxis type="category" dataKey="name" tick={{ fill: "#6b7280", fontSize: 12 }} tickLine={false} axisLine={false} interval={0} angle={-45} textAnchor="end" />
+                        <YAxis type="number" tick={{ fill: "#6b7280", fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v}%`} width={48} />
                         <Tooltip content={<RankTooltip />} />
-                        <ReferenceLine x={0} stroke="#9ca3af" />
-                        <Bar dataKey="value" barSize={9}>
+                        <ReferenceLine y={0} stroke="#9ca3af" />
+                        <Bar dataKey="value" barSize={12}>
                           {saleRanking.map((entry) => (
                             <Cell
                               key={entry.code}
@@ -323,13 +323,13 @@ export default function RegionIndexChart({ level, code, name, onClose }: Props) 
                 <>
                   <div className="h-72 sm:h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={jeonseRanking} layout="vertical" margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
-                        <XAxis type="number" tick={{ fill: "#6b7280", fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v}%`} />
-                        <YAxis type="category" dataKey="name" tick={{ fill: "#6b7280", fontSize: 9 }} tickLine={false} axisLine={false} width={44} interval={0} />
+                      <BarChart data={jeonseRanking} margin={{ top: 5, right: 10, left: 4, bottom: 36 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                        <XAxis type="category" dataKey="name" tick={{ fill: "#6b7280", fontSize: 12 }} tickLine={false} axisLine={false} interval={0} angle={-45} textAnchor="end" />
+                        <YAxis type="number" tick={{ fill: "#6b7280", fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v}%`} width={48} />
                         <Tooltip content={<RankTooltip />} />
-                        <ReferenceLine x={0} stroke="#9ca3af" />
-                        <Bar dataKey="value" barSize={9}>
+                        <ReferenceLine y={0} stroke="#9ca3af" />
+                        <Bar dataKey="value" barSize={12}>
                           {jeonseRanking.map((entry) => (
                             <Cell
                               key={entry.code}

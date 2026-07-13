@@ -82,6 +82,12 @@ const SIDO_CODE_TO_NAME: Record<string, string> = {
   "38": "경남", "39": "제주",
 };
 
+// 경기도는 서울을 감싸는 형태라 바운딩박스 중심이 서울과 거의 겹침 → 라벨을 남쪽으로 살짝 이동
+const SIDO_LABEL_OFFSET: Record<string, { lat: number; lng: number }> = {
+  "31": { lat: -0.35, lng: 0 },
+  "23": { lat: 0, lng: 0.5 },
+};
+
 // 시/군/구 이름만으로는 어느 시/도 소속인지 알 수 없는 경우(예: "중구"는 서울·부산·대구 등에 모두 있음)를 보완해서 표시
 // 시/도 자체의 코드(2자리, 예: 대구="22")는 이름이 이미 완전하므로 그대로 반환 —
 // 그렇지 않으면 "대구"처럼 이름이 "구"로 끝나는 시/도가 자기 자신을 접두어로 잘못 붙여 "대구 대구"가 됨
@@ -268,7 +274,10 @@ export default function NationwideMarketMap({ apiKey }: { apiKey: string }) {
     let label: KakaoCustomOverlay | null = null;
     let valueEl: HTMLElement | null = null;
     if (region) {
-      const made = makeLabel(kakaoMaps, centroid.lat, centroid.lng, shortLabel(region.code, region.name), region.latest, big, () =>
+      const offset = level === "sido" ? SIDO_LABEL_OFFSET[region.code] : undefined;
+      const labelLat = centroid.lat + (offset?.lat ?? 0);
+      const labelLng = centroid.lng + (offset?.lng ?? 0);
+      const made = makeLabel(kakaoMaps, labelLat, labelLng, shortLabel(region.code, region.name), region.latest, big, () =>
         setSelected({ level, code: region.code, name: region.name })
       );
       label = made.overlay;

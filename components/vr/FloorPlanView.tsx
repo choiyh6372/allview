@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { VRComplex, getVRUrl } from "@/lib/vrData";
 import { VR_AREA_MAP } from "@/lib/vrAreaMapping";
 import { APT_COMPLEXES } from "@/lib/mapData";
@@ -407,19 +408,26 @@ export function typeColor(complexKey: string, type: string): ColorDef {
 export const COMPLEX_MAX_WIDTH: Record<string, string> = {
   ecodelta_hoban: "max-w-md",
   ecodelta_prugio_lin: "max-w-3xl",
-  ecodelta_xi: "max-w-3xl",
+  ecodelta_xi: "max-w-2xl",
   ecodelta_dietr_first: "max-w-2xl",
   ocean_samjung: "max-w-[420px]",
-  ocean_solmare: "max-w-2xl",
-  kukje_daebang2: "max-w-2xl",
+  ocean_solmare: "max-w-xl",
+  ocean_blueocean5: "max-w-3xl",
+  ocean_qweendom_lincoln: "max-w-3xl",
+  ocean_hansin: "max-w-3xl",
+  ocean_kukdong: "max-w-3xl",
+  ocean_doosan: "max-w-3xl",
+  ocean_lotte: "max-w-3xl",
+  kukje_daebang2: "max-w-xl",
+  kukje_hoban2: "max-w-3xl",
   kukje_eileen: "max-w-3xl",
-  kukje_hyupsung: "max-w-2xl",
-  kukje_jungheung1: "max-w-2xl",
+  kukje_hyupsung: "max-w-xl",
+  kukje_jungheung1: "max-w-xl",
   kukje_kumkang1: "max-w-2xl",
   kukje_kumkang2: "max-w-3xl",
   kukje_thehill: "max-w-3xl",
   kukje_thewestern: "max-w-3xl",
-  kukje_posco2: "max-w-3xl",
+  kukje_posco2: "max-w-2xl",
   kukje_posco3: "max-w-5xl",
   kukje_samjung: "max-w-xs",
   kukje_sweetpalace: "max-w-2xl",
@@ -446,7 +454,9 @@ async function checkVRExists(url: string): Promise<boolean> {
   }
 }
 
-export default function FloorPlanView({ complex, onBack }: { complex: VRComplex; onBack: () => void }) {
+export default function FloorPlanView({ complex }: { complex: VRComplex }) {
+  const router = useRouter();
+  const onBack = () => router.push(`/vr-tour?region=${encodeURIComponent(complex.regionName)}`);
   const key = `${complex.regionId}_${complex.slug}`;
   const plan = FLOOR_PLAN_DATA[key];
   const areaMap = VR_AREA_MAP[key] ?? {};
@@ -457,6 +467,19 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
   const [noVRTypes, setNoVRTypes] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(true);
   const [showPinchHint, setShowPinchHint] = useState(true);
+  const [unitFloorPlans, setUnitFloorPlans] = useState<Record<string, Record<string, string>>>({});
+  const [previewPos, setPreviewPos] = useState<{ bottom: number; right: number } | null>(null);
+  const previewAnchorRef = useRef<HTMLDivElement>(null);
+
+  function updatePreviewPos() {
+    if (!previewAnchorRef.current || !imgRef.current) return;
+    const anchorRect = previewAnchorRef.current.getBoundingClientRect();
+    const imgRect = imgRef.current.getBoundingClientRect();
+    setPreviewPos({
+      bottom: window.innerHeight - imgRect.bottom,
+      right: window.innerWidth - anchorRect.right,
+    });
+  }
 
   function handleHotspotClick(type: string) {
     if (complex.noVR) {
@@ -497,6 +520,15 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  useEffect(() => {
+    fetch("/api/unit-floorplans")
+      .then((r) => r.json())
+      .then(setUnitFloorPlans)
+      .catch(() => {});
+  }, []);
+
+  const floorPlans = unitFloorPlans[complex.id] ?? {};
+
   if (!plan) {
     return (
       <div className="p-6">
@@ -513,7 +545,7 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
               <button key={type} onClick={() => handleHotspotClick(type)}
                 className="px-4 py-2 rounded-xl text-sm font-semibold"
                 style={{ background: cfg.bg, color: cfg.text, border: `2px solid ${cfg.border}` }}>
-                {type.toUpperCase()}{sqm ? ` · ${sqm}㎡` : ""}
+                {type.toUpperCase()}{sqm ? ` · ${sqm}m²` : ""}
               </button>
             );
           })}
@@ -560,38 +592,20 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
             </div>
           );
         })()}
-        {(() => {
-          const twoCol = ["ocean_blueocean4", "ocean_blueocean5", "ocean_blueocean6", "ocean_qweendom_lincoln"].includes(key);
-          return (
-          <div className="hidden md:block mt-3 rounded-xl border border-border bg-bg-card overflow-hidden text-sm">
-            <div className="px-4 py-2.5 border-b border-border">
-              <span className="text-xs text-gray-400 font-medium">평형 범례</span>
+        <div ref={previewAnchorRef} className="hidden md:block relative">
+          {hoveredType && floorPlans[hoveredType] && previewPos && (
+            <div
+              className="fixed z-40 w-[460px] max-w-[90vw] bg-bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
+              style={{ bottom: previewPos.bottom, right: previewPos.right }}
+            >
+              <div className="px-3 py-2 border-b border-border bg-bg-hover">
+                <span className="text-sm font-semibold text-gray-700">{hoveredType.toUpperCase()} 평면도</span>
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={floorPlans[hoveredType]} alt={`${hoveredType} 평면도`} className="w-full h-auto block" />
             </div>
-            <div className={twoCol ? "grid grid-cols-2" : ""}>
-              {complex.types.map((type) => {
-                const cfg = typeColor(key, type);
-                const sqm = areaMap[type];
-                return (
-                  <div key={type}
-                    className="flex items-center justify-between px-3 py-2 border-b border-border last:border-b-0 cursor-pointer hover:bg-bg-hover transition-colors"
-                    onMouseEnter={() => setHoveredType(type)}
-                    onMouseLeave={() => setHoveredType(null)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
-                      <span className="text-sm font-semibold text-gray-700">{type.toUpperCase()}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {sqm && <span className="text-sm text-gray-600">{sqm.toFixed(2)}㎡</span>}
-                      {noVRTypes.has(type) && <span className="text-xs text-gray-400">준비중</span>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          );
-        })()}
+          )}
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col justify-start">
@@ -678,6 +692,35 @@ export default function FloorPlanView({ complex, onBack }: { complex: VRComplex;
               </div>
             ) : imageContent;
           })()}
+        </div>
+
+        <div className="hidden md:block w-full max-w-4xl mx-auto mt-6">
+          <div className="rounded-2xl border border-border bg-bg-card px-5 py-3.5 shadow-sm">
+            <div className="grid grid-cols-5 gap-3">
+              {complex.types.map((type) => {
+                const cfg = typeColor(key, type);
+                const sqm = areaMap[type];
+                const noVR = noVRTypes.has(type);
+                return (
+                  <button
+                    key={type}
+                    onMouseEnter={() => { setHoveredType(type); updatePreviewPos(); }}
+                    onMouseLeave={() => setHoveredType(null)}
+                    className="flex items-center justify-center gap-2.5 px-4 py-1.5 rounded-xl border-2 transition-all hover:-translate-y-0.5 hover:shadow-md text-sm"
+                    style={{
+                      borderColor: hoveredType === type ? cfg.border : "transparent",
+                      background: `${cfg.bg}1a`,
+                      opacity: noVR ? 0.6 : 1,
+                    }}
+                  >
+                    <span className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
+                    <span className={`font-bold text-gray-900 ${noVR ? "line-through" : ""}`}>{type.toUpperCase()}</span>
+                    {sqm && <span className={`text-gray-500 text-[10px] ${noVR ? "line-through" : ""}`}>{sqm.toFixed(2)}m²</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>

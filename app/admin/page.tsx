@@ -3,12 +3,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, BarChart2, TrendingUp, Eye, Users, Video, Building2, FileSpreadsheet } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, BarChart2, TrendingUp, Eye, Users, Video, Building2, FileSpreadsheet, FileText } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StoreFormModal from "@/components/admin/StoreFormModal";
 import AptMapEditor from "@/components/admin/AptMapEditor";
 import VRCountEditor from "@/components/admin/VRCountEditor";
 import KbDataUpload from "@/components/admin/KbDataUpload";
+import ComplexDescriptionEditor from "@/components/admin/ComplexDescriptionEditor";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { Inquiry } from "@/lib/inquiryStore";
 
@@ -75,7 +76,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
 
 export default function AdminPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<"stores" | "inquiries" | "apts" | "stats" | "vr" | "kb">("stores");
+  const [tab, setTab] = useState<"stores" | "inquiries" | "apts" | "stats" | "vr" | "kb" | "descriptions">("stores");
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalStore, setModalStore] = useState<PromotionStore | null | undefined>(undefined);
@@ -274,6 +275,15 @@ export default function AdminPage() {
           KB부동산 데이터
         </button>
         <button
+          onClick={() => setTab("descriptions")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "descriptions" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
+          }`}
+        >
+          <FileText size={15} />
+          단지 소개글
+        </button>
+        <button
           onClick={() => router.push("/admin/jeongbi")}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-gray-900 transition-colors"
         >
@@ -434,6 +444,13 @@ export default function AdminPage() {
       {tab === "kb" && (
         <div>
           <KbDataUpload />
+        </div>
+      )}
+
+      {/* 단지 소개글 Tab */}
+      {tab === "descriptions" && (
+        <div>
+          <ComplexDescriptionEditor />
         </div>
       )}
 

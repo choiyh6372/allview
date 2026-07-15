@@ -31,3 +31,6 @@ LSMD_CONT_UD602_부산/
 
 # KB부동산 원본 엑셀 (추출된 lib/data/*.json만 커밋)
 kb_data/
+
+# 평면도 원본 이미지 (R2로 업로드 후 URL만 저장, 원본은 커밋 안 함)
+floorplans/

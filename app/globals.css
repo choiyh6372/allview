@@ -77,3 +77,101 @@ body {
 .scrollbar-light::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+.complex-description {
+  color: #374151;
+  line-height: 1.85;
+  font-size: 0.9375rem;
+  word-break: keep-all;
+}
+.complex-description > * + * {
+  margin-top: 1.125rem;
+}
+.complex-description h1 {
+  color: #111827;
+  font-weight: 800;
+  font-size: 1.375rem;
+  line-height: 1.4;
+}
+.complex-description h2,
+.complex-description h3 {
+  color: #111827;
+  font-weight: 700;
+  line-height: 1.4;
+  scroll-margin-top: 90px;
+}
+.complex-description h2 {
+  font-size: 1.1875rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+}
+.complex-description > h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.complex-description h3 { font-size: 1.0625rem; margin-top: 1.75rem; }
+.complex-description p { text-align: justify; }
+.complex-description a {
+  color: #5b6ef5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.complex-description img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.complex-description ul,
+.complex-description ol {
+  padding-left: 1.375rem;
+}
+.complex-description ul { list-style: disc; }
+.complex-description ol { list-style: decimal; }
+.complex-description li + li {
+  margin-top: 0.5rem;
+}
+.complex-description li {
+  padding-left: 0.25rem;
+}
+.complex-description blockquote {
+  border-left: 3px solid #5b6ef5;
+  background: #f5f7ff;
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding: 0.875rem 1.125rem;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+.complex-description strong {
+  color: #111827;
+  font-weight: 700;
+}
+.complex-description table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+}
+.complex-description th,
+.complex-description td {
+  border: 1px solid #e2e8f0;
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  white-space: normal;
+}
+.complex-description th {
+  background: #f8fafc;
+  color: #111827;
+  font-weight: 600;
+  width: 30%;
+}
+.complex-description tr:nth-child(even) td {
+  background: #fafbfc;
+}

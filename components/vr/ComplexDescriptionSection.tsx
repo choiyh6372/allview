@@ -36,13 +36,12 @@ export default function ComplexDescriptionSection({
               <List size={13} /> 목차
             </p>
             <ol className="space-y-1.5">
-              {toc.map((item, i) => (
+              {toc.map((item) => (
                 <li key={item.id} className={item.level === 3 ? "pl-4" : ""}>
                   <a
                     href={`#${item.id}`}
                     className="text-sm text-gray-700 hover:text-accent transition-colors"
                   >
-                    {item.level === 2 ? `${i + 1}. ` : ""}
                     {item.text}
                   </a>
                 </li>

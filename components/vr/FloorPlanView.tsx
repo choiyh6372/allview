@@ -595,14 +595,18 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
         <div ref={previewAnchorRef} className="hidden md:block relative">
           {hoveredType && floorPlans[hoveredType] && previewPos && (
             <div
-              className="fixed z-40 w-[460px] max-w-[90vw] bg-bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
+              className="fixed z-40 max-w-[90vw] bg-bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
               style={{ bottom: previewPos.bottom, right: previewPos.right }}
             >
               <div className="px-3 py-2 border-b border-border bg-bg-hover">
                 <span className="text-sm font-semibold text-gray-700">{hoveredType.toUpperCase()} 평면도</span>
               </div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={floorPlans[hoveredType]} alt={`${hoveredType} 평면도`} className="w-full h-auto block" />
+              <img
+                src={floorPlans[hoveredType]}
+                alt={`${hoveredType} 평면도`}
+                className="block mx-auto w-auto h-auto max-w-[460px] max-h-[65vh] object-contain"
+              />
             </div>
           )}
         </div>

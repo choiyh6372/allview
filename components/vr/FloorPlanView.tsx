@@ -463,6 +463,7 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
   const imgRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [hoveredType, setHoveredType] = useState<string | null>(null);
+  const [previewType, setPreviewType] = useState<string | null>(null);
   const [showNoVR, setShowNoVR] = useState(false);
   const [noVRTypes, setNoVRTypes] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(true);
@@ -593,18 +594,18 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
           );
         })()}
         <div ref={previewAnchorRef} className="hidden md:block relative">
-          {hoveredType && floorPlans[hoveredType] && previewPos && (
+          {previewType && floorPlans[previewType] && previewPos && (
             <div
               className="fixed z-40 max-w-[90vw] bg-bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
               style={{ bottom: previewPos.bottom, right: previewPos.right }}
             >
               <div className="px-3 py-2 border-b border-border bg-bg-hover">
-                <span className="text-sm font-semibold text-gray-700">{hoveredType.toUpperCase()} 평면도</span>
+                <span className="text-sm font-semibold text-gray-700">{previewType.toUpperCase()} 평면도</span>
               </div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={floorPlans[hoveredType]}
-                alt={`${hoveredType} 평면도`}
+                src={floorPlans[previewType]}
+                alt={`${previewType} 평면도`}
                 className="block mx-auto w-auto h-auto max-w-[460px] max-h-[65vh] object-contain"
               />
             </div>
@@ -637,8 +638,8 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
                     <button
                       key={hs.id}
                       onClick={() => handleHotspotClick(hs.type)}
-                      onMouseEnter={() => setHoveredId(hs.id)}
-                      onMouseLeave={() => setHoveredId(null)}
+                      onMouseEnter={() => { setHoveredId(hs.id); setPreviewType(hs.type); updatePreviewPos(); }}
+                      onMouseLeave={() => { setHoveredId(null); setPreviewType(null); }}
                       title={`${hs.type.toUpperCase()} VR 보기`}
                       className="absolute rounded-full transition-all duration-150"
                       style={{
@@ -708,8 +709,8 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
                 return (
                   <button
                     key={type}
-                    onMouseEnter={() => { setHoveredType(type); updatePreviewPos(); }}
-                    onMouseLeave={() => setHoveredType(null)}
+                    onMouseEnter={() => { setHoveredType(type); setPreviewType(type); updatePreviewPos(); }}
+                    onMouseLeave={() => { setHoveredType(null); setPreviewType(null); }}
                     className="flex items-center justify-center gap-2.5 px-4 py-1.5 rounded-xl border-2 transition-all hover:-translate-y-0.5 hover:shadow-md text-sm"
                     style={{
                       borderColor: hoveredType === type ? cfg.border : "transparent",

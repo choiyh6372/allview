@@ -3,11 +3,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, Video, Building2, FileSpreadsheet, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Store, ImageOff, LogOut, MessageSquare, Phone, User, Calendar, MapPin, Video, Building2, FileText } from "lucide-react";
 import StoreFormModal from "@/components/admin/StoreFormModal";
 import AptMapEditor from "@/components/admin/AptMapEditor";
 import VRCountEditor from "@/components/admin/VRCountEditor";
-import KbDataUpload from "@/components/admin/KbDataUpload";
 import ComplexDescriptionEditor from "@/components/admin/ComplexDescriptionEditor";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { Inquiry } from "@/lib/inquiryStore";
@@ -53,7 +52,7 @@ const categoryColors: Record<string, string> = {
 
 export default function AdminPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<"stores" | "inquiries" | "apts" | "vr" | "kb" | "descriptions">("stores");
+  const [tab, setTab] = useState<"stores" | "inquiries" | "apts" | "vr" | "descriptions">("stores");
   const [stores, setStores] = useState<PromotionStore[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalStore, setModalStore] = useState<PromotionStore | null | undefined>(undefined);
@@ -219,15 +218,6 @@ export default function AdminPage() {
           VR 평형수
         </button>
         <button
-          onClick={() => setTab("kb")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "kb" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
-          }`}
-        >
-          <FileSpreadsheet size={15} />
-          KB부동산 데이터
-        </button>
-        <button
           onClick={() => setTab("descriptions")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             tab === "descriptions" ? "bg-accent text-white" : "text-muted hover:text-gray-900"
@@ -390,13 +380,6 @@ export default function AdminPage() {
       {tab === "vr" && (
         <div>
           <VRCountEditor />
-        </div>
-      )}
-
-      {/* KB부동산 데이터 Tab */}
-      {tab === "kb" && (
-        <div>
-          <KbDataUpload />
         </div>
       )}
 

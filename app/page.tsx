@@ -3,7 +3,9 @@ import HeroSection from "@/components/home/HeroSection";
 import StatsSection from "@/components/home/StatsSection";
 import AboutSection from "@/components/home/AboutSection";
 import ServiceCards from "@/components/home/ServiceCards";
-import NewsSection from "@/components/home/NewsSection";
+import BlogSection from "@/components/home/BlogSection";
+
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: "AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
@@ -31,7 +33,7 @@ export default function HomePage() {
       <StatsSection />
       <ServiceCards />
       <AboutSection />
-      <NewsSection />
+      <BlogSection />
     </>
   );
 }

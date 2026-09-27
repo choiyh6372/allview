@@ -1,7 +1,10 @@
 import { MetadataRoute } from "next";
 import { complexData } from "@/lib/vrData";
+import { getPublishedPosts } from "@/lib/blogStore";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://www.allview.kr";
 
   const complexPages: MetadataRoute.Sitemap = complexData.map((complex) => ({
@@ -9,6 +12,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.6,
+  }));
+
+  const blogPages: MetadataRoute.Sitemap = (await getPublishedPosts()).map((post) => ({
+    url: `${baseUrl}/blog/${encodeURIComponent(post.slug)}`,
+    lastModified: new Date(post.updatedAt),
+    changeFrequency: "monthly",
+    priority: 0.7,
   }));
 
   return [
@@ -31,11 +41,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/news`,
+      url: `${baseUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: "daily",
-      priority: 0.7,
+      priority: 0.8,
     },
+    ...blogPages,
     {
       url: `${baseUrl}/store`,
       lastModified: new Date(),

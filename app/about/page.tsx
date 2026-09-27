@@ -44,8 +44,8 @@ export default function AboutPage() {
               초등학교 통학구역, 정비구역 등을 지도에서 확인할 수 있습니다.
             </>,
             <>
-              <Link href="/news" className="text-accent font-semibold hover:underline">부동산 뉴스</Link> — 강서구
-              관련 부동산 소식을 모아 보여줍니다.
+              <Link href="/blog" className="text-accent font-semibold hover:underline">부동산 블로그</Link> — 청약,
+              학군, 교통 계획 등 강서구 부동산 정보를 직접 정리한 글을 올립니다.
             </>,
           ]}
         />

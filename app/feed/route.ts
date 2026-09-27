@@ -27,10 +27,10 @@ const ITEMS: FeedItem[] = [
     pubDate: new Date("2025-01-01"),
   },
   {
-    title: "부동산 뉴스 | AllView360 - 명지오션시티·에코델타시티",
-    link: "https://www.allview.kr/news",
-    description: `<img src="${OG_IMAGE}" alt="부산 강서구 부동산 뉴스" width="1200" height="630" /><p>부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 관련 최신 부동산 뉴스를 확인하세요. 분양, 입주, 시세, 개발 계획 등 강서구 부동산 시장의 주요 소식을 한눈에 모아 제공합니다.</p>`,
-    pubDate: new Date("2025-01-01"),
+    title: "부동산 블로그 | AllView360 - 명지오션시티·에코델타시티",
+    link: "https://www.allview.kr/blog",
+    description: `<img src="${OG_IMAGE}" alt="부산 강서구 부동산 블로그" width="1200" height="630" /><p>명지오션시티, 명지국제신도시, 에코델타시티 아파트와 부산 강서구 청약·학군·교통 계획 등 부동산 정보를 쉽게 정리한 블로그입니다.</p>`,
+    pubDate: new Date("2026-09-27"),
   },
   {
     title: "아파트 VR 투어 | AllView360 - 부산 강서구 신축 아파트",

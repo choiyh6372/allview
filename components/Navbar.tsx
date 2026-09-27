@@ -11,7 +11,7 @@ const links = [
   { href: "/real-estate", label: "실거래가" },
   { href: "/subscription", label: "분양정보" },
   { href: "/map", label: "지도" },
-  { href: "/news", label: "강서구뉴스" },
+  { href: "/blog", label: "블로그" },
 ];
 
 export default function Navbar() {

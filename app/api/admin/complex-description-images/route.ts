@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
     const form = await req.formData();
     const file = form.get("file") as File | null;
     const complexId = (form.get("complexId") as string) ?? "unknown";
+    // 블로그 에디터는 folder=blog로 업로드 (그 외는 단지 소개 이미지)
+    const prefix = form.get("folder") === "blog" ? "blog" : "complex-descriptions";
 
     if (!file) return NextResponse.json({ error: "파일이 없습니다" }, { status: 400 });
     if (!file.type.startsWith("image/")) return NextResponse.json({ error: "이미지 파일만 업로드할 수 있습니다" }, { status: 400 });
@@ -29,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "이미지를 처리할 수 없습니다. 다른 파일을 시도해주세요" }, { status: 400 });
     }
 
-    const key = `complex-descriptions/${complexId}/${Date.now()}.jpg`;
+    const key = `${prefix}/${complexId}/${Date.now()}.jpg`;
     await r2.send(
       new PutObjectCommand({
         Bucket: BUCKET,

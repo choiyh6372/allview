@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import InfoPageLayout, { InfoSection, InfoList } from "@/components/legal/InfoPageLayout";
-import { CONTACT_EMAIL, POLICY_EFFECTIVE_DATE, SITE_NAME, SITE_OPERATOR } from "@/lib/siteInfo";
+import {
+  CONTACT_EMAIL,
+  INQUIRY_RETENTION_MONTHS,
+  POLICY_EFFECTIVE_DATE,
+  SITE_NAME,
+  SITE_OPERATOR,
+} from "@/lib/siteInfo";
 
 export const metadata: Metadata = {
   title: "개인정보처리방침 | AllView360(올뷰360)",
@@ -44,8 +50,9 @@ export default function PrivacyPage() {
 
       <InfoSection title="3. 보유 및 이용 기간">
         <p>
-          문의하기로 수집한 개인정보는 문의 처리가 완료되면 지체 없이 파기합니다. 이용자가 삭제를 요청하는 경우에도 즉시
-          파기합니다. 다만 관련 법령에 따라 보존이 필요한 경우에는 해당 기간 동안 보관합니다.
+          문의하기로 수집한 개인정보는 <strong>접수일로부터 {INQUIRY_RETENTION_MONTHS}개월</strong>간 보관한 뒤 자동으로
+          파기합니다. 그 전에 문의 처리가 완료되었거나 이용자가 삭제를 요청하는 경우에는 즉시 파기합니다. 다만 관련 법령에
+          따라 보존이 필요한 경우에는 해당 기간 동안 보관합니다.
         </p>
       </InfoSection>
 

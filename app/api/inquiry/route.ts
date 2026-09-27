@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllInquiries, saveAllInquiries, type Inquiry } from "@/lib/inquiryStore";
+import { getAllInquiries, saveAllInquiries, withoutExpired, type Inquiry } from "@/lib/inquiryStore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,8 +16,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
       read: false,
     };
-    inquiries.unshift(inquiry);
-    await saveAllInquiries(inquiries);
+    await saveAllInquiries([inquiry, ...withoutExpired(inquiries)]);
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
     console.error(err);

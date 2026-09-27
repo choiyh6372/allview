@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, MessageSquare, Loader2, CheckCircle } from "lucide-react";
+import { INQUIRY_RETENTION_MONTHS } from "@/lib/siteInfo";
 
 export default function InquiryModal() {
   const [open, setOpen] = useState(false);
@@ -146,8 +147,8 @@ export default function InquiryModal() {
                     className="mt-0.5 accent-accent"
                   />
                   <span>
-                    문의 응대를 위해 이름·연락처·문의 내용을 수집하며, 처리 완료 후 파기합니다. 개인정보 수집·이용에
-                    동의합니다.{" "}
+                    문의 응대를 위해 이름·연락처·문의 내용을 수집하며, 접수일로부터 {INQUIRY_RETENTION_MONTHS}개월 후 자동 파기합니다. 개인정보
+                    수집·이용에 동의합니다.{" "}
                     <a href="/privacy" target="_blank" className="text-accent underline">자세히 보기</a>
                   </span>
                 </label>

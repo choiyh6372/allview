@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllInquiries, saveAllInquiries } from "@/lib/inquiryStore";
+import { getAllInquiries, saveAllInquiries, purgeExpiredInquiries } from "@/lib/inquiryStore";
 
 export async function GET() {
-  const inquiries = await getAllInquiries();
+  const { inquiries } = await purgeExpiredInquiries();
   return NextResponse.json(inquiries);
 }
 

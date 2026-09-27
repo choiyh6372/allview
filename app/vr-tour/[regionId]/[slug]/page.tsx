@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { complexData } from "@/lib/vrData";
+import { complexData, getComplexFullName } from "@/lib/vrData";
 import { getComplexDescriptions } from "@/lib/complexDescriptionStore";
 import { sanitizeDescriptionHtml, extractHeadings, splitAtFirstH2 } from "@/lib/sanitizeDescriptionHtml";
 import FloorPlanView from "@/components/vr/FloorPlanView";
@@ -25,12 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const descriptions = await getComplexDescriptions();
   const raw = descriptions[complex.id];
+  const fullName = getComplexFullName(complex);
   const summary = raw
     ? stripHtml(sanitizeDescriptionHtml(raw)).slice(0, 150)
-    : `${complex.name}(${complex.regionName}) VR 가상투어와 평형별 배치도 정보`;
+    : `${fullName}(${complex.regionName}) VR 가상투어와 평형별 배치도 정보`;
 
   return {
-    title: `${complex.name} VR 가상투어 | ${complex.regionName} - AllView`,
+    title: `${fullName} VR 가상투어·평면도 | ${complex.regionName} - AllView`,
     description: summary,
     alternates: { canonical: `/vr-tour/${complex.regionId}/${complex.slug}` },
   };

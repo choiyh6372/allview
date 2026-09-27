@@ -98,6 +98,55 @@ export const complexData: VRComplex[] = [
     types: ["33a","33b","33c","39a","39b"] },
 ];
 
+/** 검색용 정식 단지명 (페이지 제목·설명에 사용). 없으면 name을 쓴다. */
+export const COMPLEX_FULL_NAMES: Record<string, string> = {
+  ocean_blueocean4: "엘크루블루오션 4단지",
+  ocean_blueocean5: "엘크루블루오션 5단지",
+  ocean_blueocean6: "엘크루블루오션 6단지",
+  ocean_doosan: "명지두산위브포세이돈",
+  ocean_hansin: "명지오션시티 한신휴플러스",
+  ocean_kukdong: "명지오션시티 극동스타클래스",
+  ocean_lotte: "명지롯데캐슬",
+  ocean_qweendom_edison: "명지퀸덤 에디슨타운",
+  ocean_qweendom_lincoln: "명지퀸덤 링컨타운",
+  ocean_qweendom_einstein: "명지퀸덤 아인슈타인타운",
+  ocean_samjung: "명지오션시티 삼정그린코아",
+  ocean_solmare: "명지 엘크루솔마레",
+  kukje_daebang1: "명지대방노블랜드오션뷰 1차",
+  kukje_daebang2: "명지대방노블랜드오션뷰 2차",
+  kukje_eileen: "명지 에일린의 뜰",
+  kukje_elife: "e편한세상 명지",
+  kukje_hoban1: "명지 호반베르디움 1차",
+  kukje_hoban2: "명지 호반베르디움 2차",
+  kukje_hyupsung: "명지 협성휴포레",
+  kukje_jungheung1: "명지 중흥S-클래스 프라디움",
+  kukje_jungheung2: "명지 중흥S-클래스 에듀오션",
+  kukje_kumkang1: "명지 금강펜테리움 센트럴파크 1차",
+  kukje_kumkang2: "명지 금강펜테리움 센트럴파크 2차",
+  kukje_kumkang3: "명지 금강펜테리움 센트럴파크 3차",
+  kukje_thehill: "명지 더힐시그니처",
+  kukje_thewestern: "명지 더웨스턴",
+  kukje_samjung: "명지 삼정그린코아 더베스트",
+  kukje_posco2: "더샵 명지퍼스트월드 2단지",
+  kukje_posco3: "더샵 명지퍼스트월드 3단지",
+  kukje_jungheung_terrace: "명지 중흥S-클래스 더테라스",
+  kukje_sweetpalace: "명지 스위트팰리스",
+  ecodelta_hoban: "에코델타 호반써밋 스마트시티",
+  ecodelta_sujain: "에코델타 한양수자인",
+  ecodelta_prugio_lin: "에코델타시티 푸르지오 린",
+  ecodelta_xi: "강서자이 에코델타",
+  ecodelta_elife: "e편한세상 에코델타 센터포인트",
+  ecodelta_prugio_center: "에코델타시티 푸르지오 센터파크",
+  ecodelta_theberhill: "에코델타 대성베르힐",
+  ecodelta_dietr_grand: "에코델타시티 디에트르 그랑루체",
+  ecodelta_dietr_first: "에코델타시티 디에트르 더퍼스트",
+  ecodelta_jungheung2: "에코델타시티 중흥S-클래스",
+};
+
+export function getComplexFullName(complex: Pick<VRComplex, "id" | "name">): string {
+  return COMPLEX_FULL_NAMES[complex.id] ?? complex.name;
+}
+
 export function getVRUrl(regionId: string, slug: string, type: string): string {
   return `${R2_BASE}/${regionId}/${slug}/${encodeURIComponent(type)}/vtour/tour.html`;
 }

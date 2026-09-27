@@ -5,6 +5,7 @@ import ConditionalFooter from "@/components/ConditionalFooter";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.allview.kr"),
   title: "AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
   description: "AllView360(올뷰360) - 부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 아파트 VR투어, 실거래가, 지도보기",
   openGraph: {

@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: "/admin",
+      disallow: ["/admin", "/api/", "/test", "/vr-editor"],
     },
-    sitemap: "https://allview.kr/sitemap.xml",
+    sitemap: "https://www.allview.kr/sitemap.xml",
   };
 }

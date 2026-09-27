@@ -6,10 +6,11 @@ export const metadata: Metadata = {
   title: "아파트 실거래가 | AllView360(올뷰360) - 부산 강서구",
   description: "부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 아파트·분양권·전월세 실거래가를 실시간으로 확인하세요.",
   keywords: "아파트 실거래가, 부산 강서구, 명지오션시티, 명지국제신도시, 에코델타시티, 분양권, 전월세, 부동산 시세",
+  alternates: { canonical: "/real-estate" },
   openGraph: {
     title: "아파트 실거래가 | AllView360(올뷰360) - 부산 강서구",
     description: "부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 아파트·분양권·전월세 실거래가를 실시간으로 확인하세요.",
-    url: "https://allview.kr/real-estate",
+    url: "https://www.allview.kr/real-estate",
     images: [
       {
         url: "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/og-image.jpg",

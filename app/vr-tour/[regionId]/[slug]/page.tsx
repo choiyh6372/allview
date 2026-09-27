@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${complex.name} VR 가상투어 | ${complex.regionName} - AllView`,
     description: summary,
+    alternates: { canonical: `/vr-tour/${complex.regionId}/${complex.slug}` },
   };
 }
 

@@ -73,10 +73,11 @@ export const metadata = {
   title: "강서구 부동산 뉴스 | AllView360(올뷰360) - 명지오션시티·에코델타시티",
   description: "부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 관련 최신 부동산 뉴스를 확인하세요.",
   keywords: "부산 강서구 뉴스, 명지오션시티, 명지국제신도시, 에코델타시티, 부동산 뉴스, 강서구 부동산",
+  alternates: { canonical: "/news" },
   openGraph: {
     title: "강서구 부동산 뉴스 | AllView360(올뷰360) - 명지오션시티·에코델타시티",
     description: "부산 강서구 명지오션시티, 명지국제신도시, 에코델타시티 관련 최신 부동산 뉴스를 확인하세요.",
-    url: "https://allview.kr/news",
+    url: "https://www.allview.kr/news",
     images: [
       {
         url: "https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/og-image.jpg",

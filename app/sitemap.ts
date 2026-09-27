@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { complexData } from "@/lib/vrData";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://allview.kr";
+  const baseUrl = "https://www.allview.kr";
 
   const complexPages: MetadataRoute.Sitemap = complexData.map((complex) => ({
     url: `${baseUrl}/vr-tour/${complex.regionId}/${complex.slug}`,
@@ -40,6 +40,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/store`,
       lastModified: new Date(),
       changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/map`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/subscription`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
       priority: 0.7,
     },
     ...complexPages,

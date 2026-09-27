@@ -9,6 +9,7 @@ export default function InquiryModal() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [agreed, setAgreed] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -19,6 +20,7 @@ export default function InquiryModal() {
     setOpen(true);
     setDone(false);
     setError("");
+    setAgreed(false);
     setForm({ name: "", phone: "", content: "" });
   }
 
@@ -31,6 +33,10 @@ export default function InquiryModal() {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim() || !form.content.trim()) {
       setError("모든 항목을 입력해주세요.");
+      return;
+    }
+    if (!agreed) {
+      setError("개인정보 수집·이용에 동의해주세요.");
       return;
     }
     setLoading(true);
@@ -131,6 +137,20 @@ export default function InquiryModal() {
                     className="w-full px-3.5 py-2.5 bg-bg-hover border border-border rounded-xl text-sm text-gray-900 placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors resize-none"
                   />
                 </div>
+
+                <label className="flex items-start gap-2 text-xs text-gray-700 leading-relaxed">
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={(e) => { setAgreed(e.target.checked); setError(""); }}
+                    className="mt-0.5 accent-accent"
+                  />
+                  <span>
+                    문의 응대를 위해 이름·연락처·문의 내용을 수집하며, 처리 완료 후 파기합니다. 개인정보 수집·이용에
+                    동의합니다.{" "}
+                    <a href="/privacy" target="_blank" className="text-accent underline">자세히 보기</a>
+                  </span>
+                </label>
 
                 {error && (
                   <p className="text-xs text-red-400">{error}</p>

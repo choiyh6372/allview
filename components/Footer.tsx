@@ -45,6 +45,24 @@ export default function Footer() {
             본 사이트에서 제공되는 VR 투어 영상 및 이미지 콘텐츠의 저작권은 AllView360에 있으며,
             무단 복제·배포·전송을 금합니다.
           </p>
+          <nav className="flex flex-wrap gap-x-4 gap-y-1">
+            {[
+              { href: "/about", label: "사이트 소개" },
+              { href: "/contact", label: "문의하기" },
+              { href: "/terms", label: "이용약관" },
+              { href: "/privacy", label: "개인정보처리방침" },
+            ].map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`text-xs hover:text-accent transition-colors ${
+                  l.href === "/privacy" ? "font-semibold text-gray-900" : "text-muted"
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
             <p className="text-xs text-muted">© 2026 AllView360(올뷰360). All rights reserved.</p>
             <p className="text-xs text-muted">부산광역시 강서구</p>

@@ -1,11 +1,10 @@
 import Link from "next/link";
-import InquiryModal from "@/components/home/InquiryModal";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-bg mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="border-t border-border bg-bg mt-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <div className="flex items-center gap-0.5 mb-3">
               <span className="text-xl font-black text-accent">All</span>
@@ -32,15 +31,8 @@ export default function Footer() {
               ))}
             </div>
           </div>
-          <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-3">문의</h4>
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-muted">평일 09:00 – 18:00</p>
-              <InquiryModal />
-            </div>
-          </div>
         </div>
-        <div className="mt-10 pt-6 border-t border-border flex flex-col gap-2">
+        <div className="mt-6 pt-4 border-t border-border flex flex-col gap-2">
           <p className="text-xs text-muted">
             본 사이트에서 제공되는 VR 투어 영상 및 이미지 콘텐츠의 저작권은 AllView360에 있으며,
             무단 복제·배포·전송을 금합니다.

@@ -159,6 +159,13 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
 }
+/* table이 가로 스크롤용 block이라, 안쪽 tbody를 표로 만들어 전체 너비로 채운다
+   (thead가 있으면 열이 어긋나므로 제외) */
+.complex-description table:not(:has(thead)) > tbody {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
 .complex-description th,
 .complex-description td {
   border: 1px solid #e2e8f0;
@@ -170,7 +177,29 @@ body {
   background: #f8fafc;
   color: #111827;
   font-weight: 600;
+}
+/* "항목 | 내용" 형태(행 머리글 th 뒤에 td) 표만 머리글 칸을 30%로 고정 */
+.complex-description th:has(+ td) {
   width: 30%;
+}
+/* 한글은 단어 중간에서 줄바꿈하지 않음 */
+.complex-description th,
+.complex-description td {
+  word-break: keep-all;
+}
+/* 휴대폰에서는 칸 여백·글자를 줄여 표가 화면 안에 들어오게 */
+@media (max-width: 640px) {
+  .complex-description table {
+    font-size: 0.8125rem;
+  }
+  .complex-description th,
+  .complex-description td {
+    padding: 0.5rem 0.625rem;
+  }
+}
+/* 2열 표(라벨 | 내용)는 첫 열 라벨을 한 줄로 */
+.complex-description tr > :first-child:nth-last-child(2) {
+  white-space: nowrap;
 }
 .complex-description tr:nth-child(even) td {
   background: #fafbfc;

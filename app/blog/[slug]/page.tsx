@@ -43,7 +43,9 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPublishedPost(decodeSlug(params.slug));
   if (!post) notFound();
 
-  const { html, toc } = extractHeadings(sanitizeDescriptionHtml(post.content));
+  const { html, toc: headings } = extractHeadings(sanitizeDescriptionHtml(post.content));
+  // 블로그 목차는 h2만 (h3는 FAQ 질문 등 세부 항목이라 제외)
+  const toc = headings.filter((item) => item.level === 2);
   const thumb = postThumbnail(post);
 
   const jsonLd = {
@@ -78,15 +80,21 @@ export default async function BlogPostPage({ params }: Props) {
       </header>
 
       {toc.length > 1 && (
-        <nav className="mb-8 p-5 rounded-2xl border border-border bg-bg-card">
-          <p className="flex items-center gap-1.5 text-xs font-semibold text-muted uppercase tracking-wider mb-3">
-            <List size={13} /> 목차
+        <nav aria-label="목차" className="mb-10 rounded-2xl border border-accent/20 bg-accent/5 px-5 py-4">
+          <p className="flex items-center gap-1.5 text-sm font-bold text-accent mb-2">
+            <List size={15} /> 목차
           </p>
-          <ol className="space-y-1.5">
-            {toc.map((item) => (
-              <li key={item.id} className={item.level === 3 ? "pl-4" : ""}>
-                <a href={`#${item.id}`} className="text-sm text-gray-700 hover:text-accent transition-colors">
-                  {item.text}
+          <ol className="divide-y divide-accent/10">
+            {toc.map((item, i) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  className="group flex items-center gap-3 py-2 text-[13px] text-gray-600 hover:text-accent transition-colors"
+                >
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-accent/15 text-accent text-[11px] font-bold flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-colors">
+                    {i + 1}
+                  </span>
+                  <span className="line-clamp-1">{item.text}</span>
                 </a>
               </li>
             ))}

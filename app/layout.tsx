@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
 import { Analytics } from "@vercel/analytics/react";
+import { ADSENSE_CLIENT } from "@/lib/siteInfo";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.allview.kr"),
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
   other: {
     "naver-site-verification": "b540b6786711318500caa5d1bf4a0fcbc7d92022",
     "google-site-verification": "OAIfaDPoEVnOgXiHpbfiAAa14JhKTEdd0_OzQfKrRds",
+    "google-adsense-account": ADSENSE_CLIENT,
   },
 };
 
@@ -34,6 +36,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        {/* Google 애드센스 (사이트 승인·자동 광고) */}
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="bg-bg text-gray-900 min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 pt-16">{children}</main>

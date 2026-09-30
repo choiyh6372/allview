@@ -37,6 +37,12 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="AllView360(올뷰360) RSS"
+          href="https://www.allview.kr/rss"
+        />
         {/* Google 애드센스 (사이트 승인·자동 광고) */}
         <script
           async

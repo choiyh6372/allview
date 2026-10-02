@@ -19,6 +19,8 @@ const nextConfig = {
     return [
       ...posts,
       { source: "/category/:path*", destination: "/blog", permanent: true },
+      // 삭제한 전국 시장동향 페이지(색인되어 있음) → 실거래가
+      { source: "/market", destination: "/real-estate", permanent: true },
       { source: "/comments/feed", destination: "/rss.xml", permanent: true },
     ];
   },

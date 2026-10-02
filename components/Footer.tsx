@@ -24,6 +24,7 @@ export default function Footer() {
                 { href: "/real-estate", label: "실거래가" },
                 { href: "/subscription", label: "분양정보" },
                 { href: "/map", label: "지도보기" },
+                { href: "/blog", label: "블로그" },
               ].map((l) => (
                 <Link key={l.href} href={l.href} className="text-sm text-muted hover:text-accent transition-colors">
                   {l.label}

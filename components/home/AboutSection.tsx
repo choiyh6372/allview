@@ -16,12 +16,12 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-black text-gray-900 mb-5">
-            AllView360은
-            <br />
+            AllView360은{" "}
+            <br className="sm:hidden" />
             이렇게 다릅니다
           </h2>
           <p className="text-gray-600 text-base leading-relaxed mb-8">
-            발품 팔지 않아도 괜찮습니다.
+            발품 팔지 않아도 됩니다.
             <br />
             AllView360은 명지오션시티, 명지국제신도시, 에코델타시티 아파트의 실제 내부를 360° VR로 촬영해 보여드립니다.
             <br />

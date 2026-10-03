@@ -6,6 +6,10 @@ import { sanitizeDescriptionHtml, extractHeadings, splitAtFirstH2 } from "@/lib/
 import FloorPlanView from "@/components/vr/FloorPlanView";
 import ComplexDescriptionSection from "@/components/vr/ComplexDescriptionSection";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
+import ComplexReviews from "@/components/vr/ComplexReviews";
+import ReviewTeaser from "@/components/vr/ReviewTeaser";
+import { listApprovedReviews } from "@/lib/reviewStore";
+import { isReviewEnabled } from "@/lib/reviewUtils";
 
 export const revalidate = 3600;
 
@@ -47,10 +51,13 @@ export default async function VRComplexPage({ params }: Props) {
   const cleaned = raw ? sanitizeDescriptionHtml(raw) : undefined;
   const { html: withIds, toc } = cleaned ? extractHeadings(cleaned) : { html: undefined, toc: [] };
   const { intro, rest } = withIds ? splitAtFirstH2(withIds) : { intro: "", rest: "" };
+  const reviewsEnabled = isReviewEnabled(complex.id);
+  const reviews = reviewsEnabled ? await listApprovedReviews(complex.id) : [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <FloorPlanView complex={complex} />
+      {reviewsEnabled && <ReviewTeaser reviews={reviews} />}
       {withIds && (
         <ComplexDescriptionSection
           title={complex.name}
@@ -59,6 +66,9 @@ export default async function VRComplexPage({ params }: Props) {
           toc={toc}
           collapsible={stripHtml(rest).length > 500}
         />
+      )}
+      {reviewsEnabled && (
+        <ComplexReviews complexId={complex.id} complexName={getComplexFullName(complex)} reviews={reviews} />
       )}
       <ScrollToTopButton />
     </div>

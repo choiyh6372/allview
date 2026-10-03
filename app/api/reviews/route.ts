@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createReview, deleteReviewWithPassword, hashIp, listReviews } from "@/lib/reviewStore";
+import { createReview, deleteReviewWithPassword, hashIp, listApprovedReviews, listReviews } from "@/lib/reviewStore";
 import { isReviewEnabled, validateReviewInput } from "@/lib/reviewUtils";
 import { complexData } from "@/lib/vrData";
 
@@ -15,6 +15,14 @@ function clientIp(req: NextRequest): string {
 function complexPath(complexId: string): string | null {
   const c = complexData.find((x) => x.id === complexId);
   return c ? `/vr-tour/${c.regionId}/${c.slug}` : null;
+}
+
+// 승인된 후기 조회 (지도·실거래가 등 클라이언트 화면용)
+export async function GET(req: NextRequest) {
+  const complexId = req.nextUrl.searchParams.get("complexId") ?? "";
+  if (!isReviewEnabled(complexId)) return NextResponse.json([]);
+  const reviews = await listApprovedReviews(complexId);
+  return NextResponse.json(reviews, { headers: { "Cache-Control": "no-store" } });
 }
 
 // 후기 작성 (관리자 승인 후 공개)

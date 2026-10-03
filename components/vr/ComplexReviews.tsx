@@ -16,10 +16,13 @@ export default function ComplexReviews({
   complexId,
   complexName,
   reviews: initialReviews,
+  compact = false,
 }: {
   complexId: string;
   complexName: string;
   reviews: PublicReview[];
+  /** 지도 패널처럼 좁은 곳에 넣을 때 */
+  compact?: boolean;
 }) {
   const [reviews, setReviews] = useState(initialReviews);
   const [visible, setVisible] = useState(PAGE_SIZE);
@@ -77,14 +80,17 @@ export default function ComplexReviews({
     "w-full px-3.5 py-2.5 bg-bg border border-border rounded-xl text-sm text-gray-900 placeholder:text-muted focus:outline-none focus:border-accent/50";
 
   return (
-    <section id="reviews" className="mt-10 max-w-4xl mx-auto scroll-mt-24">
-      <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
-        <MessageSquareText size={20} className="text-accent" />
-        {complexName} 한줄 후기
-        <span className="text-sm font-medium text-muted">{reviews.length}</span>
+    <section
+      id={compact ? undefined : "reviews"}
+      className={compact ? "" : "mt-10 max-w-4xl mx-auto scroll-mt-24"}
+    >
+      <h2 className={`flex items-center gap-2 font-bold text-gray-900 ${compact ? "text-sm mb-2" : "text-xl mb-4"}`}>
+        <MessageSquareText size={compact ? 15 : 20} className="text-accent" />
+        {compact ? "한줄 후기" : `${complexName} 한줄 후기`}
+        <span className={`${compact ? "text-xs" : "text-sm"} font-medium text-muted`}>{reviews.length}</span>
       </h2>
 
-      <div className="rounded-2xl border border-border bg-bg-card p-5 sm:p-6">
+      <div className={`rounded-2xl border border-border bg-bg-card ${compact ? "p-4" : "p-5 sm:p-6"}`}>
         {reviews.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted">아직 후기가 없습니다. 첫 후기를 남겨주세요.</p>
         ) : (

@@ -6,13 +6,15 @@ import { X, MapPin, Phone, Navigation, Eye } from "lucide-react";
 import BannerSlot from "@/components/common/BannerSlot";
 import PriceChart from "@/components/real-estate/PriceChart";
 import VRModal from "@/components/vr-tour/VRModal";
+import ComplexReviewsLoader from "@/components/vr/ComplexReviewsLoader";
+import { isReviewEnabled } from "@/lib/reviewUtils";
 import { buildComplexList, buildRentTransactions, buildRentOnlyDynamic, getAreaType } from "@/lib/aptTradeApi";
 import type { Complex, MonthlyPrice } from "@/lib/realEstateData";
 import type { RentRawItem, RawItem } from "@/lib/molitApi";
 import { type AptComplex, PROPERTY_NAVER_URLS, APT_COMPLEXES } from "@/lib/mapData";
 import type { PromotionStore } from "@/lib/promotionStore";
 import type { SubscriptionItem } from "@/app/api/subscription/route";
-import { complexData as vrComplexData } from "@/lib/vrData";
+import { complexData as vrComplexData, getComplexFullName } from "@/lib/vrData";
 import type { SelectedProperty } from "@/components/map/KakaoMap";
 import { type JeongbiProject, JEONGBI_TYPE_COLOR } from "@/lib/jeongbiData";
 import type { AreaTypeMap } from "@/lib/parseAptMapping";
@@ -746,6 +748,9 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                   </div>
                 </div>
                 <AptInfoCard apt={selectedApt} />
+                {isReviewEnabled(selectedApt.id) && (
+                  <ComplexReviewsLoader complexId={selectedApt.id} complexName={getComplexFullName(selectedApt)} />
+                )}
                 <p className="text-xs text-gray-400 text-center">실거래가 데이터가 없습니다</p>
                 {showVrNoData && vrEntry && (
                   <VRModal complex={vrEntry} onClose={() => setShowVrNoData(false)} />
@@ -804,6 +809,9 @@ export default function MapBottomSheet({ selectedApt, selectedStore, selectedSub
                 </a>
               )}
               <AptInfoCard apt={selectedApt} />
+              {isReviewEnabled(selectedApt.id) && (
+                <ComplexReviewsLoader complexId={selectedApt.id} complexName={getComplexFullName(selectedApt)} />
+              )}
             </div>
           )}
 

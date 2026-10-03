@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createReview, deleteReviewWithPassword, hashIp, listReviews } from "@/lib/reviewStore";
-import { isReviewEnabled, validateReviewInput, type ReviewAuthorType } from "@/lib/reviewUtils";
+import { isReviewEnabled, validateReviewInput } from "@/lib/reviewUtils";
 import { complexData } from "@/lib/vrData";
 
 // 같은 사람(IP)의 연속 작성 제한
@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
     await createReview({
       complexId,
       nickname: body.nickname,
-      authorType: body.authorType as ReviewAuthorType,
       content: body.content,
       password: body.password,
       ipHash,

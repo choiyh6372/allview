@@ -3,21 +3,14 @@
 import { useState } from "react";
 import { MessageSquareText, Loader2, CheckCircle, Trash2, PenLine } from "lucide-react";
 import {
-  AUTHOR_TYPE_LABEL,
   NICKNAME_MAX_LENGTH,
   REVIEW_MAX_LENGTH,
   formatReviewDate,
   validateReviewInput,
   type PublicReview,
-  type ReviewAuthorType,
 } from "@/lib/reviewUtils";
 
 const PAGE_SIZE = 10;
-const TYPE_STYLE: Record<ReviewAuthorType, string> = {
-  resident: "bg-accent/10 text-accent",
-  visitor: "bg-emerald-500/10 text-emerald-600",
-  interest: "bg-amber-500/10 text-amber-600",
-};
 
 export default function ComplexReviews({
   complexId,
@@ -30,7 +23,7 @@ export default function ComplexReviews({
 }) {
   const [reviews, setReviews] = useState(initialReviews);
   const [visible, setVisible] = useState(PAGE_SIZE);
-  const [form, setForm] = useState({ nickname: "", authorType: "" as ReviewAuthorType | "", content: "", password: "", website: "" });
+  const [form, setForm] = useState({ nickname: "", content: "", password: "", website: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -58,7 +51,7 @@ export default function ComplexReviews({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "저장에 실패했습니다.");
       setDone(true);
-      setForm({ nickname: "", authorType: "", content: "", password: "", website: "" });
+      setForm({ nickname: "", content: "", password: "", website: "" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "저장에 실패했습니다.");
     } finally {
@@ -99,9 +92,6 @@ export default function ComplexReviews({
             {reviews.slice(0, visible).map((r) => (
               <li key={r.id} className="py-3.5 first:pt-0">
                 <div className="flex items-center gap-2 text-xs">
-                  <span className={`px-2 py-0.5 rounded-full font-semibold ${TYPE_STYLE[r.authorType]}`}>
-                    {AUTHOR_TYPE_LABEL[r.authorType]}
-                  </span>
                   <span className="font-semibold text-gray-800">{r.nickname}</span>
                   <span className="text-muted">{formatReviewDate(r.createdAt)}</span>
                   <button
@@ -166,20 +156,6 @@ export default function ComplexReviews({
                 <button type="button" onClick={() => { setShowForm(false); setError(null); }} className="text-xs text-muted hover:text-gray-900">
                   취소
                 </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {(Object.keys(AUTHOR_TYPE_LABEL) as ReviewAuthorType[]).map((t) => (
-                  <button
-                    type="button"
-                    key={t}
-                    onClick={() => update("authorType", t)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                      form.authorType === t ? "bg-accent text-white border-accent" : "border-border text-gray-700 hover:border-accent/40"
-                    }`}
-                  >
-                    {AUTHOR_TYPE_LABEL[t]}
-                  </button>
-                ))}
               </div>
               <textarea
                 value={form.content}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Check, EyeOff, Trash2, RotateCcw } from "lucide-react";
 import { complexData, getComplexFullName } from "@/lib/vrData";
-import { AUTHOR_TYPE_LABEL, formatReviewDate, type PublicReview, type ReviewStatus } from "@/lib/reviewUtils";
+import { formatReviewDate, type PublicReview, type ReviewStatus } from "@/lib/reviewUtils";
 
 type AdminReview = PublicReview & { status: ReviewStatus };
 
@@ -89,7 +89,6 @@ export default function ReviewModerator() {
             <li key={r.id} className="p-4 rounded-xl border border-border bg-bg-card">
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="font-semibold text-gray-900">{complexName(r.complexId)}</span>
-                <span className="px-2 py-0.5 rounded-full bg-bg border border-border">{AUTHOR_TYPE_LABEL[r.authorType]}</span>
                 <span className="text-gray-700">{r.nickname}</span>
                 <span className="text-muted">{formatReviewDate(r.createdAt)}</span>
                 <span className={`ml-auto font-semibold ${r.status === "approved" ? "text-green-600" : r.status === "hidden" ? "text-muted" : "text-amber-600"}`}>

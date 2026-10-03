@@ -6,7 +6,7 @@ import {
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { r2, BUCKET } from "./r2Client";
-import type { PublicReview, ReviewAuthorType, ReviewStatus, StoredReview } from "./reviewUtils";
+import type { PublicReview, ReviewStatus, StoredReview } from "./reviewUtils";
 
 // 후기 1건 = R2 객체 1개 (reviews/{complexId}/{id}.json)
 // 파일 하나에 모아 저장하면 동시 작성 시 서로 덮어쓰므로 건별로 저장한다.
@@ -31,8 +31,8 @@ export function hashIp(ip: string): string {
 }
 
 export function toPublic(r: StoredReview): PublicReview {
-  const { id, complexId, nickname, authorType, content, createdAt } = r;
-  return { id, complexId, nickname, authorType, content, createdAt };
+  const { id, complexId, nickname, content, createdAt } = r;
+  return { id, complexId, nickname, content, createdAt };
 }
 
 async function readReview(key: string): Promise<StoredReview | null> {
@@ -86,7 +86,6 @@ export async function listApprovedReviews(complexId: string): Promise<PublicRevi
 export async function createReview(input: {
   complexId: string;
   nickname: string;
-  authorType: ReviewAuthorType;
   content: string;
   password: string;
   ipHash: string;
@@ -96,7 +95,6 @@ export async function createReview(input: {
     id: `${now.getTime()}-${randomBytes(3).toString("hex")}`,
     complexId: input.complexId,
     nickname: input.nickname.trim(),
-    authorType: input.authorType,
     content: input.content.trim(),
     createdAt: now.toISOString(),
     status: "pending",

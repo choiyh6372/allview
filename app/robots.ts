@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin", "/api/", "/test", "/vr-editor"],
     },
-    sitemap: "https://www.allview.kr/sitemap.xml",
+    sitemap: ["https://www.allview.kr/sitemap.xml", "https://www.allview.kr/rss.xml"],
   };
 }

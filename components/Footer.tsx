@@ -42,6 +42,7 @@ export default function Footer() {
             {[
               { href: "/about", label: "사이트 소개" },
               { href: "/contact", label: "문의하기" },
+              { href: "/credits", label: "데이터 출처" },
               { href: "/terms", label: "이용약관" },
               { href: "/privacy", label: "개인정보처리방침" },
             ].map((l) => (

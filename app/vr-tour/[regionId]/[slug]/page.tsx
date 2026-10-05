@@ -10,6 +10,9 @@ import ComplexReviews from "@/components/vr/ComplexReviews";
 import ReviewTeaser from "@/components/vr/ReviewTeaser";
 import { listApprovedReviews } from "@/lib/reviewStore";
 import { isReviewEnabled } from "@/lib/reviewUtils";
+import { TRADE_PAGE_COMPLEXES } from "@/lib/complexTrades";
+import Link from "next/link";
+import { TrendingUp, ChevronRight } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -57,6 +60,16 @@ export default async function VRComplexPage({ params }: Props) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <FloorPlanView complex={complex} />
+      {TRADE_PAGE_COMPLEXES.includes(complex.id) && (
+        <Link
+          href={`/real-estate/${complex.regionId}/${complex.slug}`}
+          className="mt-6 max-w-4xl mx-auto flex items-center gap-2 px-4 py-3 rounded-xl border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors text-sm"
+        >
+          <TrendingUp size={16} className="shrink-0 text-accent" />
+          <span className="font-semibold text-gray-900">{getComplexFullName(complex)} 실거래가 추이 보기</span>
+          <ChevronRight size={15} className="ml-auto shrink-0 text-muted" />
+        </Link>
+      )}
       {reviewsEnabled && <ReviewTeaser reviews={reviews} />}
       {withIds && (
         <ComplexDescriptionSection

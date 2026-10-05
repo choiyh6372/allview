@@ -15,6 +15,14 @@ import ComplexReviews from "@/components/vr/ComplexReviews";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 
 export const revalidate = 3600;
+// 페이지를 켠 단지만 만들고, 그 외 주소는 라우팅 단계에서 404 (soft 404 방지)
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return complexData
+    .filter((c) => TRADE_PAGE_COMPLEXES.includes(c.id))
+    .map((c) => ({ regionId: c.regionId, slug: c.slug }));
+}
 
 type Props = { params: { regionId: string; slug: string } };
 

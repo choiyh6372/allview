@@ -11,6 +11,7 @@ import { parseAptMapping } from "@/lib/parseAptMapping";
 import { listApprovedReviews } from "@/lib/reviewStore";
 import { isReviewEnabled } from "@/lib/reviewUtils";
 import ComplexPriceChart from "@/components/real-estate/ComplexPriceChart";
+import BackButton from "@/components/common/BackButton";
 import ComplexReviews from "@/components/vr/ComplexReviews";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 
@@ -116,14 +117,15 @@ export default async function ComplexTradePage({ params }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <p className="text-sm text-muted">{vr.regionName} · {apt.address}</p>
+      <BackButton fallback="/real-estate" />
+      <p className="mt-4 text-sm text-muted">{vr.regionName} · {apt.address}</p>
       <h1 className="mt-1 text-2xl sm:text-3xl font-black text-gray-900">{fullName} 실거래가 추이</h1>
 
       <div className="mt-5 flex flex-wrap gap-2">
         <Link href={`/vr-tour/${vr.regionId}/${vr.slug}`} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent text-white text-sm font-semibold">
           <Eye size={15} /> VR투어·평면도
         </Link>
-        <Link href="/map" className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border text-sm font-semibold text-gray-700">
+        <Link href={`/map?aptId=${apt.id}`} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border text-sm font-semibold text-gray-700">
           <MapPin size={15} /> 지도에서 보기
         </Link>
       </div>

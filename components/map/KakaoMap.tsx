@@ -1302,14 +1302,19 @@ export default function KakaoMap({ apiKey, areaTypeMap = {}, supplyAreaMap = {} 
       } catch { return null; }
     })();
 
+    // /map?aptId=... 로 들어오면 그 단지 위치로 확대해서 시작 (다른 페이지의 "지도에서 보기")
+    const urlAptId = new URLSearchParams(window.location.search).get("aptId");
+    const urlApt = urlAptId ? APT_COMPLEXES.find((c) => c.id === urlAptId) : undefined;
+
     const map = new kakao.maps.Map(containerRef.current, {
       center: new kakao.maps.LatLng(
-        savedPos?.lat ?? REGION_CENTER.kukje.lat,
-        savedPos?.lng ?? REGION_CENTER.kukje.lng,
+        urlApt?.lat ?? savedPos?.lat ?? REGION_CENTER.kukje.lat,
+        urlApt?.lng ?? savedPos?.lng ?? REGION_CENTER.kukje.lng,
       ),
-      level: savedPos?.level ?? REGION_CENTER.kukje.level,
+      level: urlApt ? 4 : savedPos?.level ?? REGION_CENTER.kukje.level,
     });
     mapRef.current = map;
+    if (urlApt) openPopup(urlApt, map);
 
     kakao.maps.event.addListener(map, "click", () => {
       if (ignoreNextMapClickRef.current) {

@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
 import { Analytics } from "@vercel/analytics/react";
 import { ADSENSE_CLIENT } from "@/lib/siteInfo";
+import RouteTracker from "@/components/common/RouteTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.allview.kr"),
@@ -55,6 +56,7 @@ export default function RootLayout({
         <main className="flex-1 pt-16">{children}</main>
         <ConditionalFooter />
         <Analytics />
+        <RouteTracker />
       </body>
     </html>
   );

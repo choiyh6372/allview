@@ -1,7 +1,9 @@
 // 단지 한줄 후기 타입·검증 (클라이언트에서도 import 가능 — 서버 전용 코드 금지)
 
-/** 후기 기능을 켠 단지 (테스트: 극동스타클래스) */
-export const REVIEW_ENABLED_COMPLEXES = ["ocean_kukdong"];
+import { complexData } from "./vrData";
+
+/** 후기 기능을 켠 단지: VR투어에 등록된 모든 단지 */
+export const REVIEW_ENABLED_COMPLEXES = complexData.map((complex) => complex.id);
 
 export const REVIEW_MAX_LENGTH = 300;
 export const REVIEW_MIN_LENGTH = 5;

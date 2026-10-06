@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { complexData } from "@/lib/vrData";
+import { TRADE_PAGE_COMPLEXES } from "@/lib/complexTrades";
 import { getPublishedPosts } from "@/lib/blogStore";
 
 export const revalidate = 3600;
@@ -13,6 +14,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "weekly",
     priority: 0.6,
   }));
+
+  const tradePages: MetadataRoute.Sitemap = complexData
+    .filter((complex) => TRADE_PAGE_COMPLEXES.includes(complex.id))
+    .map((complex) => ({
+      url: `${baseUrl}/real-estate/${complex.regionId}/${complex.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.7,
+    }));
 
   const blogPages: MetadataRoute.Sitemap = (await getPublishedPosts()).map((post) => ({
     url: `${baseUrl}/blog/${encodeURIComponent(post.slug)}`,
@@ -72,5 +82,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     })),
     ...complexPages,
+    ...tradePages,
   ];
 }

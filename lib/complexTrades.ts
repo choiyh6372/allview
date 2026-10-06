@@ -1,11 +1,15 @@
 import { getTradeCache } from "@/lib/tradeCache";
 import { APT_COMPLEXES, type AptComplex } from "@/lib/mapData";
+import { complexData } from "@/lib/vrData";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 
 // 단지별 실거래가 페이지용: R2 실거래 캐시에서 특정 단지의 매매·전월세 거래를 골라낸다
 
-/** 단지별 실거래가 페이지를 켠 단지 (테스트: 극동스타클래스) */
-export const TRADE_PAGE_COMPLEXES = ["ocean_kukdong"];
+/** VR투어와 지도에 함께 등록된 모든 단지의 실거래가 페이지를 제공한다. */
+const MAPPED_COMPLEX_IDS = new Set(APT_COMPLEXES.map((complex) => complex.id));
+export const TRADE_PAGE_COMPLEXES = complexData
+  .filter((complex) => MAPPED_COMPLEX_IDS.has(complex.id))
+  .map((complex) => complex.id);
 
 const norm = (s?: string) => (s ?? "").replace(/[\s·\-]/g, "");
 const jibunOf = (apt: AptComplex) => apt.legalAddress?.match(/명지동 ([0-9-]+)$/)?.[1];

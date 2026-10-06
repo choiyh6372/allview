@@ -54,8 +54,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${fullName} 실거래가 추이·시세 | ${found.vr.regionName} - AllView`,
     description: `${fullName} 아파트 매매·전월세 실거래가 추이와 전용면적별 시세, 최근 거래 내역을 국토교통부 실거래가 자료로 매일 갱신합니다.`,
     alternates: { canonical: `/real-estate/${found.vr.regionId}/${found.vr.slug}` },
-    // 테스트 기간: 검색 제외
-    robots: { index: false, follow: true },
   };
 }
 

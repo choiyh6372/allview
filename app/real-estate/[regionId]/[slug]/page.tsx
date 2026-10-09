@@ -5,7 +5,7 @@ import { Eye, MapPin, TrendingUp } from "lucide-react";
 import { complexData, getComplexFullName } from "@/lib/vrData";
 import { APT_COMPLEXES } from "@/lib/mapData";
 import { buildComplexList } from "@/lib/aptTradeApi";
-import { getComplexTrades, TRADE_PAGE_COMPLEXES, tradeNameOf } from "@/lib/complexTrades";
+import { getComplexTrades, MIN_RECORDS_FOR_INDEX, recordCount, TRADE_PAGE_COMPLEXES, tradeNameOf } from "@/lib/complexTrades";
 import { getAreaTypeLabels } from "@/lib/areaTypeLabels";
 import { parseAptMapping } from "@/lib/parseAptMapping";
 import { listApprovedReviews } from "@/lib/reviewStore";
@@ -50,10 +50,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const found = findComplex(params.regionId, params.slug);
   if (!found) return {};
   const fullName = getComplexFullName(found.vr);
+  const data = await getComplexTrades(found.apt);
+  const kinds = [data.trades.length && "매매", data.silvs.length && "분양권", data.rents.length && "전월세"].filter(Boolean).join("·");
   return {
     title: `${fullName} 실거래가 추이·시세 | ${found.vr.regionName} - AllView`,
-    description: `${fullName} 아파트 매매·전월세 실거래가 추이와 전용면적별 시세, 최근 거래 내역을 국토교통부 실거래가 자료로 매일 갱신합니다.`,
+    description: `${fullName} 아파트 ${kinds || "매매·전월세"} 실거래가 추이와 전용면적별 시세, 최근 거래 내역을 국토교통부 실거래가 자료로 매일 갱신합니다.`,
     alternates: { canonical: `/real-estate/${found.vr.regionId}/${found.vr.slug}` },
+    // 거래 기록이 거의 없는 단지는 검색 제외 (빈 페이지 노출 방지)
+    ...(recordCount(data) < MIN_RECORDS_FOR_INDEX && { robots: { index: false, follow: true } }),
   };
 }
 
@@ -63,7 +67,7 @@ export default async function ComplexTradePage({ params }: Props) {
   const { vr, apt } = found;
   const fullName = getComplexFullName(vr);
 
-  const { trades, rents } = await getComplexTrades(apt);
+  const { trades, silvs, rents, ambiguousCount } = await getComplexTrades(apt);
   const typeLabels = getAreaTypeLabels(tradeNameOf(apt));
   /** "34B·34C"처럼 그 면적의 타입 이름 (없으면 빈 문자열) */
   const typeOf = (area: string) => (typeLabels[String(parseFloat(area))] ?? []).join("·");
@@ -71,11 +75,13 @@ export default async function ComplexTradePage({ params }: Props) {
   const areaLabel = (area: string) => `${area}㎡${typeOf(area) ? ` (${typeOf(area)})` : ""}`;
   const sortedTrades = [...trades].sort((a, b) => sortKey(b).localeCompare(sortKey(a)));
   const sortedRents = [...rents].sort((a, b) => sortKey(b).localeCompare(sortKey(a)));
+  const sortedSilvs = [...silvs].sort((a, b) => sortKey(b).localeCompare(sortKey(a)));
 
   // 최근 1년
   const now = new Date();
   const yearAgo = `${now.getFullYear() - 1}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
   const lastYear = sortedTrades.filter((t) => sortKey(t) >= yearAgo);
+  const silvLastYear = sortedSilvs.filter((t) => sortKey(t) >= yearAgo);
 
   // 면적별 요약 (최근 1년, 없으면 전체)
   const base = lastYear.length ? lastYear : sortedTrades;
@@ -86,7 +92,9 @@ export default async function ComplexTradePage({ params }: Props) {
     return { area, count: list.length, latest: list[0], max: byPrice[0], min: byPrice[byPrice.length - 1] };
   });
 
-  const chartComplex = trades.length ? buildComplexList(trades)[0] : null;
+  // 아파트 매매가 없으면(신축) 분양권 거래로 그래프
+  const chartIsSilv = !trades.length && silvs.length > 0;
+  const chartComplex = trades.length ? buildComplexList(trades)[0] : chartIsSilv ? buildComplexList(silvs)[0] : null;
   const reviewsEnabled = isReviewEnabled(apt.id);
   const reviews = reviewsEnabled ? await listApprovedReviews(apt.id) : [];
   const rentText = (r: RentRawItem) => {
@@ -107,6 +115,14 @@ export default async function ComplexTradePage({ params }: Props) {
     );
   } else if (sortedTrades.length) {
     summary.push(`${fullName}는 최근 1년 동안 매매 거래가 없었고, 마지막 거래는 ${dateOf(sortedTrades[0])} ${price(man(sortedTrades[0].dealAmount))} 원입니다.`);
+  }
+  if (sortedSilvs.length) {
+    const s0 = sortedSilvs[0];
+    summary.push(
+      silvLastYear.length
+        ? `분양권은 최근 1년 동안 ${silvLastYear.length}건 거래되었고, 가장 최근 거래는 ${dateOf(s0)} 전용 ${areaLabel(areaOf(s0))} ${s0.floor}층 ${price(man(s0.dealAmount))} 원입니다.`
+        : `분양권 마지막 거래는 ${dateOf(s0)} 전용 ${areaLabel(areaOf(s0))} ${price(man(s0.dealAmount))} 원입니다.`
+    );
   }
   const lastJeonse = sortedRents.find((r) => !man(r.monthlyRent));
   if (lastJeonse) {
@@ -131,8 +147,8 @@ export default async function ComplexTradePage({ params }: Props) {
       {/* 요약 */}
       <section className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          ["최근 1년 매매", `${lastYear.length}건`],
-          ["최근 거래가", sortedTrades[0] ? `${price(man(sortedTrades[0].dealAmount))}` : "-"],
+          chartIsSilv ? ["최근 1년 분양권", `${silvLastYear.length}건`] : ["최근 1년 매매", `${lastYear.length}건`],
+          [chartIsSilv ? "최근 분양권 거래가" : "최근 거래가", (sortedTrades[0] ?? sortedSilvs[0]) ? `${price(man((sortedTrades[0] ?? sortedSilvs[0]).dealAmount))}` : "-"],
           ["세대수", apt.hoCnt ? `${apt.hoCnt.toLocaleString()}세대` : "-"],
           ["입주", apt.buildYear ? `${apt.buildYear}년` : "-"],
         ].map(([k, v]) => (
@@ -175,7 +191,7 @@ export default async function ComplexTradePage({ params }: Props) {
       {chartComplex && (
         <section className="mt-10">
           <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
-            <TrendingUp size={20} className="text-accent" /> 가격 추이
+            <TrendingUp size={20} className="text-accent" /> 가격 추이{chartIsSilv ? " (분양권)" : ""}
           </h2>
           <div className="rounded-2xl border border-border bg-white p-4">
             <ComplexPriceChart
@@ -206,6 +222,31 @@ export default async function ComplexTradePage({ params }: Props) {
           </table>
         ) : (
           <p>매매 거래가 없습니다.</p>
+        )}
+        {ambiguousCount > 0 && (
+          <p style={{ fontSize: 13, color: "#6b7280" }}>
+            ※ 같은 이름으로 신고된 거래 중 동 정보가 없는 {ambiguousCount}건은 어느 단지 거래인지 구분할 수 없어 제외했습니다.
+            전월세 자료도 단지를 구분할 정보가 없어 표시하지 않습니다.
+          </p>
+        )}
+
+        {sortedSilvs.length > 0 && (
+          <>
+            <h2>최근 분양권 거래</h2>
+            <table>
+              <tbody>
+                <tr><th>계약일</th><th>전용</th><th>층</th><th>거래가</th></tr>
+                {sortedSilvs.slice(0, 20).map((t, i) => (
+                  <tr key={i}>
+                    <td style={{ whiteSpace: "nowrap" }}>{dateOf(t)}</td>
+                    <td>{areaLabel(areaOf(t))}</td>
+                    <td>{t.floor}층</td>
+                    <td style={{ whiteSpace: "nowrap" }}>{price(man(t.dealAmount))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
 
         <h2>최근 전월세 거래</h2>

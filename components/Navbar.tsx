@@ -8,7 +8,6 @@ import { Menu, X } from "lucide-react";
 const links = [
   { href: "/", label: "홈" },
   { href: "/vr-tour", label: "VR투어" },
-  { href: "/real-estate", label: "실거래가" },
   { href: "/subscription", label: "분양정보" },
   { href: "/map", label: "지도" },
   { href: "/blog", label: "블로그" },

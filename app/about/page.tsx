@@ -32,8 +32,8 @@ export default function AboutPage() {
               실내를 360° VR로 둘러보고, 단지 배치도와 평면도, 단지 소개 글을 함께 확인할 수 있습니다.
             </>,
             <>
-              <Link href="/real-estate" className="text-accent font-semibold hover:underline">실거래가</Link> — 국토교통부
-              실거래가 공개 자료를 바탕으로 단지별 매매·전월세 거래 내역을 보여줍니다.
+              <Link href="/map" className="text-accent font-semibold hover:underline">지도보기</Link> — 국토교통부
+              실거래가 공개 자료를 바탕으로 지도에서 단지별 매매·전월세 거래 내역을 확인할 수 있습니다.
             </>,
             <>
               <Link href="/subscription" className="text-accent font-semibold hover:underline">분양정보</Link> — 청약홈

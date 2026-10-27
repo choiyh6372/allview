@@ -14,16 +14,16 @@ export default function HeroSection() {
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-medium mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            부산 강서구 부동산 통합 플랫폼
+            부산 강서구 아파트 VR 공간 탐색
           </span>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6">
-            부동산의 모든 것을<br />
-            <span className="text-accent">한 눈에</span> 확인하세요
+            평면도 너머의 공간을<br />
+            <span className="text-accent">한 눈에</span> 이해하세요
           </h1>
 
           <p className="text-lg text-gray-600 leading-relaxed mb-10 sm:whitespace-nowrap">
-            VR 가상투어로 집을 직접 방문하지 않아도 생생하게, 실거래가로 시장 흐름을 정확하게 확인하세요.
+            2D 평면도만으로는 알기 어려운 구조와 동선을 실제 360° VR로 확인하세요.
           </p>
 
           <div className="hidden sm:flex flex-wrap gap-4">
@@ -32,12 +32,6 @@ export default function HeroSection() {
               className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
             >
               VR투어 시작하기
-            </Link>
-            <Link
-              href="/real-estate"
-              className="w-40 text-center px-6 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors text-sm"
-            >
-              실거래가 조회
             </Link>
             <Link
               href="/subscription"

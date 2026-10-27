@@ -21,7 +21,6 @@ export default function Footer() {
             <div className="flex flex-wrap gap-x-4 gap-y-2">
               {[
                 { href: "/vr-tour", label: "VR투어" },
-                { href: "/real-estate", label: "실거래가" },
                 { href: "/subscription", label: "분양정보" },
                 { href: "/map", label: "지도보기" },
                 { href: "/blog", label: "블로그" },

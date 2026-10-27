@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Eye, TrendingUp, ShieldCheck } from "lucide-react";
+import { Box, Eye, MousePointer2 } from "lucide-react";
 import { getVRUrl } from "@/lib/vrData";
 
 const points = [
-  { icon: Eye, text: "직접 방문 전, VR로 집 안을 먼저 확인" },
-  { icon: TrendingUp, text: "국토부 실거래 데이터 기반 정확한 시세" },
-  { icon: ShieldCheck, text: "명지·에코델타 전 단지 정보를 한 곳에" },
+  { icon: Box, text: "2D 평면도를 실제 공간처럼 360°로 확인" },
+  { icon: Eye, text: "거실·주방·방의 연결과 동선을 한눈에 파악" },
+  { icon: MousePointer2, text: "평형별 구조를 비교하고 공간을 미리 탐색" },
 ];
 
 export default function AboutSection() {
@@ -21,11 +21,11 @@ export default function AboutSection() {
             이렇게 다릅니다
           </h2>
           <p className="text-gray-600 text-base leading-relaxed mb-8">
-            발품 팔지 않아도 됩니다.
+            평면도만으로는 공간의 크기와 연결감을 파악하기 어렵습니다.
             <br />
-            AllView360은 명지오션시티, 명지국제신도시, 에코델타시티 아파트의 실제 내부를 360° VR로 촬영해 보여드립니다.
+            AllView360은 아파트 평면도를 실제 공간처럼 이해할 수 있도록 360° VR로 촬영해 보여드립니다.
             <br />
-            평형별 배치도에서 원하는 타입을 선택하면 실제 거실, 주방, 방까지 마치 현장에 있는 것처럼 둘러볼 수 있습니다.
+            원하는 평형을 선택해 거실, 주방, 방을 직접 둘러보고 내게 맞는 구조인지 미리 확인해보세요.
           </p>
           <ul className="flex flex-wrap justify-center gap-x-8 gap-y-3">
             {points.map(({ icon: Icon, text }) => (

@@ -1,5 +1,5 @@
 ﻿import Link from "next/link";
-import { Eye, Map, Home } from "lucide-react";
+import { Eye, TrendingUp, Map, Home } from "lucide-react";
 
 const services = [
   {
@@ -11,6 +11,16 @@ const services = [
     gradient: "from-blue-500/10 to-accent/10",
     border: "border-blue-500/20",
     iconColor: "text-blue-600",
+  },
+  {
+    icon: TrendingUp,
+    title: "실거래가 조회",
+    desc: "국토부 실거래 데이터를 기반으로 단지별·평형별 가격 흐름을 한눈에 확인하세요. 중위값과 범위 그래프로 시장 동향을 파악할 수 있습니다.",
+    href: "/real-estate",
+    badge: "DATA",
+    gradient: "from-green-500/10 to-emerald-500/10",
+    border: "border-green-500/20",
+    iconColor: "text-green-600",
   },
   {
     icon: Home,
@@ -43,7 +53,7 @@ export default function ServiceCards() {
           <p className="text-gray-600 text-base">부동산 탐색의 모든 단계를 하나의 플랫폼에서</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((s) => {
             const Icon = s.icon;
             return (

@@ -3,6 +3,7 @@ import HeroSection from "@/components/home/HeroSection";
 import StatsSection from "@/components/home/StatsSection";
 import AboutSection from "@/components/home/AboutSection";
 import DataOperationsSection from "@/components/home/DataOperationsSection";
+import PriceGuideSection from "@/components/home/PriceGuideSection";
 import ServiceCards from "@/components/home/ServiceCards";
 import BlogSection from "@/components/home/BlogSection";
 
@@ -34,6 +35,7 @@ export default function HomePage() {
       <StatsSection />
       <ServiceCards />
       <AboutSection />
+      <PriceGuideSection />
       <DataOperationsSection />
       <BlogSection />
     </>

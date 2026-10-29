@@ -7,6 +7,7 @@ import { APT_COMPLEXES } from "@/lib/mapData";
 import { buildComplexList } from "@/lib/aptTradeApi";
 import { getComplexTrades, MIN_RECORDS_FOR_INDEX, recordCount, TRADE_PAGE_COMPLEXES, tradeNameOf } from "@/lib/complexTrades";
 import { getAreaTypeLabels } from "@/lib/areaTypeLabels";
+import { buildPriceGuides } from "@/lib/priceGuide";
 import { parseAptMapping } from "@/lib/parseAptMapping";
 import { listApprovedReviews } from "@/lib/reviewStore";
 import { isReviewEnabled } from "@/lib/reviewUtils";
@@ -68,7 +69,7 @@ export default async function ComplexTradePage({ params }: Props) {
   const fullName = getComplexFullName(vr);
 
   const { trades, silvs, rents, ambiguousCount } = await getComplexTrades(apt);
-  const typeLabels = getAreaTypeLabels(tradeNameOf(apt));
+  const typeLabels = getAreaTypeLabels(tradeNameOf(apt), ...(apt.silvApiNames ?? []));
   /** "34B·34C"처럼 그 면적의 타입 이름 (없으면 빈 문자열) */
   const typeOf = (area: string) => (typeLabels[String(parseFloat(area))] ?? []).join("·");
   /** "84.97㎡ (34B·34C)" */
@@ -91,6 +92,22 @@ export default async function ComplexTradePage({ params }: Props) {
     const byPrice = [...list].sort((a, b) => man(b.dealAmount) - man(a.dealAmount));
     return { area, count: list.length, latest: list[0], max: byPrice[0], min: byPrice[byPrice.length - 1] };
   });
+
+  // 가격 판단 기준 (같은 면적 거래의 중앙값·사분위·층별·전세가율)
+  // 가격 그래프 면적 버튼의 타입 글자 (신고명이 매핑과 다르면 분양권 신고명으로도 찾음)
+  const typeMaps = parseAptMapping().areaTypeMap;
+  const normName = (n: string) => n.replace(/[\s·\-]/g, "");
+  const typeMapKey = [tradeNameOf(apt), ...(apt.silvApiNames ?? [])]
+    .map((n) => Object.keys(typeMaps).find((k) => normName(k) === normName(n)))
+    .find(Boolean);
+  const chartTypeMap = typeMapKey ? typeMaps[typeMapKey] : {};
+
+  // 매매 거래로 기준을 만들 수 없는 신축 단지는 분양권 거래로 계산
+  const tradeGuides = buildPriceGuides(trades, rents);
+  const guideIsSilv = !tradeGuides.length && silvs.length > 0;
+  const guides = guideIsSilv ? buildPriceGuides(silvs, []) : tradeGuides;
+  const diffText = (a: number, b: number) =>
+    a === b ? "같습니다" : `${price(Math.abs(a - b))} 원 ${a > b ? "높습니다" : "낮습니다"}`;
 
   // 아파트 매매가 없으면(신축) 분양권 거래로 그래프
   const chartIsSilv = !trades.length && silvs.length > 0;
@@ -188,6 +205,68 @@ export default async function ComplexTradePage({ params }: Props) {
         )}
       </div>
 
+      {guides.length > 0 && (
+        <div className="complex-description mt-10">
+          <h2>가격 판단 기준{guideIsSilv ? " (분양권)" : ""}</h2>
+          <p>
+            {guideIsSilv && "아직 아파트 매매 거래가 적어 분양권 거래로 계산했습니다. 분양권 가격에는 분양가와 프리미엄이 함께 들어 있습니다. "}
+            같은 전용면적의 실제 거래를 모아 중앙값과 가격 범위를 계산했습니다. 상담이나 매물에서 본 가격이 이 단지에서 높은 편인지
+            낮은 편인지 가늠할 때 기준으로 활용하세요. 직거래는 시세와 다르게 신고되는 경우가 많아 계산에서 뺐습니다.
+          </p>
+          {guides.map((g) => {
+            const common = [...g.bands].sort((a, b) => b.count - a.count)[0];
+            const lowFloor = g.floors[0], highFloor = g.floors[g.floors.length - 1];
+            return (
+              <div key={g.area}>
+                <h3>전용 {areaLabel(g.area)}</h3>
+                <p>
+                  최근 {g.years}년 거래 {g.count}건의 중앙값은 <strong>{price(g.median)} 원</strong>입니다. 거래의 절반이{" "}
+                  {price(g.p25)}~{price(g.p75)} 원 사이에 있어, <strong>{price(g.p25)} 원 아래면 낮은 편, {price(g.p75)} 원 위면 높은 편</strong>입니다.
+                  {common && ` 가장 많이 거래된 가격대는 ${common.label}(${common.count}건)입니다.`}
+                </p>
+                <table>
+                  <tbody>
+                    <tr><th>기준</th><th>금액</th></tr>
+                    <tr><td>중앙값</td><td style={{ whiteSpace: "nowrap" }}><strong>{price(g.median)}</strong></td></tr>
+                    <tr><td>하위 25% / 상위 25%</td><td style={{ whiteSpace: "nowrap" }}>{price(g.p25)} 이하 / {price(g.p75)} 이상</td></tr>
+                    <tr><td>최저 ~ 최고</td><td style={{ whiteSpace: "nowrap" }}>{price(g.min)} ~ {price(g.max)}</td></tr>
+                    <tr><td>가격대 분포</td><td>{g.bands.map((b) => `${b.label} ${b.count}건`).join(" · ")}</td></tr>
+                  </tbody>
+                </table>
+                {g.floors.length >= 2 && (
+                  <>
+                    <table>
+                      <tbody>
+                        <tr><th>층</th><th>거래</th><th>중앙값</th></tr>
+                        {g.floors.map((f) => (
+                          <tr key={f.label}><td>{f.label}</td><td>{f.count}건</td><td style={{ whiteSpace: "nowrap" }}>{price(f.median)}</td></tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p>
+                      {highFloor.label} 거래의 중앙값이 {lowFloor.label}보다 {diffText(highFloor.median, lowFloor.median)}. 같은 층대라도
+                      동·향·조망과 확장·수리 상태에 따라 가격이 달라집니다.
+                    </p>
+                  </>
+                )}
+                {(g.recentMedian !== undefined || g.jeonseRatio !== undefined) && (
+                  <p>
+                    {g.recentMedian !== undefined &&
+                      `최근 3개월 거래 ${g.recentCount}건의 중앙값은 ${price(g.recentMedian)} 원으로, 최근 ${g.years}년 중앙값보다 ${diffText(g.recentMedian, g.median)}. `}
+                    {g.jeonseRatio !== undefined &&
+                      `같은 면적 전세 보증금 중앙값은 ${price(g.jeonseMedian!)} 원(최근 1년 ${g.jeonseCount}건)으로, 매매 중앙값 대비 전세가율은 약 ${g.jeonseRatio}%입니다.`}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+          <p style={{ fontSize: 13, color: "#6b7280" }}>
+            ※ 거래가 5건 이상인 면적만, 최근 1년 거래가 5건 미만이면 최근 2년 거래로 계산했습니다. 중앙값은 거래가를 줄 세웠을 때 가운데 값으로,
+            아주 비싸거나 싼 거래 몇 건에 덜 흔들립니다. 실제 시세는 매물 상태와 시장 상황에 따라 달라질 수 있습니다.
+          </p>
+        </div>
+      )}
+
       {chartComplex && (
         <section className="mt-10">
           <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
@@ -197,7 +276,7 @@ export default async function ComplexTradePage({ params }: Props) {
             <ComplexPriceChart
               complex={{ ...chartComplex, name: fullName }}
               rentItems={rents}
-              areaTypeMap={{ [tradeNameOf(apt)]: parseAptMapping().areaTypeMap[tradeNameOf(apt)] ?? {} }}
+              areaTypeMap={{ [tradeNameOf(apt)]: chartTypeMap }}
               tradeName={tradeNameOf(apt)}
             />
           </div>

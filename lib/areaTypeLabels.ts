@@ -32,7 +32,15 @@ function load(): Record<string, AreaTypeLabels> {
   return result;
 }
 
-/** 실거래 신고명(aptNm)으로 해당 단지의 면적별 타입 이름 */
-export function getAreaTypeLabels(tradeName: string): AreaTypeLabels {
-  return load()[tradeName] ?? {};
+const norm = (s: string) => s.replace(/[\s·\-]/g, "");
+
+/** 실거래 신고명(aptNm)으로 해당 단지의 면적별 타입 이름. 여러 이름을 주면 처음 찾은 것을 쓴다 (공백 차이 무시) */
+export function getAreaTypeLabels(...tradeNames: string[]): AreaTypeLabels {
+  const all = load();
+  for (const name of tradeNames) {
+    if (all[name]) return all[name];
+    const key = Object.keys(all).find((k) => norm(k) === norm(name));
+    if (key) return all[key];
+  }
+  return {};
 }

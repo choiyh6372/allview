@@ -96,6 +96,14 @@ export async function getComplexTrades(apt: AptComplex): Promise<ComplexTradeDat
   return collect(apt, await loadCaches());
 }
 
+/** 여러 단지의 거래를 한 번에 (캐시를 한 번만 읽음) */
+export async function getManyComplexTrades(apts: AptComplex[]): Promise<Record<string, ComplexTradeData>> {
+  const caches = await loadCaches();
+  const result: Record<string, ComplexTradeData> = {};
+  for (const apt of apts) result[apt.id] = collect(apt, caches);
+  return result;
+}
+
 export function recordCount(d: Pick<ComplexTradeData, "trades" | "silvs" | "rents">): number {
   return d.trades.length + d.silvs.length + d.rents.length;
 }

@@ -27,6 +27,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
+  // 지역별 시세 비교 페이지
+  const regionPages: MetadataRoute.Sitemap = ["ocean", "kukje", "ecodelta"].map((regionId) => ({
+    url: `${baseUrl}/real-estate/${regionId}`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 0.8,
+  }));
+
   const blogPages: MetadataRoute.Sitemap = (await getPublishedPosts()).map((post) => ({
     url: `${baseUrl}/blog/${encodeURIComponent(post.slug)}`,
     lastModified: new Date(post.updatedAt),
@@ -85,6 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     })),
     ...complexPages,
+    ...regionPages,
     ...tradePages,
   ];
 }

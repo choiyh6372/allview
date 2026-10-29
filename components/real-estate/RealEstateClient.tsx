@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import Link from "next/link";
+import { BarChart3, X } from "lucide-react";
 import useSWR from "swr";
 import ComplexList from "@/components/real-estate/ComplexList";
 import PriceChart from "@/components/real-estate/PriceChart";
@@ -308,6 +309,23 @@ export default function RealEstateClient({ areaTypeMap, initialData }: { areaTyp
             <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
             국토부 실거래 데이터 · {isLoading ? "로딩 중" : `${complexes.length}개 단지`}
           </span>
+        </div>
+
+        {/* 지역별 시세 비교 페이지 바로가기 */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
+          {([["ocean", "명지오션시티"], ["kukje", "명지국제신도시"], ["ecodelta", "에코델타시티"]] as const).map(([id, name]) => (
+            <Link
+              key={id}
+              href={`/real-estate/${id}`}
+              className="group flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1.5 sm:gap-3 rounded-2xl border border-accent/30 bg-accent/5 px-2 sm:px-4 py-3 sm:py-3.5 text-center sm:text-left hover:border-accent hover:bg-accent/10 transition-colors"
+            >
+              <span className="min-w-0">
+                <span className="block text-sm sm:text-base font-bold text-gray-900 break-keep">{name}<br className="sm:hidden" /> 시세 비교</span>
+                <span className="hidden sm:block text-xs text-gray-600 mt-0.5">3.3㎡당 가격 순위 · 거래량 · 전세가율</span>
+              </span>
+              <BarChart3 size={22} className="order-first sm:order-none shrink-0 text-accent group-hover:scale-110 transition-transform" />
+            </Link>
+          ))}
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-6">

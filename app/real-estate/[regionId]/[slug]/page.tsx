@@ -8,7 +8,7 @@ import { buildComplexList } from "@/lib/aptTradeApi";
 import { getComplexTrades, MIN_RECORDS_FOR_INDEX, recordCount, TRADE_PAGE_COMPLEXES, tradeNameOf } from "@/lib/complexTrades";
 import { getAreaTypeLabels } from "@/lib/areaTypeLabels";
 import { buildPriceGuides } from "@/lib/priceGuide";
-import { parseAptMapping } from "@/lib/parseAptMapping";
+import { findMappingKey, parseAptMapping } from "@/lib/parseAptMapping";
 import { listApprovedReviews } from "@/lib/reviewStore";
 import { isReviewEnabled } from "@/lib/reviewUtils";
 import ComplexPriceChart from "@/components/real-estate/ComplexPriceChart";
@@ -44,6 +44,12 @@ const dateOf = (i: { dealYear?: string; dealMonth?: string; dealDay?: string }) 
   `${i.dealYear}.${String(i.dealMonth).padStart(2, "0")}.${String(i.dealDay).padStart(2, "0")}`;
 const sortKey = (i: { dealYear?: string; dealMonth?: string; dealDay?: string }) =>
   `${i.dealYear}${String(i.dealMonth).padStart(2, "0")}${String(i.dealDay).padStart(2, "0")}`;
+/** 단지 이름 뒤 보조사 (받침 있으면 "은", 없으면 "는") */
+const eunneun = (name: string) => {
+  const code = name.trim().charCodeAt(name.trim().length - 1);
+  if (code >= 0xac00 && code <= 0xd7a3) return (code - 0xac00) % 28 ? `${name}은` : `${name}는`;
+  return `${name}은(는)`;
+};
 // 전용면적은 신고된 값 그대로 표시 (소수점 버리지 않음)
 const areaOf = (i: { excluUseAr?: string }) => (i.excluUseAr ?? "").trim();
 
@@ -96,10 +102,7 @@ export default async function ComplexTradePage({ params }: Props) {
   // 가격 판단 기준 (같은 면적 거래의 중앙값·사분위·층별·전세가율)
   // 가격 그래프 면적 버튼의 타입 글자 (신고명이 매핑과 다르면 분양권 신고명으로도 찾음)
   const typeMaps = parseAptMapping().areaTypeMap;
-  const normName = (n: string) => n.replace(/[\s·\-]/g, "");
-  const typeMapKey = [tradeNameOf(apt), ...(apt.silvApiNames ?? [])]
-    .map((n) => Object.keys(typeMaps).find((k) => normName(k) === normName(n)))
-    .find(Boolean);
+  const typeMapKey = findMappingKey(typeMaps, [tradeNameOf(apt), ...(apt.silvApiNames ?? [])]);
   const chartTypeMap = typeMapKey ? typeMaps[typeMapKey] : {};
 
   // 매매 거래로 기준을 만들 수 없는 신축 단지는 분양권 거래로 계산
@@ -125,13 +128,13 @@ export default async function ComplexTradePage({ params }: Props) {
     const top = [...areaRows].sort((a, b) => b.count - a.count)[0];
     const latest = sortedTrades[0];
     summary.push(
-      `${fullName}는 최근 1년 동안 ${lastYear.length}건 매매 거래되었습니다. 가장 많이 거래된 면적은 전용 ${areaLabel(top.area)} ${top.count}건이고, 가장 최근 거래는 ${dateOf(latest)} 전용 ${areaLabel(areaOf(latest))} ${latest.floor}층 ${price(man(latest.dealAmount))} 원입니다.`
+      `${eunneun(fullName)} 최근 1년 동안 ${lastYear.length}건 매매 거래되었습니다. 가장 많이 거래된 면적은 전용 ${areaLabel(top.area)} ${top.count}건이고, 가장 최근 거래는 ${dateOf(latest)} 전용 ${areaLabel(areaOf(latest))} ${latest.floor}층 ${price(man(latest.dealAmount))} 원입니다.`
     );
     summary.push(
       `같은 기간 전용 ${areaLabel(top.area)}는 최고 ${price(man(top.max.dealAmount))} 원(${top.max.floor}층)${top.count > 1 ? `, 최저 ${price(man(top.min.dealAmount))} 원(${top.min.floor}층)` : ""}에 거래되었습니다.`
     );
   } else if (sortedTrades.length) {
-    summary.push(`${fullName}는 최근 1년 동안 매매 거래가 없었고, 마지막 거래는 ${dateOf(sortedTrades[0])} ${price(man(sortedTrades[0].dealAmount))} 원입니다.`);
+    summary.push(`${eunneun(fullName)} 최근 1년 동안 매매 거래가 없었고, 마지막 거래는 ${dateOf(sortedTrades[0])} ${price(man(sortedTrades[0].dealAmount))} 원입니다.`);
   }
   if (sortedSilvs.length) {
     const s0 = sortedSilvs[0];
@@ -149,7 +152,9 @@ export default async function ComplexTradePage({ params }: Props) {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <BackButton fallback="/real-estate" />
-      <p className="mt-4 text-sm text-muted">{vr.regionName} · {apt.address}</p>
+      <p className="mt-4 text-sm text-muted">
+        <Link href={`/real-estate/${vr.regionId}`} className="hover:text-accent hover:underline">{vr.regionName} 시세 비교</Link> · {apt.address}
+      </p>
       <h1 className="mt-1 text-2xl sm:text-3xl font-black text-gray-900">{fullName} 실거래가 추이</h1>
 
       <div className="mt-5 flex flex-wrap gap-2">

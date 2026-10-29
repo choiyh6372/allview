@@ -45,3 +45,15 @@ export function parseAptMapping(): { areaTypeMap: AreaTypeMap; supplyAreaMap: Su
 
   return { areaTypeMap, supplyAreaMap };
 }
+
+const normName = (n: string) => n.replace(/[\s·\-]/g, "");
+
+/** 매핑 파일의 단지 키 찾기: 신고명 후보를 차례로 비교 (공백·가운뎃점·하이픈 차이 무시) */
+export function findMappingKey(map: Record<string, unknown>, names: string[]): string | undefined {
+  const keys = Object.keys(map);
+  for (const name of names) {
+    const key = keys.find((k) => normName(k) === normName(name));
+    if (key) return key;
+  }
+  return undefined;
+}

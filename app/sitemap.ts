@@ -35,6 +35,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // 계산기
+  const toolPages: MetadataRoute.Sitemap = ["", "/brokerage-fee", "/acquisition-tax", "/rent-conversion"].map((path) => ({
+    url: `${baseUrl}/tools${path}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
   const blogPages: MetadataRoute.Sitemap = (await getPublishedPosts()).map((post) => ({
     url: `${baseUrl}/blog/${encodeURIComponent(post.slug)}`,
     lastModified: new Date(post.updatedAt),
@@ -94,6 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...complexPages,
     ...regionPages,
+    ...toolPages,
     ...tradePages,
   ];
 }

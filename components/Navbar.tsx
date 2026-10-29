@@ -11,8 +11,12 @@ const links = [
   { href: "/real-estate", label: "실거래가" },
   { href: "/subscription", label: "분양정보" },
   { href: "/map", label: "지도" },
+  { href: "/tools", label: "계산기" },
   { href: "/blog", label: "블로그" },
 ];
+
+/** 하위 페이지(/tools/… 등)에서도 메뉴를 활성으로 표시 */
+const isActive = (pathname: string, href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -38,8 +42,8 @@ export default function Navbar() {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname === l.href
+                className={`px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive(pathname, l.href)
                     ? "bg-accent text-white"
                     : "text-gray-700 hover:text-gray-900 hover:bg-bg-hover"
                 }`}
@@ -66,7 +70,7 @@ export default function Navbar() {
               href={l.href}
               onClick={() => setOpen(false)}
               className={`block px-6 py-3 text-sm font-medium transition-colors ${
-                pathname === l.href
+                isActive(pathname, l.href)
                   ? "text-accent bg-bg-hover"
                   : "text-gray-700 hover:text-gray-900 hover:bg-bg-hover"
               }`}

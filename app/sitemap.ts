@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { complexData } from "@/lib/vrData";
 import { getTradeRecordCounts, MIN_RECORDS_FOR_INDEX, TRADE_PAGE_COMPLEXES } from "@/lib/complexTrades";
 import { getPublishedPosts } from "@/lib/blogStore";
+import { getActiveStores } from "@/lib/promotionStore";
 
 export const revalidate = 3600;
 
@@ -16,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // 거래 기록이 거의 없는 단지 페이지(noindex)는 제외
-  const tradeCounts = await getTradeRecordCounts();
+  const [tradeCounts, stores] = await Promise.all([getTradeRecordCounts(), getActiveStores()]);
   const tradePages: MetadataRoute.Sitemap = complexData
     .filter((complex) => TRADE_PAGE_COMPLEXES.includes(complex.id) && (tradeCounts[complex.id] ?? 0) >= MIN_RECORDS_FOR_INDEX)
     .map((complex) => ({
@@ -59,12 +60,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     ...blogPages,
-    {
+    ...(stores.length > 0 ? [{
       url: `${baseUrl}/store`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: "weekly" as const,
       priority: 0.7,
-    },
+    }] : []),
     {
       url: `${baseUrl}/map`,
       lastModified: new Date(),

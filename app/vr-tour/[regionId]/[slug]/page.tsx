@@ -33,12 +33,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const descriptions = await getComplexDescriptions();
   const raw = descriptions[complex.id];
   const fullName = getComplexFullName(complex);
+  const hasVR = !complex.noVR;
   const summary = raw
     ? stripHtml(sanitizeDescriptionHtml(raw)).slice(0, 150)
-    : `${fullName}(${complex.regionName}) VR 가상투어와 평형별 배치도 정보`;
+    : hasVR
+      ? `${fullName}(${complex.regionName}) VR 가상투어와 평형별 배치도 정보`
+      : `${fullName}(${complex.regionName}) 평형별 배치도와 단지 정보`;
 
   return {
-    title: `${fullName} VR 가상투어·평면도 | ${complex.regionName} - AllView`,
+    title: hasVR
+      ? `${fullName} VR 가상투어·평면도 | ${complex.regionName} - AllView`
+      : `${fullName} 평면도·단지 정보 | ${complex.regionName} - AllView`,
     description: summary,
     alternates: { canonical: `/vr-tour/${complex.regionId}/${complex.slug}` },
   };
@@ -48,6 +53,7 @@ export default async function VRComplexPage({ params }: Props) {
   const { regionId, slug } = params;
   const complex = findComplex(regionId, slug);
   if (!complex) notFound();
+  const hasVR = !complex.noVR;
 
   const descriptions = await getComplexDescriptions();
   const raw = descriptions[complex.id];
@@ -59,6 +65,9 @@ export default async function VRComplexPage({ params }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="sr-only">
+        {getComplexFullName(complex)} {hasVR ? "VR 가상투어·평면도" : "평면도·단지 정보"}
+      </h1>
       <FloorPlanView complex={complex} />
       {TRADE_PAGE_COMPLEXES.includes(complex.id) && (
         <Link

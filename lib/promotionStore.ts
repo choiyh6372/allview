@@ -48,6 +48,14 @@ export async function getAllStores(): Promise<PromotionStore[]> {
   }
 }
 
+/** 홍보 기간이 끝나지 않은 가게 (가게 홍보 페이지에 실제로 보이는 목록) */
+export async function getActiveStores(): Promise<PromotionStore[]> {
+  const now = new Date();
+  return (await getAllStores()).filter(
+    (s) => !s.promotionEndDate || new Date(s.promotionEndDate) >= now
+  );
+}
+
 export async function saveAllStores(stores: PromotionStore[]): Promise<void> {
   await r2.send(
     new PutObjectCommand({

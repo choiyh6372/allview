@@ -72,10 +72,9 @@ export default async function BlogPostPage({ params }: Props) {
       <header className="mt-6 mb-8">
         <h1 className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight">{post.title}</h1>
         <p className="mt-3 text-xs text-muted">
-          <time dateTime={post.createdAt}>{formatPostDate(post.createdAt)}</time>
-          {post.updatedAt.slice(0, 10) !== post.createdAt.slice(0, 10) && (
-            <> · 수정 <time dateTime={post.updatedAt}>{formatPostDate(post.updatedAt)}</time></>
-          )}
+          작성: 운영자
+          <br />
+          <time dateTime={post.createdAt}>발행일 {formatPostDate(post.createdAt)}</time>
         </p>
       </header>
 
@@ -105,6 +104,12 @@ export default async function BlogPostPage({ params }: Props) {
       <div className="complex-description" dangerouslySetInnerHTML={{ __html: html }} />
 
       <div className="mt-12 pt-6 border-t border-border">
+        <p className="text-sm font-bold text-gray-900 mb-3">함께 확인해 보세요</p>
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Link href="/vr-tour" className="px-3 py-2 rounded-lg border border-border text-sm text-gray-700 hover:text-accent hover:border-accent/40">아파트 VR·평면도</Link>
+          <Link href="/real-estate" className="px-3 py-2 rounded-lg border border-border text-sm text-gray-700 hover:text-accent hover:border-accent/40">실거래가 조회</Link>
+          <Link href="/map" className="px-3 py-2 rounded-lg border border-border text-sm text-gray-700 hover:text-accent hover:border-accent/40">단지 지도·학군</Link>
+        </div>
         <Link href="/blog" className="text-sm font-semibold text-accent hover:underline">
           ← 다른 글 보기
         </Link>

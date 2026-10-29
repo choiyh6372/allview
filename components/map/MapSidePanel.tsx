@@ -682,7 +682,7 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             <div className="p-4 space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-gray-900">{selectedApt.name}</p>
-                {vrEntry && (
+                {vrEntry && !vrEntry.noVR && (
                   <button
                     onClick={() => setShowVrNoData(true)}
                     className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white hover:bg-accent/80 text-xs font-semibold rounded-lg transition-colors"
@@ -732,7 +732,11 @@ export default function MapSidePanel({ selectedApt, selectedStore, selectedSubsc
             <PriceChart
               complex={(() => {
                 const vrOverride = vrComplexData.find((c) => c.id === selectedApt.id);
-                const overrideVrInfo = vrOverride ? { regionId: vrOverride.regionId, slug: vrOverride.slug, types: vrOverride.types } : complex.vrInfo;
+                const overrideVrInfo = vrOverride?.noVR
+                  ? undefined
+                  : vrOverride
+                    ? { regionId: vrOverride.regionId, slug: vrOverride.slug, types: vrOverride.types }
+                    : complex.vrInfo;
                 return { ...complex, name: selectedApt.name, vrInfo: overrideVrInfo };
               })()}
               rentItems={rentItems.filter((i) => i.aptNm?.trim() === complex.name)}

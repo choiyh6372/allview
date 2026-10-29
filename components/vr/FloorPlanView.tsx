@@ -455,6 +455,7 @@ async function checkVRExists(url: string): Promise<boolean> {
 }
 
 export default function FloorPlanView({ complex }: { complex: VRComplex }) {
+  const hasVR = !complex.noVR;
   const router = useRouter();
   const onBack = () => router.push(`/vr-tour?region=${encodeURIComponent(complex.regionName)}`);
   const key = `${complex.regionId}_${complex.slug}`;
@@ -465,6 +466,7 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
   const [hoveredType, setHoveredType] = useState<string | null>(null);
   const [previewType, setPreviewType] = useState<string | null>(null);
   const [showNoVR, setShowNoVR] = useState(false);
+  const [openPlanType, setOpenPlanType] = useState<string | null>(null);
   const [noVRTypes, setNoVRTypes] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(true);
   const [showPinchHint, setShowPinchHint] = useState(true);
@@ -483,6 +485,13 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
   }
 
   function handleHotspotClick(type: string) {
+    // VR이 없는 평형은 평면도를 크게 연다 (모바일은 마우스오버 미리보기가 없으므로)
+    if (complex.noVR || noVRTypes.has(type)) {
+      if (floorPlans[type]) {
+        setOpenPlanType(type);
+        return;
+      }
+    }
     if (complex.noVR) {
       setShowNoVR(true);
       setTimeout(() => setShowNoVR(false), 2500);
@@ -564,7 +573,11 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
       <div className="md:w-72 md:flex-shrink-0 flex flex-col gap-3 px-4 md:px-0">
         <div>
           <h2 className="text-gray-900 text-2xl md:text-3xl font-bold mb-4 text-center md:text-left">{complex.name}</h2>
-          <p className="text-accent text-base font-bold text-center md:text-left">배치도에서 면적을 누르면 VR로 연결됩니다.</p>
+          <p className="text-accent text-base font-bold text-center md:text-left">
+            {hasVR
+              ? "배치도에서 면적을 누르면 VR 또는 평면도를 확인할 수 있습니다."
+              : "배치도에서 면적을 누르면 평면도와 단지 정보를 확인할 수 있습니다."}
+          </p>
         </div>
         {(() => {
           const apt = APT_COMPLEXES.find((a) => a.id === complex.id);
@@ -615,9 +628,21 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
 
       <div className="flex-1 flex flex-col justify-start">
         <p className="md:hidden text-accent text-sm font-bold mb-3 px-4 text-center"><span className="opacity-50">✦</span> 확대하시면 더 편리합니다. <span className="opacity-50">✦</span></p>
+        {openPlanType && floorPlans[openPlanType] && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setOpenPlanType(null)}>
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-auto rounded-xl bg-bg-card" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <span className="text-sm font-semibold text-gray-900">{openPlanType.toUpperCase()}{areaMap[openPlanType] ? ` · ${areaMap[openPlanType].toFixed(2)}m²` : ""} 평면도</span>
+                <button onClick={() => setOpenPlanType(null)} className="text-sm text-gray-500 hover:text-gray-900">닫기</button>
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={floorPlans[openPlanType]} alt={`${complex.name} ${openPlanType.toUpperCase()} 평면도`} className="block w-full h-auto" />
+            </div>
+          </div>
+        )}
         {showNoVR && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-sm font-semibold px-6 py-3 rounded-full shadow-lg animate-fade-in">
-            🚧 VR 준비 중입니다
+            해당 평형은 VR 대신 평면도·단지 정보로 확인할 수 있습니다.
           </div>
         )}
         <div className={`w-full ${COMPLEX_MAX_WIDTH[key] ?? "max-w-4xl"} mx-auto overflow-hidden rounded-xl`}>
@@ -634,13 +659,14 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
                 {plan.hotspots.map((hs) => {
                   const cfg = typeColor(key, hs.type);
                   const isHovered = hoveredId === hs.id || hoveredType === hs.type;
+                  const hotspotHasVR = hasVR && !noVRTypes.has(hs.type);
                   return (
                     <button
                       key={hs.id}
                       onClick={() => handleHotspotClick(hs.type)}
                       onMouseEnter={() => { setHoveredId(hs.id); setPreviewType(hs.type); updatePreviewPos(); }}
                       onMouseLeave={() => { setHoveredId(null); setPreviewType(null); }}
-                      title={`${hs.type.toUpperCase()} VR 보기`}
+                      title={`${hs.type.toUpperCase()} ${hotspotHasVR ? "VR 보기" : "평면도 보기"}`}
                       className="absolute rounded-full transition-all duration-150"
                       style={{
                         left: `${hs.x}%`,
@@ -706,6 +732,7 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
                 const cfg = typeColor(key, type);
                 const sqm = areaMap[type];
                 const noVR = noVRTypes.has(type);
+                const typeHasVR = hasVR && !noVR;
                 return (
                   <button
                     key={type}
@@ -719,8 +746,9 @@ export default function FloorPlanView({ complex }: { complex: VRComplex }) {
                     }}
                   >
                     <span className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }} />
-                    <span className={`font-bold text-gray-900 ${noVR ? "line-through" : ""}`}>{type.toUpperCase()}</span>
-                    {sqm && <span className={`text-gray-500 text-[10px] ${noVR ? "line-through" : ""}`}>{sqm.toFixed(2)}m²</span>}
+                    <span className="font-bold text-gray-900">{type.toUpperCase()}</span>
+                    {sqm && <span className="text-gray-500 text-[10px]">{sqm.toFixed(2)}m²</span>}
+                    {!typeHasVR && <span className="text-[10px] font-medium text-gray-500">평면도</span>}
                   </button>
                 );
               })}

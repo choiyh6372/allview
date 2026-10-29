@@ -26,6 +26,9 @@ export default function ComplexDescriptionSection({
       <h2 className="text-xl font-bold text-gray-900 mb-4">{title} 단지 소개</h2>
 
       <div className="rounded-2xl border border-border bg-bg-card p-6 sm:p-8">
+        <p className="mb-5 pb-5 border-b border-border text-xs text-muted">
+          작성: 운영자
+        </p>
         {intro && (
           <div className="complex-description mb-6" dangerouslySetInnerHTML={{ __html: intro }} />
         )}

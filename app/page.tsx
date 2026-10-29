@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
 import StatsSection from "@/components/home/StatsSection";
 import AboutSection from "@/components/home/AboutSection";
+import DataOperationsSection from "@/components/home/DataOperationsSection";
 import ServiceCards from "@/components/home/ServiceCards";
 import BlogSection from "@/components/home/BlogSection";
 
@@ -33,6 +34,7 @@ export default function HomePage() {
       <StatsSection />
       <ServiceCards />
       <AboutSection />
+      <DataOperationsSection />
       <BlogSection />
     </>
   );

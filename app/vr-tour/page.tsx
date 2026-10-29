@@ -12,6 +12,7 @@ function ComplexCard({ complex, vrCount, onSelect }: { complex: VRComplex; vrCou
   const [imgError, setImgError] = useState(false);
   const thumbUrl = `https://pub-1abde15af80a47a3838045eddaca3717.r2.dev/${complex.regionId}/${complex.slug}/thumb.jpg`;
   const hasPlan = !!FLOOR_PLAN_DATA[`${complex.regionId}_${complex.slug}`];
+  const hasVR = !complex.noVR;
 
   return (
     <div className="group bg-bg-card border border-border rounded-2xl overflow-hidden hover:border-accent/40 transition-all duration-300 hover:-translate-y-1">
@@ -29,7 +30,7 @@ function ComplexCard({ complex, vrCount, onSelect }: { complex: VRComplex; vrCou
           </span>
         </button>
         <span className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 bg-black/70 backdrop-blur rounded-lg text-xs text-white font-medium">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> LIVE VR
+          <span className={`w-1.5 h-1.5 rounded-full ${hasVR ? "bg-red-500 animate-pulse" : "bg-amber-400"}`} /> {hasVR ? "LIVE VR" : "평면도"}
         </span>
         {hasPlan && (
           <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-green-600 text-white text-xs rounded-full font-medium">
@@ -40,11 +41,11 @@ function ComplexCard({ complex, vrCount, onSelect }: { complex: VRComplex; vrCou
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-gray-900">{complex.name}</h3>
-          <span className="text-xs text-green-600">{vrCount !== undefined ? `${vrCount} / ${complex.types.length}개 평형` : `${complex.types.length}개 평형`}</span>
+          <span className="text-xs text-green-600">{hasVR && vrCount !== undefined ? `${vrCount} / ${complex.types.length}개 평형` : `${complex.types.length}개 평형`}</span>
         </div>
         <button onClick={onSelect}
           className="w-full py-2 bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/20 hover:border-accent rounded-xl text-xs font-semibold transition-all">
-          배치도 · VR 보기
+          {hasVR ? "배치도 · VR 보기" : "배치도 · 평면도 보기"}
         </button>
       </div>
     </div>
@@ -71,8 +72,8 @@ function VRTourContent() {
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-10">
-          <h1 className="text-3xl font-black text-gray-900 mb-2">VR 가상투어</h1>
-          <p className="text-gray-600">단지 배치도에서 원하는 면적을 클릭하면 VR 투어가 시작됩니다.</p>
+          <h1 className="text-3xl font-black text-gray-900 mb-2">아파트 VR·평면도</h1>
+          <p className="text-gray-600">VR이 준비된 단지는 360°로, 준비 중인 단지는 배치도와 평면도로 구조를 확인할 수 있습니다.</p>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-8">

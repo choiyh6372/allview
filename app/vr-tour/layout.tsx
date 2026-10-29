@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "VR 가상투어 | AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
-  description: "명지오션시티, 명지국제신도시, 에코델타시티 아파트 단지를 360° VR로 미리 체험해보세요.",
-  keywords: "VR투어, 가상투어, 360도 투어, 명지오션시티, 명지국제신도시, 에코델타시티, 아파트 VR, 부산 강서구",
+  title: "아파트 VR·평면도 | AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
+  description: "부산 강서구 아파트 단지를 360° VR 또는 평면도로 확인하고, 평형별 구조와 단지 정보를 비교하세요.",
+  keywords: "아파트 평면도, VR투어, 가상투어, 명지오션시티, 명지국제신도시, 에코델타시티, 부산 강서구",
   alternates: { canonical: "/vr-tour" },
   openGraph: {
-    title: "VR 가상투어 | AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
-    description: "명지오션시티, 명지국제신도시, 에코델타시티 아파트 단지를 360° VR로 미리 체험해보세요.",
+    title: "아파트 VR·평면도 | AllView360(올뷰360) - 명지오션시티·명지국제신도시·에코델타시티",
+    description: "부산 강서구 아파트 단지를 360° VR 또는 평면도로 확인하고, 평형별 구조와 단지 정보를 비교하세요.",
     url: "https://www.allview.kr/vr-tour",
     images: [
       {

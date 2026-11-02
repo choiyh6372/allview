@@ -8,6 +8,7 @@ import { getAreaTypeLabels } from "@/lib/areaTypeLabels";
 import { findMappingKey, parseAptMapping } from "@/lib/parseAptMapping";
 import { buildCompareRow, type ComplexCompareRow } from "@/lib/regionCompare";
 import BackButton from "@/components/common/BackButton";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -108,6 +109,7 @@ export default async function RegionComparePage({ params }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <BreadcrumbJsonLd items={[["실거래가", "/real-estate"], [`${regionName} 시세 비교`, `/real-estate/${params.regionId}`]]} />
       <BackButton fallback="/real-estate" />
       <h1 className="mt-4 text-2xl sm:text-3xl font-black text-gray-900">{regionName} 아파트 시세 비교</h1>
 

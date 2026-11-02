@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Calculator } from "lucide-react";
 import { CALC_BASIS } from "@/lib/calculators";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const TOOLS = [
   { href: "/tools/brokerage-fee", title: "중개수수료 계산기", desc: "매매·전세·월세 상한 중개보수와 부가세" },
@@ -22,6 +23,7 @@ export default function ToolShell({
 }) {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <BreadcrumbJsonLd items={[["부동산 계산기", "/tools"], [title, href]]} />
       <div className="flex items-center gap-3">
         <span className="p-2.5 rounded-xl bg-accent/10 text-accent"><Calculator size={22} /></span>
         <h1 className="text-2xl sm:text-3xl font-black text-gray-900">{title}</h1>

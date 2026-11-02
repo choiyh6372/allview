@@ -13,6 +13,7 @@ import { isReviewEnabled } from "@/lib/reviewUtils";
 import { TRADE_PAGE_COMPLEXES } from "@/lib/complexTrades";
 import Link from "next/link";
 import { TrendingUp, ChevronRight } from "lucide-react";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const revalidate = 3600;
 
@@ -65,6 +66,7 @@ export default async function VRComplexPage({ params }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <BreadcrumbJsonLd items={[["아파트 VR·평면도", "/vr-tour"], [getComplexFullName(complex), `/vr-tour/${complex.regionId}/${complex.slug}`]]} />
       <h1 className="sr-only">
         {getComplexFullName(complex)} {hasVR ? "VR 가상투어·평면도" : "평면도·단지 정보"}
       </h1>

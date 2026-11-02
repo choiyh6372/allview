@@ -4,6 +4,7 @@ import StatsSection from "@/components/home/StatsSection";
 import AboutSection from "@/components/home/AboutSection";
 import DataOperationsSection from "@/components/home/DataOperationsSection";
 import PriceGuideSection from "@/components/home/PriceGuideSection";
+import { SiteJsonLd } from "@/components/seo/JsonLd";
 import ServiceCards from "@/components/home/ServiceCards";
 import BlogSection from "@/components/home/BlogSection";
 
@@ -31,6 +32,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      <SiteJsonLd />
       <HeroSection />
       <StatsSection />
       <ServiceCards />

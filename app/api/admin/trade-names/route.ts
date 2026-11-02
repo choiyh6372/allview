@@ -3,6 +3,9 @@ import { getTradeCache, saveTradeCache } from "@/lib/tradeCache";
 import { fetchAptTradeData, fetchSilvTradeData } from "@/lib/molitApi";
 import type { RawItem } from "@/lib/molitApi";
 
+// 관리자 데이터는 매번 새로 읽는다 (정적으로 굳으면 GET이 빌드 시점 데이터가 되고 PUT은 405가 됨)
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   let [aptItems, silvItems] = await Promise.all([
     getTradeCache<RawItem>("apt-trade"),

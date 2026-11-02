@@ -13,6 +13,7 @@ import { listApprovedReviews } from "@/lib/reviewStore";
 import { isReviewEnabled } from "@/lib/reviewUtils";
 import ComplexPriceChart from "@/components/real-estate/ComplexPriceChart";
 import BackButton from "@/components/common/BackButton";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import ComplexReviews from "@/components/vr/ComplexReviews";
 import type { RawItem, RentRawItem } from "@/lib/molitApi";
 
@@ -151,6 +152,7 @@ export default async function ComplexTradePage({ params }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <BreadcrumbJsonLd items={[["실거래가", "/real-estate"], [vr.regionName, `/real-estate/${vr.regionId}`], [`${fullName} 실거래가 추이`, `/real-estate/${vr.regionId}/${vr.slug}`]]} />
       <BackButton fallback="/real-estate" />
       <p className="mt-4 text-sm text-muted">
         <Link href={`/real-estate/${vr.regionId}`} className="hover:text-accent hover:underline">{vr.regionName} 시세 비교</Link> · {apt.address}

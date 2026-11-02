@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import RealEstateClient from "@/components/real-estate/RealEstateClient";
+import RealEstateSummary from "@/components/real-estate/RealEstateSummary";
 import { parseAptMapping } from "@/lib/parseAptMapping";
 
 export const metadata: Metadata = {
@@ -21,7 +22,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const revalidate = 3600;
+
 export default function RealEstatePage() {
   const { areaTypeMap } = parseAptMapping();
-  return <RealEstateClient areaTypeMap={areaTypeMap} />;
+  return (
+    <>
+      <RealEstateClient areaTypeMap={areaTypeMap} />
+      <RealEstateSummary />
+    </>
+  );
 }

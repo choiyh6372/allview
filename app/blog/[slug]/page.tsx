@@ -5,6 +5,7 @@ import { ArrowLeft, List } from "lucide-react";
 import { getPublishedPost, postThumbnail, formatPostDate } from "@/lib/blogStore";
 import { sanitizeDescriptionHtml, extractHeadings } from "@/lib/sanitizeDescriptionHtml";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const revalidate = 600;
 
@@ -64,6 +65,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <BreadcrumbJsonLd items={[["블로그", "/blog"], [post.title, `/blog/${encodeURIComponent(post.slug)}`]]} />
 
       <Link href="/blog" className="inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
         <ArrowLeft size={14} /> 블로그 목록

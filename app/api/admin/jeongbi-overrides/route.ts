@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getJeongbiOverrides, saveJeongbiOverride } from "@/lib/jeongbiOverridesStore";
 
+// 관리자 데이터는 매번 새로 읽는다 (정적으로 굳으면 GET이 빌드 시점 데이터가 되고 PUT은 405가 됨)
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const overrides = await getJeongbiOverrides();
   return NextResponse.json(overrides);

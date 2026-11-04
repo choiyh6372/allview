@@ -1,6 +1,11 @@
 // 관리자가 전체 HTML 문서(<!DOCTYPE>, <head>, <style> 포함)를 통째로 붙여넣는 경우,
 // <style>이 페이지 전역에 leak되고 <html>/<head>/<body>가 중첩되어 레이아웃이 깨진다.
 // 본문만 남기고 문서 래퍼·style·script·메타 태그를 제거한다.
+/** 본문 안의 <h1>을 제목 스타일 문단으로 바꾼다 (페이지 제목 h1과 중복되지 않게) */
+export function demoteH1(html: string): string {
+  return html.replace(/<h1(\s[^>]*)?>/gi, '<p class="desc-title">').replace(/<\/h1>/gi, "</p>");
+}
+
 export function sanitizeDescriptionHtml(html: string): string {
   let out = html;
 

@@ -87,7 +87,8 @@ body {
 .complex-description > * + * {
   margin-top: 1.125rem;
 }
-.complex-description h1 {
+.complex-description h1,
+.complex-description .desc-title {
   color: #111827;
   font-weight: 800;
   font-size: 1.375rem;

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { complexData, getComplexFullName } from "@/lib/vrData";
 import { getComplexDescriptions } from "@/lib/complexDescriptionStore";
-import { sanitizeDescriptionHtml, extractHeadings, splitAtFirstH2 } from "@/lib/sanitizeDescriptionHtml";
+import { sanitizeDescriptionHtml, extractHeadings, splitAtFirstH2, demoteH1 } from "@/lib/sanitizeDescriptionHtml";
 import FloorPlanView from "@/components/vr/FloorPlanView";
 import ComplexDescriptionSection from "@/components/vr/ComplexDescriptionSection";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
@@ -58,7 +58,7 @@ export default async function VRComplexPage({ params }: Props) {
 
   const descriptions = await getComplexDescriptions();
   const raw = descriptions[complex.id];
-  const cleaned = raw ? sanitizeDescriptionHtml(raw) : undefined;
+  const cleaned = raw ? demoteH1(sanitizeDescriptionHtml(raw)) : undefined;
   const { html: withIds, toc } = cleaned ? extractHeadings(cleaned) : { html: undefined, toc: [] };
   const { intro, rest } = withIds ? splitAtFirstH2(withIds) : { intro: "", rest: "" };
   const reviewsEnabled = isReviewEnabled(complex.id);

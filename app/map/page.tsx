@@ -16,6 +16,7 @@ export default function MapPage() {
   const { areaTypeMap, supplyAreaMap } = parseAptMapping();
   return (
     <div className="h-[calc(100vh-64px)] w-full">
+      <h1 className="sr-only">부산 강서구 아파트 단지 지도 – 명지오션시티·명지국제신도시·에코델타시티</h1>
       <Suspense fallback={null}>
         <KakaoMap apiKey={apiKey} areaTypeMap={areaTypeMap} supplyAreaMap={supplyAreaMap} />
       </Suspense>

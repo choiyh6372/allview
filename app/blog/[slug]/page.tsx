@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, List } from "lucide-react";
 import { getPublishedPost, postThumbnail, formatPostDate } from "@/lib/blogStore";
-import { sanitizeDescriptionHtml, extractHeadings } from "@/lib/sanitizeDescriptionHtml";
+import { sanitizeDescriptionHtml, extractHeadings, demoteH1 } from "@/lib/sanitizeDescriptionHtml";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
@@ -44,7 +44,7 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPublishedPost(decodeSlug(params.slug));
   if (!post) notFound();
 
-  const { html, toc: headings } = extractHeadings(sanitizeDescriptionHtml(post.content));
+  const { html, toc: headings } = extractHeadings(demoteH1(sanitizeDescriptionHtml(post.content)));
   // 블로그 목차는 h2만 (h3는 FAQ 질문 등 세부 항목이라 제외)
   const toc = headings.filter((item) => item.level === 2);
   const thumb = postThumbnail(post);

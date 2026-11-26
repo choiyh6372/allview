@@ -34,7 +34,7 @@ export default function RentConversionPage() {
         <h2>법정 전월세 전환율</h2>
         <p>
           주택임대차보호법은 계약 기간 중 보증금을 월세로 바꿀 때 전환율 상한을 <strong>연 10%와 한국은행 기준금리 + 연 2%p 중 낮은 비율</strong>로 정합니다.
-          {CALC_BASIS.asOf} 현재 기준금리 연 {CALC_BASIS.baseRate.toFixed(2)}%(10월 22일 동결)를 적용하면 <strong>연 {legal}%</strong>입니다. 기준금리가 바뀌면 상한도 함께 바뀝니다.
+          {CALC_BASIS.asOf} 현재 기준금리 연 {CALC_BASIS.baseRate.toFixed(2)}%(11월 26일 인상)를 적용하면 <strong>연 {legal}%</strong>입니다. 기준금리가 바뀌면 상한도 함께 바뀝니다.
         </p>
 
         <h2>전환율 {legal}% 기준 월세 예시</h2>
